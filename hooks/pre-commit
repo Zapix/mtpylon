@@ -1,0 +1,20 @@
+#!/bin/bash
+
+echo "Running pytest with flake8"
+pytest --flake8
+pytest_result=$?
+echo "Pytest result $pytest_result"
+if [ $pytest_result != 0 ]
+then
+  exit 1
+fi
+
+echo "Running mypy"
+
+mypy mtpylon
+mypy_result=$?
+echo "Mypy result $mypy_result"
+if [ $mypy_result != 0 ]
+then
+  exit 1
+fi
