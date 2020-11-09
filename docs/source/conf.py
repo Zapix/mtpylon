@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'mypylon'
+project = 'mtpylon'
 copyright = '2020, Aleksandr Aibulatov'
 author = 'Aleksandr Aibulatov'
 
