@@ -3,10 +3,11 @@ from typing import NamedTuple, NewType, Union, ForwardRef
 
 import pytest
 
-from mtpylon.exceptions import InvalidCombinator
+from mtpylon.exceptions import InvalidCombinator, InvalidConstructor
 from mtpylon.utils import (
     is_named_tuple,
     is_valid_combinator,
+    is_valid_constructor,
     is_good_for_combinator
 )
 
@@ -43,6 +44,10 @@ class IncorrectNameCombinator(NamedTuple):
         name = 323
 
 
+IncorrectConstructor = NewType(
+    'IncorrectConstructor', IncorrectNoMetaCombinator)
+
+
 class UserCombinator(NamedTuple):
     id: int
     name: str
@@ -50,6 +55,9 @@ class UserCombinator(NamedTuple):
     class Meta:
         name = 'user'
         order = ('id', 'name')
+
+
+User = NewType('User', UserCombinator)
 
 
 class NotInOrder(NamedTuple):
@@ -175,3 +183,17 @@ class TestIsValidCombinator:
 
     def test_recursive_combinator(self):
         is_valid_combinator(TreeNode, [Bool, Tree])
+
+
+class TestIsValidConstructor:
+
+    def test_single_combinator(self):
+        is_valid_constructor(User)
+
+    def test_union_of_combinators(self):
+        is_valid_constructor(Bool, [Bool, Tree])
+        is_valid_constructor(Tree, [Bool, Tree])
+
+    def test_wrong_value(self):
+        with pytest.raises(InvalidConstructor):
+            is_valid_constructor(int)

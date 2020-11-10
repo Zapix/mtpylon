@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
-from typing import List, Any, NewType, Optional, ForwardRef, Union
+from typing import (
+    List,
+    Any,
+    NewType,
+    Optional,
+    ForwardRef,
+    Union,
+)
 from collections import OrderedDict
 
-from .exceptions import InvalidCombinator
+from .exceptions import InvalidCombinator, InvalidConstructor
 
+PossibleConstructors = Optional[List[Any]]
 
 long = NewType('long', int)
 int128 = NewType('int128', int)
@@ -33,7 +41,7 @@ def is_named_tuple(value: type) -> bool:
 
 def is_good_for_combinator(
         value: Union[type, ForwardRef],
-        constructors: Optional[List[Any]] = None
+        constructors: PossibleConstructors = None
 ) -> bool:
     """
     Checks is passed type could be used for combinator.
@@ -123,3 +131,34 @@ def is_valid_combinator(
             raise InvalidCombinator(
                 f'Attribute type of {attr_name} should be basic or constructor'
             )
+
+
+def is_valid_constructor(
+        value: Any,
+        constructors: PossibleConstructors = None
+) -> None:
+    """
+    Check is value is a valid constructor.
+    Valid constructor is a constructor that has been created by NewType
+    and could be combinator or union of combinators
+
+    Args:
+        value: value to check is it constructor or not
+        constructors: constructors that could be used
+    Raises:
+        InvalidCombinator - if combinator is not valid
+        InvalidConstructor - if constructor not NewType
+    """
+    error = 'Constructor should be NewType combinator or union of combinators'
+
+    if not hasattr(value, '__supertype__'):
+        raise InvalidConstructor(error)
+
+    supertype = value.__supertype__
+    if hasattr(supertype, '__args__'):  # assume it's union of combinators
+        combinators = supertype.__args__
+
+        for combinator in combinators:
+            is_valid_combinator(combinator, constructors)
+    else:
+        is_valid_combinator(supertype, constructors)
