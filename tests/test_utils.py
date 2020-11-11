@@ -5,11 +5,13 @@ import pytest
 
 from mtpylon.exceptions import InvalidCombinator, InvalidConstructor
 from mtpylon.utils import (
+    long,
     is_named_tuple,
     is_valid_combinator,
     is_valid_constructor,
     is_good_for_combinator,
     build_combinator_description,
+    get_combinator_number,
 )
 
 
@@ -97,6 +99,76 @@ class LeafNode(NamedTuple):
 
 
 Tree = NewType('Tree', Union[TreeNode, LeafNode])
+
+
+class InputPeerEmpty(NamedTuple):
+    class Meta:
+        name = 'inputPeerEmpty'
+
+
+class InputPeerSelf(NamedTuple):
+    class Meta:
+        name = 'inputPeerSelf'
+
+
+class InputPeerChat(NamedTuple):
+    chat_id: int
+
+    class Meta:
+        name = 'inputPeerChat'
+        order = ('chat_id', )
+
+
+class InputPeerUser(NamedTuple):
+    user_id: int
+    access_hash: long
+
+    class Meta:
+        name = 'inputPeerUser'
+        order = ('user_id', 'access_hash', )
+
+
+class InputPeerChannel(NamedTuple):
+    channel_id: int
+    access_hash: long
+
+    class Meta:
+        name = 'inputPeerChannel'
+        order = ('channel_id', 'access_hash', )
+
+
+class InputPeerUserFromMessage(NamedTuple):
+    peer: 'InputPeer'
+    msg_id: int
+    user_id: int
+
+    class Meta:
+        name = 'inputPeerUserFromMessage'
+        order = ('peer', 'msg_id', 'user_id', )
+
+
+class InputPeerChannelFromMessage(NamedTuple):
+    peer: 'InputPeer'
+    msg_id: int
+    channel_id: int
+
+    class Meta:
+        name = 'inputPeerChannelFromMessage'
+        order = ('peer', 'msg_id', 'channel_id', )
+
+
+InputPeer = NewType(
+    'InputPeer',
+    Union[
+        InputPeerEmpty,
+        InputPeerSelf,
+        InputPeerChat,
+        InputPeerUser,
+        InputPeerChannel,
+        InputPeerUserFromMessage,
+        InputPeerChannelFromMessage
+    ]
+)
 
 
 class TaskCombinator(NamedTuple):
@@ -237,3 +309,24 @@ class TestBuildCombinatorDescription:
         assert build_combinator_description(TreeNode, Tree) == (
             'treeNode value:int left_node:Tree right_node:Tree = Tree'
         )
+
+
+class TestCombinatorNumber:
+
+    def test_bool(self):
+        assert get_combinator_number(BoolTrue, Bool) == 0x997275b5
+        assert get_combinator_number(BoolFalse, Bool) == 0xbc799737
+
+    def test_input_peer(self):
+        assertion_list = [
+            (InputPeerEmpty, 0x7f3b18ea),
+            (InputPeerSelf, 0x7da07ec9),
+            (InputPeerChat, 0x179be863),
+            (InputPeerUser, 0x7b8e7de6),
+            (InputPeerChannel, 0x20adaef8),
+            (InputPeerUserFromMessage, 0x17bae2e6),
+            (InputPeerChannelFromMessage, 0x9c95f7bb),
+        ]
+
+        for combinator, value in assertion_list:
+            assert get_combinator_number(combinator, InputPeer) == value

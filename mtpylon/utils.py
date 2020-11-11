@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import binascii
 from typing import (
     List,
     Any,
@@ -230,3 +231,22 @@ def build_combinator_description(combinator: Any, constructor: Any) -> str:
         _build_attr_description_list(combinator) +
         ["=", constructor.__name__]
     )
+
+
+def get_combinator_number(combinator: Any, constructor: Any) -> int:
+    """
+    Type number or type name is a 32-bit number that uniquely identifies a type
+    it normally is the sum of the CRC32 values of the descriptions
+    of the type constructors. See https://core.telegram.org/mtproto/serialize
+
+    Args:
+        combinator: - combinator that should be computed
+        constructor: - constructor of computed combinator
+
+    Returns:
+        crc32 number for combinator
+    """
+    description = build_combinator_description(combinator, constructor)
+    description_bytes = description.encode()
+
+    return binascii.crc32(description_bytes)
