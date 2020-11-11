@@ -162,3 +162,71 @@ def is_valid_constructor(
             is_valid_combinator(combinator, constructors)
     else:
         is_valid_combinator(supertype, constructors)
+
+
+def _get_type_name(attr_type: Any) -> str:
+    """
+    Returns mtproto type of attribute
+    Args:
+        attr_type: basic type, forward ref of constructor
+    """
+    if attr_type in BASIC_TYPES:
+        type_name = attr_type.__name__
+        return 'string' if type_name == 'str' else type_name
+
+    if isinstance(attr_type, ForwardRef):
+        return attr_type.__forward_arg__
+
+    return attr_type.__name__
+
+
+def _build_attr_description(attr_name: str, attr_type: Any) -> str:
+    """
+    Description string contains attribute name and attribute type name
+
+    Args:
+        attr_name: name of attribute
+        attr_type: type of attribute
+    """
+    attr_type_str = _get_type_name(attr_type)
+
+    return f'{attr_name}:{attr_type_str}'
+
+
+def _build_attr_description_list(combinator: Any) -> List[str]:
+    """
+    Builds list of description attributes of combinator in meta order
+
+    Args:
+        combinator: combinator wich attrs should be described
+    Returns:
+        list of described attributes
+    """
+    order = getattr(combinator.Meta, 'order', [])
+    return [
+        _build_attr_description(
+            attr_name,
+            combinator.__annotations__[attr_name]
+        )
+        for attr_name in order
+    ]
+
+
+def build_combinator_description(combinator: Any, constructor: Any) -> str:
+    """
+    Assume that only correct combinator passed to this function
+    Parses combinator type to build description string. See
+    https://core.telegram.org/mtproto/serialize
+
+    Args:
+        combinator: combinator to build description
+        constructor: result constructor of this combinator
+
+    Returns:
+        string expression
+    """
+    return " ".join(
+        [combinator.Meta.name] +
+        _build_attr_description_list(combinator) +
+        ["=", constructor.__name__]
+    )

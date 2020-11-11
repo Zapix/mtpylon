@@ -8,7 +8,8 @@ from mtpylon.utils import (
     is_named_tuple,
     is_valid_combinator,
     is_valid_constructor,
-    is_good_for_combinator
+    is_good_for_combinator,
+    build_combinator_description,
 )
 
 
@@ -96,6 +97,18 @@ class LeafNode(NamedTuple):
 
 
 Tree = NewType('Tree', Union[TreeNode, LeafNode])
+
+
+class TaskCombinator(NamedTuple):
+    content: str
+    finished: Bool
+
+    class Meta:
+        name = 'task'
+        order = ('content', 'finished')
+
+
+Task = NewType('Task', TaskCombinator)
 
 
 class AnotherClass:
@@ -197,3 +210,30 @@ class TestIsValidConstructor:
     def test_wrong_value(self):
         with pytest.raises(InvalidConstructor):
             is_valid_constructor(int)
+
+
+class TestBuildCombinatorDescription:
+
+    def test_empty_combinator(self):
+        assert build_combinator_description(BoolTrue, Bool) == (
+            'boolTrue = Bool'
+        )
+        assert build_combinator_description(BoolFalse, Bool) == (
+            'boolFalse = Bool'
+        )
+
+    def test_simple_combinator(self):
+        assert build_combinator_description(LeafNode, Tree) == (
+            'leafNode value:int = Tree'
+        )
+        assert build_combinator_description(UserCombinator, User) == (
+            'user id:int name:string = User'
+        )
+
+    def test_recursive_combinator(self):
+        assert build_combinator_description(TaskCombinator, Task) == (
+            'task content:string finished:Bool = Task'
+        )
+        assert build_combinator_description(TreeNode, Tree) == (
+            'treeNode value:int left_node:Tree right_node:Tree = Tree'
+        )
