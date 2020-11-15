@@ -6,7 +6,6 @@ from typing import (
     NewType,
     Optional,
     ForwardRef,
-    Union,
 )
 from collections import OrderedDict
 
@@ -41,7 +40,7 @@ def is_named_tuple(value: type) -> bool:
 
 
 def is_good_for_combinator(
-        value: Union[type, ForwardRef],
+        value: Any,
         constructors: PossibleConstructors = None
 ) -> bool:
     """
@@ -69,6 +68,10 @@ def is_good_for_combinator(
         constructor_names = [c.__name__ for c in constructors]
 
         return type_name in constructor_names
+
+    print(f'Check: {str(value)}')
+    if getattr(value, '__origin__', None) == list:
+        return value.__args__[0] in BASIC_TYPES + constructors
 
     return False
 
@@ -165,11 +168,15 @@ def is_valid_constructor(
         is_valid_combinator(supertype, constructors)
 
 
-def _get_type_name(attr_type: Any) -> str:
+def get_type_name(
+        attr_type: Any,
+        for_combinator_number: Optional[bool] = False,
+) -> str:
     """
     Returns mtproto type of attribute
     Args:
         attr_type: basic type, forward ref of constructor
+        for_combinator_number: dump description for combinator number
     """
     if attr_type in BASIC_TYPES:
         type_name = attr_type.__name__
@@ -178,28 +185,49 @@ def _get_type_name(attr_type: Any) -> str:
     if isinstance(attr_type, ForwardRef):
         return attr_type.__forward_arg__
 
+    if getattr(attr_type, '__origin__', None) == list:
+        list_item_type = get_type_name(
+            attr_type.__args__[0],
+            for_combinator_number=for_combinator_number
+        )
+        if for_combinator_number:
+            return f'Vector {list_item_type}'
+        return f'Vector<{list_item_type}>'
+
     return attr_type.__name__
 
 
-def _build_attr_description(attr_name: str, attr_type: Any) -> str:
+def _build_attr_description(
+        attr_name: str,
+        attr_type: Any,
+        for_combinator_number: Optional[bool] = False
+) -> str:
     """
     Description string contains attribute name and attribute type name
 
     Args:
         attr_name: name of attribute
         attr_type: type of attribute
+        for_combinator_number: dump description for combinator number
     """
-    attr_type_str = _get_type_name(attr_type)
+    attr_type_str = get_type_name(
+        attr_type,
+        for_combinator_number
+    )
 
     return f'{attr_name}:{attr_type_str}'
 
 
-def _build_attr_description_list(combinator: Any) -> List[str]:
+def _build_attr_description_list(
+        combinator: Any,
+        for_combinator_number: Optional[bool] = False
+) -> List[str]:
     """
     Builds list of description attributes of combinator in meta order
 
     Args:
         combinator: combinator wich attrs should be described
+        for_combinator_number: dump description for combinator number
     Returns:
         list of described attributes
     """
@@ -207,13 +235,18 @@ def _build_attr_description_list(combinator: Any) -> List[str]:
     return [
         _build_attr_description(
             attr_name,
-            combinator.__annotations__[attr_name]
+            combinator.__annotations__[attr_name],
+            for_combinator_number=for_combinator_number,
         )
         for attr_name in order
     ]
 
 
-def build_combinator_description(combinator: Any, constructor: Any) -> str:
+def build_combinator_description(
+        combinator: Any,
+        constructor: Any,
+        for_combinator_number: Optional[bool] = False
+) -> str:
     """
     Assume that only correct combinator passed to this function
     Parses combinator type to build description string. See
@@ -222,13 +255,17 @@ def build_combinator_description(combinator: Any, constructor: Any) -> str:
     Args:
         combinator: combinator to build description
         constructor: result constructor of this combinator
+        for_combinator_number: dump description for combinator number
 
     Returns:
         string expression
     """
     return " ".join(
         [combinator.Meta.name] +
-        _build_attr_description_list(combinator) +
+        _build_attr_description_list(
+            combinator,
+            for_combinator_number=for_combinator_number
+        ) +
         ["=", constructor.__name__]
     )
 
@@ -246,7 +283,11 @@ def get_combinator_number(combinator: Any, constructor: Any) -> int:
     Returns:
         crc32 number for combinator
     """
-    description = build_combinator_description(combinator, constructor)
+    description = build_combinator_description(
+        combinator,
+        constructor,
+        for_combinator_number=True
+    )
     description_bytes = description.encode()
 
     return binascii.crc32(description_bytes)

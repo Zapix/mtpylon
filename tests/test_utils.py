@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import NamedTuple, NewType, Union, ForwardRef
+from typing import NamedTuple, NewType, Union, ForwardRef, List
 
 import pytest
 
@@ -196,6 +196,67 @@ class WrongAttrType(NamedTuple):
         order = ('id', 'value')
 
 
+class MessageActionChatAddUser(NamedTuple):
+    users: List[int]
+
+    class Meta:
+        name = 'messageActionChatAddUser'
+        order = ('users', )
+
+
+MessageAction = NewType('MessageAction', Union[MessageActionChatAddUser])
+
+
+class ChatParticipantCombinator(NamedTuple):
+    user_id: int
+    inviter_id: int
+    date: int
+
+    class Meta:
+        name = 'chatParticipant'
+        order = ('user_id', 'inviter_id', 'date')
+
+
+class ChatParticipantCreator(NamedTuple):
+    user_id: int
+
+    class Meta:
+        name = 'chatParticipantCreator'
+        order = ('user_id', )
+
+
+class ChatParticipantAdmin(NamedTuple):
+    user_id: int
+    inviter_id: int
+    date: int
+
+    class Meta:
+        meta = 'chatParticipantAdmin'
+
+
+ChatParticipant = NewType(
+    'ChatParticipant',
+    Union[
+        ChatParticipantCombinator,
+        ChatParticipantCreator,
+        ChatParticipantAdmin
+    ]
+)
+
+
+class ChatParticipantsCombinator(NamedTuple):
+    chat_id: int
+    participants: List[ChatParticipant]
+    version: int
+
+    class Meta:
+        name = 'chatParticipants'
+        order = ('chat_id', 'participants', 'version')
+
+
+ChatParticipants = NewType('ChatParticipants', ChatParticipantCombinator)
+
+
 class TestIsNamedTuple:
 
     def test_correct(self):
@@ -269,6 +330,10 @@ class TestIsValidCombinator:
     def test_recursive_combinator(self):
         is_valid_combinator(TreeNode, [Bool, Tree])
 
+    def test_list_combinator(self):
+        is_valid_combinator(MessageActionChatAddUser)
+        is_valid_combinator(ChatParticipantsCombinator, [ChatParticipant])
+
 
 class TestIsValidConstructor:
 
@@ -310,6 +375,28 @@ class TestBuildCombinatorDescription:
             'treeNode value:int left_node:Tree right_node:Tree = Tree'
         )
 
+    def test_list_combinator_message_action(self):
+        assert build_combinator_description(
+            MessageActionChatAddUser,
+            MessageAction
+        ) == 'messageActionChatAddUser users:Vector<int> = MessageAction'
+        assert build_combinator_description(
+            MessageActionChatAddUser,
+            MessageAction,
+            for_combinator_number=True,
+        ) == 'messageActionChatAddUser users:Vector int = MessageAction'
+
+    def test_list_chat_participants(self):
+        assert build_combinator_description(
+            ChatParticipantsCombinator,
+            ChatParticipants,
+        ) == 'chatParticipants chat_id:int participants:Vector<ChatParticipant> version:int = ChatParticipants'  # noqa
+        assert build_combinator_description(
+            ChatParticipantsCombinator,
+            ChatParticipants,
+            for_combinator_number=True
+        ) == 'chatParticipants chat_id:int participants:Vector ChatParticipant version:int = ChatParticipants'  # noqa
+
 
 class TestCombinatorNumber:
 
@@ -330,3 +417,15 @@ class TestCombinatorNumber:
 
         for combinator, value in assertion_list:
             assert get_combinator_number(combinator, InputPeer) == value
+
+    def test_message_action(self):
+        assert get_combinator_number(
+            MessageActionChatAddUser,
+            MessageAction
+        ) == 0x488a7337
+
+    def test_chart_participants(self):
+        assert get_combinator_number(
+            ChatParticipantsCombinator,
+            ChatParticipants
+        ) == 0x3f460fed
