@@ -39,6 +39,14 @@ def is_named_tuple(value: type) -> bool:
     )
 
 
+def is_optional_type(tp: Any) -> bool:
+    return (
+        hasattr(tp, '__args__') and
+        len(tp.__args__) == 2 and
+        tp.__args__[1] is type(None)  # noqa: E721
+    )
+
+
 def is_good_for_combinator(
         value: Any,
         constructors: PossibleConstructors = None
@@ -69,7 +77,6 @@ def is_good_for_combinator(
 
         return type_name in constructor_names
 
-    print(f'Check: {str(value)}')
     if getattr(value, '__origin__', None) == list:
         return value.__args__[0] in BASIC_TYPES + constructors
 

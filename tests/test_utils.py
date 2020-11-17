@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import NamedTuple, NewType, Union, ForwardRef, List
+from typing import NamedTuple, NewType, Union, ForwardRef, List, Optional
 
 import pytest
 
@@ -12,6 +12,7 @@ from mtpylon.utils import (
     is_good_for_combinator,
     build_combinator_description,
     get_combinator_number,
+    is_optional_type,
 )
 
 
@@ -267,6 +268,21 @@ class TestIsNamedTuple:
 
     def test_wrong_type(self):
         assert not is_named_tuple(int)
+
+
+class TestIsOptionalType:
+
+    def test_base_type(self):
+        assert not is_optional_type(int)
+
+    def test_named_tupele(self):
+        assert not is_optional_type(ChatParticipantAdmin)
+
+    def test_optional_base_type(self):
+        assert is_optional_type(Optional[int])
+
+    def test_optional_constructor_type(self):
+        assert is_optional_type(Optional[MessageAction])
 
 
 class TestIsGoodForCombinator:
