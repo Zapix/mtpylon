@@ -39,6 +39,10 @@ def is_named_tuple(value: type) -> bool:
     )
 
 
+def is_list_type(tp: Any) -> bool:
+    return getattr(tp, '__origin__', None) == list
+
+
 def is_optional_type(tp: Any) -> bool:
     return (
         hasattr(tp, '__args__') and
@@ -47,13 +51,38 @@ def is_optional_type(tp: Any) -> bool:
     )
 
 
+def is_allowed_type(
+        value: Any,
+        constructors: PossibleConstructors = None
+) -> bool:
+    """
+    Check simple types of ForwardRef to used for combinator
+    :param value:
+    :param constructors:
+    :return:
+    """
+    if constructors is None:
+        constructors = []
+
+    if isinstance(value, ForwardRef):
+        type_name = value.__forward_arg__
+        constructor_names = [c.__name__ for c in constructors]
+
+        return type_name in constructor_names
+
+    available_types = BASIC_TYPES + constructors
+
+    return value in available_types
+
+
 def is_good_for_combinator(
         value: Any,
         constructors: PossibleConstructors = None
 ) -> bool:
     """
     Checks is passed type could be used for combinator.
-    Types that accept for combinators ar basic types or constructors
+    Types that accept for combinators are basic types, constructors,
+    optional basic types, constructors, list of basic types, constructors
 
     Args:
         value: type to check
@@ -62,25 +91,13 @@ def is_good_for_combinator(
     Returns:
         is passed type good for combinator or not
     """
-    if constructors is None:
-        constructors = []
+    if is_list_type(value):
+        return is_allowed_type(value.__args__[0], constructors=constructors)
 
-    if value in BASIC_TYPES:
-        return True
+    if is_optional_type(value):
+        return is_allowed_type(value.__args__[0], constructors=constructors)
 
-    if value in constructors:
-        return True
-
-    if isinstance(value, ForwardRef):
-        type_name = value.__forward_arg__
-        constructor_names = [c.__name__ for c in constructors]
-
-        return type_name in constructor_names
-
-    if getattr(value, '__origin__', None) == list:
-        return value.__args__[0] in BASIC_TYPES + constructors
-
-    return False
+    return is_allowed_type(value, constructors=constructors)
 
 
 def is_valid_combinator(
@@ -125,6 +142,7 @@ def is_valid_combinator(
         )
 
     order = getattr(combinator.Meta, 'order', [])
+    flags = getattr(combinator.Meta, 'flags', [])
 
     for attr_name in order:
         if attr_name not in combinator.__annotations__:
@@ -139,8 +157,15 @@ def is_valid_combinator(
             )
 
         if not is_good_for_combinator(attr_type, constructors):
+            error_str = (
+                f'{attr_name} type should be basic or constructor' +
+                ' list or optional'
+            )
+            raise InvalidCombinator(error_str)
+
+        if is_optional_type(attr_type) and attr_name not in flags:
             raise InvalidCombinator(
-                f'Attribute type of {attr_name} should be basic or constructor'
+                f'Attribute {attr_name} should be set in Meta.flags'
             )
 
 
@@ -177,12 +202,16 @@ def is_valid_constructor(
 
 def get_type_name(
         attr_type: Any,
+        attr_name: Optional[str] = None,
+        combinator: Optional[Any] = None,
         for_combinator_number: Optional[bool] = False,
 ) -> str:
     """
     Returns mtproto type of attribute
     Args:
         attr_type: basic type, forward ref of constructor
+        attr_name: name to get order for optional type
+        combinator: base combinator to detect order for optional field
         for_combinator_number: dump description for combinator number
     """
     if attr_type in BASIC_TYPES:
@@ -192,7 +221,7 @@ def get_type_name(
     if isinstance(attr_type, ForwardRef):
         return attr_type.__forward_arg__
 
-    if getattr(attr_type, '__origin__', None) == list:
+    if is_list_type(attr_type):
         list_item_type = get_type_name(
             attr_type.__args__[0],
             for_combinator_number=for_combinator_number
@@ -201,12 +230,22 @@ def get_type_name(
             return f'Vector {list_item_type}'
         return f'Vector<{list_item_type}>'
 
+    if is_optional_type(attr_type) and combinator is not None:
+        optional_type_name = get_type_name(
+            attr_type.__args__[0],
+            for_combinator_number=for_combinator_number
+        )
+        order = combinator.Meta.flags[attr_name]
+
+        return f'flags.{order}?{optional_type_name}'
+
     return attr_type.__name__
 
 
 def _build_attr_description(
         attr_name: str,
         attr_type: Any,
+        combinator: Any,
         for_combinator_number: Optional[bool] = False
 ) -> str:
     """
@@ -215,11 +254,14 @@ def _build_attr_description(
     Args:
         attr_name: name of attribute
         attr_type: type of attribute
+        combinator: combinator for whom we build description
         for_combinator_number: dump description for combinator number
     """
     attr_type_str = get_type_name(
         attr_type,
-        for_combinator_number
+        attr_name=attr_name,
+        combinator=combinator,
+        for_combinator_number=for_combinator_number
     )
 
     return f'{attr_name}:{attr_type_str}'
@@ -239,10 +281,16 @@ def _build_attr_description_list(
         list of described attributes
     """
     order = getattr(combinator.Meta, 'order', [])
-    return [
+    flags_attr_list = []
+
+    if hasattr(combinator.Meta, 'flags'):
+        flags_attr_list.append('flags:#')
+
+    return flags_attr_list + [
         _build_attr_description(
             attr_name,
             combinator.__annotations__[attr_name],
+            combinator=combinator,
             for_combinator_number=for_combinator_number,
         )
         for attr_name in order

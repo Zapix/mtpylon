@@ -258,6 +258,80 @@ class ChatParticipantsCombinator(NamedTuple):
 ChatParticipants = NewType('ChatParticipants', ChatParticipantCombinator)
 
 
+class InputMediaPhotoExternal(NamedTuple):
+    url: str
+    ttl_seconds: Optional[int]
+
+    class Meta:
+        name = 'inputMediaPhotoExternal'
+        order = ('url', 'ttl_seconds')
+        flags = {
+            'ttl_seconds': 0,
+        }
+
+
+InputMedia = NewType('InputMedia', InputMediaPhotoExternal)
+
+
+class DialogFilterCombinator(NamedTuple):
+    class Meta:
+        name = 'dialogFilter'
+
+
+DialogFilter = NewType('DialogFilter', DialogFilterCombinator)
+
+
+class UpdateDialogFilter(NamedTuple):
+    id: int
+    filter: Optional[DialogFilter]
+
+    class Meta:
+        name = 'updateDialogFilter'
+        order = ('id', 'filter')
+        flags = {
+            'filter': 0
+        }
+
+
+Update = NewType('Update', UpdateDialogFilter)
+
+
+class ExtendedTreeNode(NamedTuple):
+    val: int
+    left: Optional['ExtendedTree']
+    right: Optional['ExtendedTree']
+
+    class Meta:
+        name = 'extendedTreeNode'
+        order = ('val', 'left', 'right')
+        flags = {
+            'left': 0,
+            'right': 1,
+        }
+
+
+ExtendedTree = NewType('ExtendedTree', ExtendedTreeNode)
+
+
+class WithoutFlags(NamedTuple):
+    val: Optional[int]
+
+    class Meta:
+        name = 'withoutFlags'
+        order = ('val', )
+
+
+class WrongConstructorUsed(NamedTuple):
+    val: Optional[AnotherClass]
+
+    class Meta:
+        name = 'withoutFlags'
+        order = ('val', )
+        flags = {
+            'val': 0,
+        }
+
+
 class TestIsNamedTuple:
 
     def test_correct(self):
@@ -350,6 +424,21 @@ class TestIsValidCombinator:
         is_valid_combinator(MessageActionChatAddUser)
         is_valid_combinator(ChatParticipantsCombinator, [ChatParticipant])
 
+    def test_valid_optional_base_type_field(self):
+        is_valid_combinator(InputMediaPhotoExternal)
+
+    def test_invalid_declared_optional_field(self):
+        with pytest.raises(InvalidCombinator):
+            is_valid_combinator(WithoutFlags)
+
+    def test_valid_optional_constructor_field(self):
+        is_valid_combinator(UpdateDialogFilter, [Update, DialogFilter])
+        is_valid_combinator(ExtendedTreeNode, [ExtendedTree])
+
+    def test_invalid_not_constructor_optional_field(self):
+        with pytest.raises(InvalidCombinator):
+            is_valid_combinator(WrongConstructorUsed)
+
 
 class TestIsValidConstructor:
 
@@ -359,6 +448,7 @@ class TestIsValidConstructor:
     def test_union_of_combinators(self):
         is_valid_constructor(Bool, [Bool, Tree])
         is_valid_constructor(Tree, [Bool, Tree])
+        is_valid_constructor(ExtendedTree, [ExtendedTree])
 
     def test_wrong_value(self):
         with pytest.raises(InvalidConstructor):
@@ -413,6 +503,24 @@ class TestBuildCombinatorDescription:
             for_combinator_number=True
         ) == 'chatParticipants chat_id:int participants:Vector ChatParticipant version:int = ChatParticipants'  # noqa
 
+    def test_optional_basic_type(self):
+        assert build_combinator_description(
+            InputMediaPhotoExternal,
+            InputMedia
+        ) == 'inputMediaPhotoExternal flags:# url:string ttl_seconds:flags.0?int = InputMedia'  # noqa
+
+    def test_optional_constructor_type(self):
+        assert build_combinator_description(
+            UpdateDialogFilter,
+            Update
+        ) == 'updateDialogFilter flags:# id:int filter:flags.0?DialogFilter = Update'  # noqa
+
+    def test_several_optional_constructor_type(self):
+        assert build_combinator_description(
+            ExtendedTreeNode,
+            ExtendedTree
+        ) == 'extendedTreeNode flags:# val:int left:flags.0?ExtendedTree right:flags.1?ExtendedTree = ExtendedTree'  # noqa
+
 
 class TestCombinatorNumber:
 
@@ -445,3 +553,15 @@ class TestCombinatorNumber:
             ChatParticipantsCombinator,
             ChatParticipants
         ) == 0x3f460fed
+
+    def test_input_media(self):
+        assert get_combinator_number(
+            InputMediaPhotoExternal,
+            InputMedia
+        ) == 0xe5bbfe1a
+
+    def test_update(self):
+        assert get_combinator_number(
+            UpdateDialogFilter,
+            Update
+        ) == 0x26ffde7d
