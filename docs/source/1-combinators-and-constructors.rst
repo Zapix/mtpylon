@@ -43,9 +43,9 @@ So we could describe it as `Named Tuple` with `class Meta` argument that has nam
 
 `class Meta` of combinator is a class with information about current type. It containes info about:
 
-* `name` - name of combinator
-* `order` - list of attributes order
-* `optional_fields` - info about flags for options fields(if we've got it)
+* `name` - string. Describes name of combinator
+* `order` - tuple of strings. Describes attributes order
+* `flags` - dict strings to int Describes info about flags for options fields and order of it
 
 
 .. _mtpylon_constructors:
