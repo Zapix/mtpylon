@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from typing import NamedTuple, NewType, Union, ForwardRef, List, Optional
+from typing import Union, ForwardRef, List, Optional
+from dataclasses import dataclass
 
 import pytest
 
 from mtpylon.exceptions import InvalidCombinator, InvalidConstructor
 from mtpylon.utils import (
     long,
-    is_named_tuple,
     is_valid_combinator,
     is_valid_constructor,
     is_good_for_combinator,
@@ -16,43 +16,47 @@ from mtpylon.utils import (
 )
 
 
-class BoolTrue(NamedTuple):
+@dataclass
+class BoolTrue:
     class Meta:
         name = 'boolTrue'
 
 
-class BoolFalse(NamedTuple):
+@dataclass
+class BoolFalse:
     class Meta:
         name = 'boolFalse'
 
 
-Bool = NewType('Bool', Union[BoolTrue, BoolFalse])
+Bool = Union[BoolTrue, BoolFalse]
+setattr(Bool, '_name', 'Bool')
 
 
-class IncorrectNoMetaCombinator(NamedTuple):
+@dataclass
+class IncorrectNoMetaCombinator:
     pass
 
 
-class IncorrectNoNameCombinator(NamedTuple):
+@dataclass
+class IncorrectNoNameCombinator:
     class Meta:
         pass
 
 
-class IncorrectEmptyNameCombinator(NamedTuple):
+@dataclass
+class IncorrectEmptyNameCombinator:
     class Meta:
         name = ''
 
 
-class IncorrectNameCombinator(NamedTuple):
+@dataclass
+class IncorrectNameCombinator:
     class Meta:
         name = 323
 
 
-IncorrectConstructor = NewType(
-    'IncorrectConstructor', IncorrectNoMetaCombinator)
-
-
-class UserCombinator(NamedTuple):
+@dataclass
+class User:
     id: int
     name: str
 
@@ -61,10 +65,8 @@ class UserCombinator(NamedTuple):
         order = ('id', 'name')
 
 
-User = NewType('User', UserCombinator)
-
-
-class NotInOrder(NamedTuple):
+@dataclass
+class NotInOrder:
     id: int
     value: int
 
@@ -73,7 +75,8 @@ class NotInOrder(NamedTuple):
         order = ('id',)
 
 
-class MissedAttribute(NamedTuple):
+@dataclass
+class MissedAttribute:
     id = int
 
     class Meta:
@@ -81,7 +84,8 @@ class MissedAttribute(NamedTuple):
         order = ('id', 'value')
 
 
-class TreeNode(NamedTuple):
+@dataclass
+class TreeNode:
     value: int
     left_node: 'Tree'
     right_node: 'Tree'
@@ -91,7 +95,8 @@ class TreeNode(NamedTuple):
         order = ('value', 'left_node', 'right_node')
 
 
-class LeafNode(NamedTuple):
+@dataclass
+class LeafNode:
     value: int
 
     class Meta:
@@ -99,20 +104,24 @@ class LeafNode(NamedTuple):
         order = ('value', )
 
 
-Tree = NewType('Tree', Union[TreeNode, LeafNode])
+Tree = Union[TreeNode, LeafNode]
+setattr(Tree, '_name', 'Tree')
 
 
-class InputPeerEmpty(NamedTuple):
+@dataclass
+class InputPeerEmpty:
     class Meta:
         name = 'inputPeerEmpty'
 
 
-class InputPeerSelf(NamedTuple):
+@dataclass
+class InputPeerSelf:
     class Meta:
         name = 'inputPeerSelf'
 
 
-class InputPeerChat(NamedTuple):
+@dataclass
+class InputPeerChat:
     chat_id: int
 
     class Meta:
@@ -120,7 +129,8 @@ class InputPeerChat(NamedTuple):
         order = ('chat_id', )
 
 
-class InputPeerUser(NamedTuple):
+@dataclass
+class InputPeerUser:
     user_id: int
     access_hash: long
 
@@ -129,7 +139,8 @@ class InputPeerUser(NamedTuple):
         order = ('user_id', 'access_hash', )
 
 
-class InputPeerChannel(NamedTuple):
+@dataclass
+class InputPeerChannel:
     channel_id: int
     access_hash: long
 
@@ -138,7 +149,8 @@ class InputPeerChannel(NamedTuple):
         order = ('channel_id', 'access_hash', )
 
 
-class InputPeerUserFromMessage(NamedTuple):
+@dataclass
+class InputPeerUserFromMessage:
     peer: 'InputPeer'
     msg_id: int
     user_id: int
@@ -148,7 +160,8 @@ class InputPeerUserFromMessage(NamedTuple):
         order = ('peer', 'msg_id', 'user_id', )
 
 
-class InputPeerChannelFromMessage(NamedTuple):
+@dataclass
+class InputPeerChannelFromMessage:
     peer: 'InputPeer'
     msg_id: int
     channel_id: int
@@ -158,21 +171,20 @@ class InputPeerChannelFromMessage(NamedTuple):
         order = ('peer', 'msg_id', 'channel_id', )
 
 
-InputPeer = NewType(
-    'InputPeer',
-    Union[
-        InputPeerEmpty,
-        InputPeerSelf,
-        InputPeerChat,
-        InputPeerUser,
-        InputPeerChannel,
-        InputPeerUserFromMessage,
-        InputPeerChannelFromMessage
-    ]
-)
+InputPeer = Union[
+    InputPeerEmpty,
+    InputPeerSelf,
+    InputPeerChat,
+    InputPeerUser,
+    InputPeerChannel,
+    InputPeerUserFromMessage,
+    InputPeerChannelFromMessage
+]
+setattr(InputPeer, '_name', 'InputPeer')
 
 
-class TaskCombinator(NamedTuple):
+@dataclass
+class Task:
     content: str
     finished: Bool
 
@@ -181,14 +193,12 @@ class TaskCombinator(NamedTuple):
         order = ('content', 'finished')
 
 
-Task = NewType('Task', TaskCombinator)
-
-
 class AnotherClass:
     pass
 
 
-class WrongAttrType(NamedTuple):
+@dataclass
+class WrongAttrType:
     id: int
     value: AnotherClass
 
@@ -197,7 +207,14 @@ class WrongAttrType(NamedTuple):
         order = ('id', 'value')
 
 
-class MessageActionChatAddUser(NamedTuple):
+@dataclass
+class MessageActionEmpty:
+    class Meta:
+        name = 'messageAction'
+
+
+@dataclass
+class MessageActionChatAddUser:
     users: List[int]
 
     class Meta:
@@ -205,10 +222,12 @@ class MessageActionChatAddUser(NamedTuple):
         order = ('users', )
 
 
-MessageAction = NewType('MessageAction', Union[MessageActionChatAddUser])
+MessageAction = Union[MessageActionEmpty, MessageActionChatAddUser]
+setattr(MessageAction, '_name', 'MessageAction')
 
 
-class ChatParticipantCombinator(NamedTuple):
+@dataclass
+class ChatParticipantCombinator:
     user_id: int
     inviter_id: int
     date: int
@@ -218,7 +237,8 @@ class ChatParticipantCombinator(NamedTuple):
         order = ('user_id', 'inviter_id', 'date')
 
 
-class ChatParticipantCreator(NamedTuple):
+@dataclass
+class ChatParticipantCreator:
     user_id: int
 
     class Meta:
@@ -226,7 +246,8 @@ class ChatParticipantCreator(NamedTuple):
         order = ('user_id', )
 
 
-class ChatParticipantAdmin(NamedTuple):
+@dataclass
+class ChatParticipantAdmin:
     user_id: int
     inviter_id: int
     date: int
@@ -235,17 +256,16 @@ class ChatParticipantAdmin(NamedTuple):
         meta = 'chatParticipantAdmin'
 
 
-ChatParticipant = NewType(
-    'ChatParticipant',
-    Union[
-        ChatParticipantCombinator,
-        ChatParticipantCreator,
-        ChatParticipantAdmin
-    ]
-)
+ChatParticipant = Union[
+    ChatParticipantCombinator,
+    ChatParticipantCreator,
+    ChatParticipantAdmin
+]
+setattr(ChatParticipant, '_name', 'ChatParticipant')
 
 
-class ChatParticipantsCombinator(NamedTuple):
+@dataclass
+class ChatParticipants:
     chat_id: int
     participants: List[ChatParticipant]
     version: int
@@ -255,10 +275,8 @@ class ChatParticipantsCombinator(NamedTuple):
         order = ('chat_id', 'participants', 'version')
 
 
-ChatParticipants = NewType('ChatParticipants', ChatParticipantCombinator)
-
-
-class InputMediaPhotoExternal(NamedTuple):
+@dataclass
+class InputMediaPhotoExternal:
     url: str
     ttl_seconds: Optional[int]
 
@@ -270,18 +288,27 @@ class InputMediaPhotoExternal(NamedTuple):
         }
 
 
-InputMedia = NewType('InputMedia', InputMediaPhotoExternal)
+@dataclass
+class InputMediaGifExternal:
+    url: str
+    q: str
+
+    class Meta:
+        name = 'inputMediaGifExternal'
 
 
-class DialogFilterCombinator(NamedTuple):
+InputMedia = Union[InputMediaPhotoExternal, InputMediaGifExternal]
+setattr(InputMedia, '_name', 'InputMedia')
+
+
+@dataclass
+class DialogFilter:
     class Meta:
         name = 'dialogFilter'
 
 
-DialogFilter = NewType('DialogFilter', DialogFilterCombinator)
-
-
-class UpdateDialogFilter(NamedTuple):
+@dataclass
+class UpdateDialogFilter:
     id: int
     filter: Optional[DialogFilter]
 
@@ -293,16 +320,24 @@ class UpdateDialogFilter(NamedTuple):
         }
 
 
-Update = NewType('Update', UpdateDialogFilter)
+@dataclass
+class UpdateConfig:
+    class Meta:
+        name = 'updateConfig'
 
 
-class ExtendedTreeNode(NamedTuple):
+Update = Union[UpdateConfig, UpdateDialogFilter]
+setattr(Update, '_name', 'Update')
+
+
+@dataclass
+class ExtendedTree:
     val: int
     left: Optional['ExtendedTree']
     right: Optional['ExtendedTree']
 
     class Meta:
-        name = 'extendedTreeNode'
+        name = 'extendedTree'
         order = ('val', 'left', 'right')
         flags = {
             'left': 0,
@@ -310,10 +345,8 @@ class ExtendedTreeNode(NamedTuple):
         }
 
 
-ExtendedTree = NewType('ExtendedTree', ExtendedTreeNode)
-
-
-class WithoutFlags(NamedTuple):
+@dataclass
+class WithoutFlags:
     val: Optional[int]
 
     class Meta:
@@ -321,7 +354,8 @@ class WithoutFlags(NamedTuple):
         order = ('val', )
 
 
-class WrongConstructorUsed(NamedTuple):
+@dataclass
+class WrongConstructorUsed:
     val: Optional[AnotherClass]
 
     class Meta:
@@ -330,18 +364,6 @@ class WrongConstructorUsed(NamedTuple):
         flags = {
             'val': 0,
         }
-
-
-class TestIsNamedTuple:
-
-    def test_correct(self):
-        assert is_named_tuple(BoolTrue)
-
-    def test_simple_tuple(self):
-        assert not is_named_tuple(tuple)
-
-    def test_wrong_type(self):
-        assert not is_named_tuple(int)
 
 
 class TestIsOptionalType:
@@ -371,7 +393,7 @@ class TestIsGoodForCombinator:
         assert is_good_for_combinator(ForwardRef('Tree'), [Bool, Tree])
 
     def test_constructor_annotation(self):
-        left_node_type = TreeNode.__annotations__['left_node']
+        left_node_type = TreeNode.__dataclass_fields__['left_node'].type
         assert is_good_for_combinator(left_node_type, [Bool, Tree])
 
     def test_wrong_value(self):
@@ -403,7 +425,7 @@ class TestIsValidCombinator:
             is_valid_combinator(IncorrectNameCombinator)
 
     def test_combinator_with_attributes(self):
-        is_valid_combinator(UserCombinator)
+        is_valid_combinator(User)
 
     def test_attribute_is_not_in_order(self):
         with pytest.raises(InvalidCombinator):
@@ -422,7 +444,7 @@ class TestIsValidCombinator:
 
     def test_list_combinator(self):
         is_valid_combinator(MessageActionChatAddUser)
-        is_valid_combinator(ChatParticipantsCombinator, [ChatParticipant])
+        is_valid_combinator(ChatParticipants, [ChatParticipant])
 
     def test_valid_optional_base_type_field(self):
         is_valid_combinator(InputMediaPhotoExternal)
@@ -433,7 +455,7 @@ class TestIsValidCombinator:
 
     def test_valid_optional_constructor_field(self):
         is_valid_combinator(UpdateDialogFilter, [Update, DialogFilter])
-        is_valid_combinator(ExtendedTreeNode, [ExtendedTree])
+        is_valid_combinator(ExtendedTree, [ExtendedTree])
 
     def test_invalid_not_constructor_optional_field(self):
         with pytest.raises(InvalidCombinator):
@@ -469,12 +491,12 @@ class TestBuildCombinatorDescription:
         assert build_combinator_description(LeafNode, Tree) == (
             'leafNode value:int = Tree'
         )
-        assert build_combinator_description(UserCombinator, User) == (
+        assert build_combinator_description(User, User) == (
             'user id:int name:string = User'
         )
 
     def test_recursive_combinator(self):
-        assert build_combinator_description(TaskCombinator, Task) == (
+        assert build_combinator_description(Task, Task) == (
             'task content:string finished:Bool = Task'
         )
         assert build_combinator_description(TreeNode, Tree) == (
@@ -494,11 +516,11 @@ class TestBuildCombinatorDescription:
 
     def test_list_chat_participants(self):
         assert build_combinator_description(
-            ChatParticipantsCombinator,
+            ChatParticipants,
             ChatParticipants,
         ) == 'chatParticipants chat_id:int participants:Vector<ChatParticipant> version:int = ChatParticipants'  # noqa
         assert build_combinator_description(
-            ChatParticipantsCombinator,
+            ChatParticipants,
             ChatParticipants,
             for_combinator_number=True
         ) == 'chatParticipants chat_id:int participants:Vector ChatParticipant version:int = ChatParticipants'  # noqa
@@ -517,9 +539,9 @@ class TestBuildCombinatorDescription:
 
     def test_several_optional_constructor_type(self):
         assert build_combinator_description(
-            ExtendedTreeNode,
+            ExtendedTree,
             ExtendedTree
-        ) == 'extendedTreeNode flags:# val:int left:flags.0?ExtendedTree right:flags.1?ExtendedTree = ExtendedTree'  # noqa
+        ) == 'extendedTree flags:# val:int left:flags.0?ExtendedTree right:flags.1?ExtendedTree = ExtendedTree'  # noqa
 
 
 class TestCombinatorNumber:
@@ -550,7 +572,7 @@ class TestCombinatorNumber:
 
     def test_chart_participants(self):
         assert get_combinator_number(
-            ChatParticipantsCombinator,
+            ChatParticipants,
             ChatParticipants
         ) == 0x3f460fed
 
