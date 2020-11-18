@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Union, ForwardRef, List, Optional
+from typing import Union, ForwardRef, List, Optional, Annotated
 from dataclasses import dataclass
 
 import pytest
@@ -28,8 +28,16 @@ class BoolFalse:
         name = 'boolFalse'
 
 
-Bool = Union[BoolTrue, BoolFalse]
-setattr(Bool, '_name', 'Bool')
+Bool = Annotated[
+    Union[BoolTrue, BoolFalse],
+    'Bool'
+]
+
+
+def equals(a: int, b: int) -> Bool:
+    if a == b:
+        return BoolTrue()
+    return BoolFalse()
 
 
 @dataclass
@@ -104,8 +112,10 @@ class LeafNode:
         order = ('value', )
 
 
-Tree = Union[TreeNode, LeafNode]
-setattr(Tree, '_name', 'Tree')
+Tree = Annotated[
+    Union[TreeNode, LeafNode],
+    'Tree'
+]
 
 
 @dataclass
@@ -171,16 +181,18 @@ class InputPeerChannelFromMessage:
         order = ('peer', 'msg_id', 'channel_id', )
 
 
-InputPeer = Union[
-    InputPeerEmpty,
-    InputPeerSelf,
-    InputPeerChat,
-    InputPeerUser,
-    InputPeerChannel,
-    InputPeerUserFromMessage,
-    InputPeerChannelFromMessage
+InputPeer = Annotated[
+    Union[
+        InputPeerEmpty,
+        InputPeerSelf,
+        InputPeerChat,
+        InputPeerUser,
+        InputPeerChannel,
+        InputPeerUserFromMessage,
+        InputPeerChannelFromMessage
+    ],
+    'InputPeer'
 ]
-setattr(InputPeer, '_name', 'InputPeer')
 
 
 @dataclass
@@ -222,8 +234,10 @@ class MessageActionChatAddUser:
         order = ('users', )
 
 
-MessageAction = Union[MessageActionEmpty, MessageActionChatAddUser]
-setattr(MessageAction, '_name', 'MessageAction')
+MessageAction = Annotated[
+    Union[MessageActionEmpty, MessageActionChatAddUser],
+    'MessageAction'
+]
 
 
 @dataclass
@@ -256,12 +270,14 @@ class ChatParticipantAdmin:
         meta = 'chatParticipantAdmin'
 
 
-ChatParticipant = Union[
-    ChatParticipantCombinator,
-    ChatParticipantCreator,
-    ChatParticipantAdmin
+ChatParticipant = Annotated[
+    Union[
+        ChatParticipantCombinator,
+        ChatParticipantCreator,
+        ChatParticipantAdmin
+    ],
+    'ChatParticipant'
 ]
-setattr(ChatParticipant, '_name', 'ChatParticipant')
 
 
 @dataclass
@@ -297,8 +313,10 @@ class InputMediaGifExternal:
         name = 'inputMediaGifExternal'
 
 
-InputMedia = Union[InputMediaPhotoExternal, InputMediaGifExternal]
-setattr(InputMedia, '_name', 'InputMedia')
+InputMedia = Annotated[
+    Union[InputMediaPhotoExternal, InputMediaGifExternal],
+    'InputMedia'
+]
 
 
 @dataclass
@@ -326,8 +344,10 @@ class UpdateConfig:
         name = 'updateConfig'
 
 
-Update = Union[UpdateConfig, UpdateDialogFilter]
-setattr(Update, '_name', 'Update')
+Update = Annotated[
+    Union[UpdateConfig, UpdateDialogFilter],
+    'Update'
+]
 
 
 @dataclass

@@ -8,6 +8,7 @@ from typing import (
     ForwardRef,
     NamedTuple,
     Union,
+    Annotated,
     get_origin,
     get_args,
 )
@@ -15,12 +16,15 @@ from dataclasses import is_dataclass, fields
 
 from .exceptions import InvalidCombinator, InvalidConstructor
 
+
 PossibleConstructors = Optional[List[Any]]
+
 
 long = NewType('long', int)
 int128 = NewType('int128', int)
 int256 = NewType('int256', int)
 double = NewType('double', float)
+
 
 BASIC_TYPES = [str, bytes, int, long, int128, int256, double]
 
@@ -29,12 +33,20 @@ def is_union(tp: Any) -> bool:
     return get_origin(tp) == Union
 
 
+def is_annotated(tp: Any) -> bool:
+    return get_origin(tp) == Annotated
+
+
 def get_constructor_name(c: Any) -> str:
     if isinstance(c, str):
         return c
 
     if is_dataclass(c):
         return c.__name__
+
+    if is_annotated(c):
+        return c.__metadata__[0]
+
     return getattr(c, '_name', '')
 
 
@@ -195,6 +207,12 @@ def is_valid_constructor(
 
     if is_union(value):
         for combinator in get_args(value):
+            is_valid_combinator(combinator, constructors)
+        return
+
+    if is_annotated(value):
+        union = get_args(value)[0]
+        for combinator in get_args(union):
             is_valid_combinator(combinator, constructors)
         return
 
