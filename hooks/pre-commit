@@ -11,7 +11,7 @@ fi
 
 echo "Running mypy"
 
-mypy mtpylon
+mypy mtpylon tests
 mypy_result=$?
 echo "Mypy result $mypy_result"
 if [ $mypy_result != 0 ]

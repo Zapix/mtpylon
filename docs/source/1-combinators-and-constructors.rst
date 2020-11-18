@@ -15,31 +15,32 @@ As described in `telegram documentation <https://core.telegram.org/mtproto/seria
 
 | *Combinator identifier* is an identifier beginning with a lowercase Roman letter that uniquely identifies a combinator.
 
-So we could describe it as `Named Tuple` with `class Meta` argument that has name of combinator
+So we could describe it as dataclass with `class Meta` argument that has name of combinator
 
 .. code-block:: python
 
-   class BoolTrue(NamedTuple):
+   from dataclasses import dataclass
 
-       class Meta:
-           name = 'boolTrue'
-
-
-   class BoolFalse(NamedTuple):
-
-       class Meta:
-           name = 'boolFalse'
+   @dataclass
+    class BoolTrue:
+        class Meta:
+            name = 'boolTrue'
 
 
-   class Task:
-       id: int
-       status: bool
-       content: string
+    @dataclass
+    class BoolFalse:
+        class Meta:
+            name = 'boolFalse'
 
-       class Meta:
-           name = 'task'
-           order = ('id', 'status', 'content')
 
+    @dataclass
+    class Task:
+        content: str
+        finished: Bool
+
+        class Meta:
+            name = 'task'
+            order = ('content', 'finished')
 
 `class Meta` of combinator is a class with information about current type. It containes info about:
 
@@ -55,11 +56,12 @@ Constructor
 
 | *Constructor* is a combinator that cannot be computed (reduced). This is used to represent composite data types.
 
-`NewType` is used to describe constructor and constructors name. Constructor could be Union or one combinator. See :ref:`mtpylon_combinators`
+Constructor could be annotated union of combinators with name  or single combinator. See :ref:`mtpylon_combinators`
 
 
 .. code-block:: python
 
-  Bool = NewType('Bool', Union[BoolTrue, BoolFalse])
+  from typing import Annotated
 
-  InputTask = NewType('InputTask', Task)
+  Bool = Annotated[Union[BoolTrue, BoolFalse], 'Bool']
+

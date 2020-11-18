@@ -17,9 +17,11 @@ setuptools.setup(
     url="https://github.com/Zapix/mtpylon",
     packages=setuptools.find_packages(),
     classifiers=[
-        "Programming Language :: Python :: 3",
+        "Development Status :: 1 - Planning",
+        "Programming Language :: Python :: 3.9",
+        "Framework :: AsyncIO",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.9',
 )

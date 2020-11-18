@@ -6,37 +6,48 @@ from typing import (
     NewType,
     Optional,
     ForwardRef,
+    NamedTuple,
+    Union,
+    Annotated,
+    get_origin,
+    get_args,
 )
-from collections import OrderedDict
+from dataclasses import is_dataclass, fields
 
 from .exceptions import InvalidCombinator, InvalidConstructor
 
+
 PossibleConstructors = Optional[List[Any]]
+
 
 long = NewType('long', int)
 int128 = NewType('int128', int)
 int256 = NewType('int256', int)
 double = NewType('double', float)
 
+
 BASIC_TYPES = [str, bytes, int, long, int128, int256, double]
 
 
-def is_named_tuple(value: type) -> bool:
-    """
-    Checks is passed type is named tuple or not
+def is_union(tp: Any) -> bool:
+    return get_origin(tp) == Union
 
-    Args:
-        value - class to check
 
-    Returns:
-        true if class is named tuple
-    """
+def is_annotated(tp: Any) -> bool:
+    return get_origin(tp) == Annotated
 
-    return (
-        issubclass(value, tuple) and
-        hasattr(value, '__annotations__') and
-        isinstance(value.__annotations__, (dict, OrderedDict))
-    )
+
+def get_constructor_name(c: Any) -> str:
+    if isinstance(c, str):
+        return c
+
+    if is_dataclass(c):
+        return c.__name__
+
+    if is_annotated(c):
+        return c.__metadata__[0]
+
+    return getattr(c, '_name', '')
 
 
 def is_list_type(tp: Any) -> bool:
@@ -46,27 +57,28 @@ def is_list_type(tp: Any) -> bool:
 def is_optional_type(tp: Any) -> bool:
     return (
         hasattr(tp, '__args__') and
-        len(tp.__args__) == 2 and
-        tp.__args__[1] is type(None)  # noqa: E721
+        len(tp.__args__) >= 2 and
+        tp.__args__[-1] is type(None)  # noqa: E721
     )
 
 
 def is_allowed_type(
-        value: Any,
-        constructors: PossibleConstructors = None
+    value: Any,
+    constructors: PossibleConstructors = None
 ) -> bool:
     """
     Check simple types of ForwardRef to used for combinator
-    :param value:
-    :param constructors:
-    :return:
     """
     if constructors is None:
         constructors = []
 
+    constructor_names = [get_constructor_name(c) for c in constructors]
+
+    if isinstance(value, str):
+        return value in constructor_names
+
     if isinstance(value, ForwardRef):
         type_name = value.__forward_arg__
-        constructor_names = [c.__name__ for c in constructors]
 
         return type_name in constructor_names
 
@@ -122,7 +134,7 @@ def is_valid_combinator(
     """
     c_name = combinator.__name__
 
-    if not is_named_tuple(combinator):
+    if not is_dataclass(combinator):
         raise InvalidCombinator(
             f'Combinator {c_name} should be subclass of NamedTuple'
         )
@@ -145,12 +157,15 @@ def is_valid_combinator(
     flags = getattr(combinator.Meta, 'flags', [])
 
     for attr_name in order:
-        if attr_name not in combinator.__annotations__:
+        if attr_name not in combinator.__dataclass_fields__:
             raise InvalidCombinator(
                 f"Missed attribute {attr_name} for combinator {c_name}"
             )
 
-    for (attr_name, attr_type) in combinator.__annotations__.items():
+    for field in fields(combinator):
+        attr_name = field.name
+        attr_type = field.type
+
         if attr_name not in order:
             raise InvalidCombinator(
                 f"Attribute {attr_name} doesn`t set in {c_name} order"
@@ -175,8 +190,8 @@ def is_valid_constructor(
 ) -> None:
     """
     Check is value is a valid constructor.
-    Valid constructor is a constructor that has been created by NewType
-    and could be combinator or union of combinators
+    Valid constructor is a constructor that has been created as Union
+    with attribute `_name` or single combinator
 
     Args:
         value: value to check is it constructor or not
@@ -185,19 +200,24 @@ def is_valid_constructor(
         InvalidCombinator - if combinator is not valid
         InvalidConstructor - if constructor not NewType
     """
-    error = 'Constructor should be NewType combinator or union of combinators'
 
-    if not hasattr(value, '__supertype__'):
-        raise InvalidConstructor(error)
+    if is_dataclass(value):
+        is_valid_combinator(value, constructors)
+        return
 
-    supertype = value.__supertype__
-    if hasattr(supertype, '__args__'):  # assume it's union of combinators
-        combinators = supertype.__args__
-
-        for combinator in combinators:
+    if is_union(value):
+        for combinator in get_args(value):
             is_valid_combinator(combinator, constructors)
-    else:
-        is_valid_combinator(supertype, constructors)
+        return
+
+    if is_annotated(value):
+        union = get_args(value)[0]
+        for combinator in get_args(union):
+            is_valid_combinator(combinator, constructors)
+        return
+
+    error = 'Constructor should be single combinator or union of combinators'
+    raise InvalidConstructor(error)
 
 
 def get_type_name(
@@ -239,15 +259,20 @@ def get_type_name(
 
         return f'flags.{order}?{optional_type_name}'
 
-    return attr_type.__name__
+    return get_constructor_name(attr_type)
 
 
-def _build_attr_description(
+class AttrDescription(NamedTuple):
+    name: str
+    type: str
+
+
+def build_attr_description(
         attr_name: str,
         attr_type: Any,
         combinator: Any,
         for_combinator_number: Optional[bool] = False
-) -> str:
+) -> AttrDescription:
     """
     Description string contains attribute name and attribute type name
 
@@ -264,13 +289,13 @@ def _build_attr_description(
         for_combinator_number=for_combinator_number
     )
 
-    return f'{attr_name}:{attr_type_str}'
+    return AttrDescription(attr_name, attr_type_str)
 
 
-def _build_attr_description_list(
+def build_attr_description_list(
         combinator: Any,
         for_combinator_number: Optional[bool] = False
-) -> List[str]:
+) -> List[AttrDescription]:
     """
     Builds list of description attributes of combinator in meta order
 
@@ -284,12 +309,12 @@ def _build_attr_description_list(
     flags_attr_list = []
 
     if hasattr(combinator.Meta, 'flags'):
-        flags_attr_list.append('flags:#')
+        flags_attr_list.append(AttrDescription('flags', '#'))
 
     return flags_attr_list + [
-        _build_attr_description(
+        build_attr_description(
             attr_name,
-            combinator.__annotations__[attr_name],
+            combinator.__dataclass_fields__[attr_name].type,
             combinator=combinator,
             for_combinator_number=for_combinator_number,
         )
@@ -315,13 +340,17 @@ def build_combinator_description(
     Returns:
         string expression
     """
-    return " ".join(
-        [combinator.Meta.name] +
-        _build_attr_description_list(
+    description_strings = [
+        f'{description.name}:{description.type}'
+        for description in build_attr_description_list(
             combinator,
             for_combinator_number=for_combinator_number
-        ) +
-        ["=", constructor.__name__]
+        )
+    ]
+    return " ".join(
+        [combinator.Meta.name] +
+        description_strings +
+        ["=", get_constructor_name(constructor)]
     )
 
 
