@@ -1,5 +1,5 @@
-Combinators and constructors
-============================
+Combinators, constructors and functions
+=======================================
 
 .. _mtpylon_combinators:
 
@@ -65,3 +65,18 @@ Constructor could be annotated union of combinators with name  or single combina
 
   Bool = Annotated[Union[BoolTrue, BoolFalse], 'Bool']
 
+.. _mtpylon_functions:
+
+Functions
+--------
+
+In mtpylon all functions are async and described with annotations. Each paramaters
+and return value should be annotated with basic type or :ref:`mtpylon_constructors`
+`*expressions` and `**expressions` are not allowed for mtpylon functions
+
+.. code-block:: python
+
+    async def equals(a: int, b: int) -> Bool:
+        if a == b:
+            return BoolTrue()
+        return BoolFalse()
