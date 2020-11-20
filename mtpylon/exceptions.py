@@ -12,3 +12,10 @@ class InvalidConstructor(Exception):
     Raised when wrong constructor has been passed
     """
     pass
+
+
+class InvalidFunction(Exception):
+    """
+    Raises when wrong mtpytlon function has been passed
+    """
+    pass

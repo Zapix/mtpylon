@@ -9,12 +9,18 @@ from typing import (
     NamedTuple,
     Union,
     Annotated,
+    Callable,
     get_origin,
     get_args,
 )
 from dataclasses import is_dataclass, fields
+from inspect import signature, iscoroutinefunction, Parameter
 
-from .exceptions import InvalidCombinator, InvalidConstructor
+from .exceptions import (
+    InvalidCombinator,
+    InvalidConstructor,
+    InvalidFunction,
+)
 
 
 PossibleConstructors = Optional[List[Any]]
@@ -198,7 +204,7 @@ def is_valid_constructor(
         constructors: constructors that could be used
     Raises:
         InvalidCombinator - if combinator is not valid
-        InvalidConstructor - if constructor not NewType
+        InvalidConstructor - if constructor not Annotated Union
     """
 
     if is_dataclass(value):
@@ -375,3 +381,50 @@ def get_combinator_number(combinator: Any, constructor: Any) -> int:
     description_bytes = description.encode()
 
     return binascii.crc32(description_bytes)
+
+
+def is_valid_function(
+        func: Callable,
+        constructors: PossibleConstructors = None
+) -> None:
+    """
+    Checks is passed func valid and could be used in schema.
+    Valid function is async function that accepts only basic types and
+    constructor as parameters and return values
+
+    Args:
+        func: function that should be schecked
+        constructors: available constructors
+
+    Raises:
+        InvalidFunction
+    """
+    if constructors is None:
+        constructors = []
+
+    if not iscoroutinefunction(func):
+        raise InvalidFunction("Functions should be async")
+
+    sig = signature(func)
+
+    for parameter in sig.parameters.values():
+        if parameter.kind != Parameter.POSITIONAL_OR_KEYWORD:
+            raise InvalidFunction(
+                "Function accepts only default python parameters" +
+                "(POSITIONAL_OR_KEYWORD)"
+            )
+        check_type = parameter.annotation
+
+        if is_list_type(check_type):
+            check_type = check_type.__args__[0]
+
+        if not is_allowed_type(check_type, constructors):
+            raise InvalidFunction(
+                f"Parameter {parameter.name} should be basic type " +
+                "or one of constructors or vector of allowed types"
+            )
+
+    if not is_allowed_type(sig.return_annotation, constructors):
+        raise InvalidFunction(
+            "Return value should be basic type or one of constructors"
+        )
