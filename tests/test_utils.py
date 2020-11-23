@@ -18,6 +18,7 @@ from mtpylon.utils import (
     build_combinator_description,
     get_combinator_number,
     is_optional_type,
+    build_function_description,
 )
 
 
@@ -699,3 +700,25 @@ class TestCombinatorNumber:
             UpdateDialogFilter,
             Update
         ) == 0x26ffde7d
+
+
+class TestBuildFunctionDescription:
+
+    def test_equals(self):
+        assert build_function_description(equals) == (
+            'equals a:int b:int = Bool'
+        )
+
+    def test_get_task_content(self):
+        assert build_function_description(get_task_content) == (
+            'get_task_content task:Task = string'
+        )
+
+    def test_has_tasks(self):
+        assert build_function_description(has_tasks) == (
+            'has_tasks tasks:Vector<Task> = Bool'
+        )
+        assert build_function_description(
+            has_tasks,
+            for_combinator_number=True
+        ) == 'has_tasks tasks:Vector Task = Bool'

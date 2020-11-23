@@ -428,3 +428,44 @@ def is_valid_function(
         raise InvalidFunction(
             "Return value should be basic type or one of constructors"
         )
+
+
+def build_function_description(
+        func: Callable,
+        for_combinator_number: bool = False
+) -> str:
+    """
+    Assume we've got valid functions. We could build a valid description string
+
+    Args:
+        func: function that should be described
+        for_combinator_number: will we use for computing combinator number
+
+    Returns:
+        function description string
+    """
+    sig = signature(func)
+    parameter_list = [
+        AttrDescription(
+            name=p.name,
+            type=get_type_name(
+                p.annotation,
+                for_combinator_number=for_combinator_number
+            )
+
+        )
+        for p in sig.parameters.values()
+    ]
+    return " ".join(
+        [
+            func.__name__
+        ] +
+        [
+            f'{p.name}:{p.type}'
+            for p in parameter_list
+        ] +
+        [
+            "=",
+            get_type_name(sig.return_annotation)
+        ]
+    )
