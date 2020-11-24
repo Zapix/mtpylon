@@ -273,10 +273,10 @@ class AttrDescription(NamedTuple):
 
 
 def build_attr_description(
-        attr_name: str,
-        attr_type: Any,
-        combinator: Any,
-        for_type_number: bool = False
+    attr_name: str,
+    attr_type: Any,
+    combinator: Any,
+    for_type_number: bool = False
 ) -> AttrDescription:
     """
     Description string contains attribute name and attribute type name
@@ -314,10 +314,12 @@ def build_attr_description_list(
         flags_attr_list.append(AttrDescription('flags', '#'))
 
     return flags_attr_list + [
-        build_attr_description(attr_name,
-                               combinator.__dataclass_fields__[attr_name].type,
-                               combinator=combinator,
-                               for_type_number=for_type_number)
+        build_attr_description(
+            attr_name,
+            combinator.__dataclass_fields__[attr_name].type,
+            combinator=combinator,
+            for_type_number=for_type_number
+        )
         for attr_name in order
     ]
 
@@ -368,16 +370,19 @@ def get_combinator_number(combinator: Any, constructor: Any) -> int:
     Returns:
         crc32 number for combinator
     """
-    description = build_combinator_description(combinator, constructor,
-                                               for_type_number=True)
+    description = build_combinator_description(
+        combinator,
+        constructor,
+        for_type_number=True
+    )
     description_bytes = description.encode()
 
     return binascii.crc32(description_bytes)
 
 
 def is_valid_function(
-        func: Callable,
-        constructors: PossibleConstructors = None
+    func: Callable,
+    constructors: PossibleConstructors = None
 ) -> None:
     """
     Checks is passed func valid and could be used in schema.
