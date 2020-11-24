@@ -19,6 +19,7 @@ from mtpylon.utils import (
     get_combinator_number,
     is_optional_type,
     build_function_description,
+    get_function_number,
 )
 
 
@@ -722,3 +723,15 @@ class TestBuildFunctionDescription:
             has_tasks,
             for_type_number=True
         ) == 'has_tasks tasks:Vector Task = Bool'
+
+
+class TestGetFunctionNumber:
+
+    def test_equals(self):
+        assert get_function_number(equals) == 0xb5fffb56
+
+    def test_get_task_content(self):
+        assert get_function_number(get_task_content) == 0x2e08ac72
+
+    def test_has_tasks(self):
+        assert get_function_number(has_tasks) == 0x20e13fab

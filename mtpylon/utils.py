@@ -458,3 +458,18 @@ def build_function_description(
             get_type_name(sig.return_annotation)
         ]
     )
+
+
+def get_function_number(func: Callable) -> int:
+    """
+    Type number for function computes as crc32 from
+    function description string. Assume that func is a valid function
+
+    Args:
+        func: function for computing number
+
+    Returns:
+        function number
+    """
+    description = build_function_description(func, for_type_number=True)
+    return binascii.crc32(description.encode())
