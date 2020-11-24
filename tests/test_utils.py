@@ -624,18 +624,18 @@ class TestBuildCombinatorDescription:
         assert build_combinator_description(
             MessageActionChatAddUser,
             MessageAction,
-            for_combinator_number=True,
+            for_type_number=True
         ) == 'messageActionChatAddUser users:Vector int = MessageAction'
 
     def test_list_chat_participants(self):
         assert build_combinator_description(
             ChatParticipants,
-            ChatParticipants,
+            ChatParticipants
         ) == 'chatParticipants chat_id:int participants:Vector<ChatParticipant> version:int = ChatParticipants'  # noqa
         assert build_combinator_description(
             ChatParticipants,
             ChatParticipants,
-            for_combinator_number=True
+            for_type_number=True
         ) == 'chatParticipants chat_id:int participants:Vector ChatParticipant version:int = ChatParticipants'  # noqa
 
     def test_optional_basic_type(self):
@@ -720,5 +720,5 @@ class TestBuildFunctionDescription:
         )
         assert build_function_description(
             has_tasks,
-            for_combinator_number=True
+            for_type_number=True
         ) == 'has_tasks tasks:Vector Task = Bool'
