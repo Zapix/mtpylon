@@ -4,15 +4,22 @@ from dataclasses import dataclass
 
 import pytest
 
-from mtpylon.exceptions import InvalidCombinator, InvalidConstructor
+from mtpylon.exceptions import (
+    InvalidCombinator,
+    InvalidConstructor,
+    InvalidFunction,
+)
 from mtpylon.utils import (
     long,
     is_valid_combinator,
     is_valid_constructor,
+    is_valid_function,
     is_good_for_combinator,
     build_combinator_description,
     get_combinator_number,
     is_optional_type,
+    build_function_description,
+    get_function_number,
 )
 
 
@@ -32,17 +39,6 @@ Bool = Annotated[
     Union[BoolTrue, BoolFalse],
     'Bool'
 ]
-
-
-def equals(a: int, b: int) -> Bool:
-    if a == b:
-        return BoolTrue()
-    return BoolFalse()
-
-
-@dataclass
-class IncorrectNoMetaCombinator:
-    pass
 
 
 @dataclass
@@ -206,7 +202,10 @@ class Task:
 
 
 class AnotherClass:
-    pass
+
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
 
 
 @dataclass
@@ -386,6 +385,61 @@ class WrongConstructorUsed:
         }
 
 
+@dataclass
+class IncorrectNoMetaCombinator:
+    pass
+
+
+async def equals(a: int, b: int) -> Bool:
+    if a == b:
+        return BoolTrue()
+    return BoolFalse()
+
+
+async def get_task_content(task: Task) -> str:
+    return task.content
+
+
+async def has_tasks(tasks: List[Task]) -> Bool:
+    if len(tasks) > 0:
+        return BoolTrue()
+    return BoolFalse()
+
+
+def not_async_func(a: int, b: int) -> Bool:
+    if a == b:
+        return BoolTrue()
+    return BoolFalse()
+
+
+async def invalid_param(a: AnotherClass, b: int) -> Bool:
+    if str(a) == str(b):
+        return BoolTrue()
+    return BoolFalse()
+
+
+async def invalid_return_type(a: int, b: int) -> AnotherClass:
+    return AnotherClass(a, b)
+
+
+async def invalid_not_annotated_params(a, b) -> Bool:
+    if a == b:
+        return BoolTrue()
+    return BoolFalse()
+
+
+async def invalid_args(*args: List[Task]) -> Bool:
+    if len(args) > 0:
+        return BoolTrue()
+    return BoolFalse()
+
+
+async def invalid_kwargs(**kwargs) -> Bool:
+    if 'value' in kwargs:
+        return BoolTrue()
+    return BoolFalse()
+
+
 class TestIsOptionalType:
 
     def test_base_type(self):
@@ -497,6 +551,46 @@ class TestIsValidConstructor:
             is_valid_constructor(int)
 
 
+class TestIsValidFunction:
+
+    def test_valid_with_basic_params(self):
+        is_valid_function(equals, [Bool])
+
+    def test_valid_with_constructor_params(self):
+        is_valid_function(get_task_content, [Task])
+
+    def test_valid_list_params(self):
+        is_valid_function(has_tasks, [Task, Bool])
+
+    def test_not_async_function(self):
+        with pytest.raises(InvalidFunction):
+            is_valid_function(not_async_func, [Bool])
+
+    def test_invalid_param(self):
+        with pytest.raises(InvalidFunction):
+            is_valid_function(invalid_param, [Bool])
+
+    def test_invalid_no_constructor(self):
+        with pytest.raises(InvalidFunction):
+            is_valid_function(equals)
+
+    def test_invalid_return_type(self):
+        with pytest.raises(InvalidFunction):
+            is_valid_function(invalid_return_type)
+
+    def test_not_annotaed_param(self):
+        with pytest.raises(InvalidFunction):
+            is_valid_function(invalid_not_annotated_params, [Bool])
+
+    def test_invalid_args(self):
+        with pytest.raises(InvalidFunction):
+            is_valid_function(invalid_args, [Bool, Task])
+
+    def test_invalid_kwargs(self):
+        with pytest.raises(InvalidFunction):
+            is_valid_function(invalid_kwargs)
+
+
 class TestBuildCombinatorDescription:
 
     def test_empty_combinator(self):
@@ -531,18 +625,18 @@ class TestBuildCombinatorDescription:
         assert build_combinator_description(
             MessageActionChatAddUser,
             MessageAction,
-            for_combinator_number=True,
+            for_type_number=True
         ) == 'messageActionChatAddUser users:Vector int = MessageAction'
 
     def test_list_chat_participants(self):
         assert build_combinator_description(
             ChatParticipants,
-            ChatParticipants,
+            ChatParticipants
         ) == 'chatParticipants chat_id:int participants:Vector<ChatParticipant> version:int = ChatParticipants'  # noqa
         assert build_combinator_description(
             ChatParticipants,
             ChatParticipants,
-            for_combinator_number=True
+            for_type_number=True
         ) == 'chatParticipants chat_id:int participants:Vector ChatParticipant version:int = ChatParticipants'  # noqa
 
     def test_optional_basic_type(self):
@@ -607,3 +701,37 @@ class TestCombinatorNumber:
             UpdateDialogFilter,
             Update
         ) == 0x26ffde7d
+
+
+class TestBuildFunctionDescription:
+
+    def test_equals(self):
+        assert build_function_description(equals) == (
+            'equals a:int b:int = Bool'
+        )
+
+    def test_get_task_content(self):
+        assert build_function_description(get_task_content) == (
+            'get_task_content task:Task = string'
+        )
+
+    def test_has_tasks(self):
+        assert build_function_description(has_tasks) == (
+            'has_tasks tasks:Vector<Task> = Bool'
+        )
+        assert build_function_description(
+            has_tasks,
+            for_type_number=True
+        ) == 'has_tasks tasks:Vector Task = Bool'
+
+
+class TestGetFunctionNumber:
+
+    def test_equals(self):
+        assert get_function_number(equals) == 0xb5fffb56
+
+    def test_get_task_content(self):
+        assert get_function_number(get_task_content) == 0x2e08ac72
+
+    def test_has_tasks(self):
+        assert get_function_number(has_tasks) == 0x20e13fab

@@ -9,12 +9,18 @@ from typing import (
     NamedTuple,
     Union,
     Annotated,
+    Callable,
     get_origin,
     get_args,
 )
 from dataclasses import is_dataclass, fields
+from inspect import signature, iscoroutinefunction, Parameter
 
-from .exceptions import InvalidCombinator, InvalidConstructor
+from .exceptions import (
+    InvalidCombinator,
+    InvalidConstructor,
+    InvalidFunction,
+)
 
 
 PossibleConstructors = Optional[List[Any]]
@@ -88,8 +94,8 @@ def is_allowed_type(
 
 
 def is_good_for_combinator(
-        value: Any,
-        constructors: PossibleConstructors = None
+    value: Any,
+    constructors: PossibleConstructors = None
 ) -> bool:
     """
     Checks is passed type could be used for combinator.
@@ -113,8 +119,8 @@ def is_good_for_combinator(
 
 
 def is_valid_combinator(
-        combinator: Any,
-        constructors: Optional[List[Any]] = None
+    combinator: Any,
+    constructors: Optional[List[Any]] = None
 ) -> None:
     """
     Checks is passed value correct combinator or not. Combinator is NamedTuple
@@ -185,8 +191,8 @@ def is_valid_combinator(
 
 
 def is_valid_constructor(
-        value: Any,
-        constructors: PossibleConstructors = None
+    value: Any,
+    constructors: PossibleConstructors = None
 ) -> None:
     """
     Check is value is a valid constructor.
@@ -198,7 +204,7 @@ def is_valid_constructor(
         constructors: constructors that could be used
     Raises:
         InvalidCombinator - if combinator is not valid
-        InvalidConstructor - if constructor not NewType
+        InvalidConstructor - if constructor not Annotated Union
     """
 
     if is_dataclass(value):
@@ -221,10 +227,10 @@ def is_valid_constructor(
 
 
 def get_type_name(
-        attr_type: Any,
-        attr_name: Optional[str] = None,
-        combinator: Optional[Any] = None,
-        for_combinator_number: Optional[bool] = False,
+    attr_type: Any,
+    attr_name: Optional[str] = None,
+    combinator: Optional[Any] = None,
+    for_type_number: bool = False
 ) -> str:
     """
     Returns mtproto type of attribute
@@ -232,7 +238,7 @@ def get_type_name(
         attr_type: basic type, forward ref of constructor
         attr_name: name to get order for optional type
         combinator: base combinator to detect order for optional field
-        for_combinator_number: dump description for combinator number
+        for_type_number: dump description for combinator number
     """
     if attr_type in BASIC_TYPES:
         type_name = attr_type.__name__
@@ -242,19 +248,15 @@ def get_type_name(
         return attr_type.__forward_arg__
 
     if is_list_type(attr_type):
-        list_item_type = get_type_name(
-            attr_type.__args__[0],
-            for_combinator_number=for_combinator_number
-        )
-        if for_combinator_number:
+        list_item_type = get_type_name(attr_type.__args__[0],
+                                       for_type_number=for_type_number)
+        if for_type_number:
             return f'Vector {list_item_type}'
         return f'Vector<{list_item_type}>'
 
     if is_optional_type(attr_type) and combinator is not None:
-        optional_type_name = get_type_name(
-            attr_type.__args__[0],
-            for_combinator_number=for_combinator_number
-        )
+        optional_type_name = get_type_name(attr_type.__args__[0],
+                                           for_type_number=for_type_number)
         order = combinator.Meta.flags[attr_name]
 
         return f'flags.{order}?{optional_type_name}'
@@ -263,15 +265,18 @@ def get_type_name(
 
 
 class AttrDescription(NamedTuple):
+    """
+    Describes attribute or function parameter with name and type of it
+    """
     name: str
     type: str
 
 
 def build_attr_description(
-        attr_name: str,
-        attr_type: Any,
-        combinator: Any,
-        for_combinator_number: Optional[bool] = False
+    attr_name: str,
+    attr_type: Any,
+    combinator: Any,
+    for_type_number: bool = False
 ) -> AttrDescription:
     """
     Description string contains attribute name and attribute type name
@@ -280,28 +285,25 @@ def build_attr_description(
         attr_name: name of attribute
         attr_type: type of attribute
         combinator: combinator for whom we build description
-        for_combinator_number: dump description for combinator number
+        for_type_number: dump description for combinator number
     """
-    attr_type_str = get_type_name(
-        attr_type,
-        attr_name=attr_name,
-        combinator=combinator,
-        for_combinator_number=for_combinator_number
-    )
+    attr_type_str = get_type_name(attr_type, attr_name=attr_name,
+                                  combinator=combinator,
+                                  for_type_number=for_type_number)
 
     return AttrDescription(attr_name, attr_type_str)
 
 
 def build_attr_description_list(
-        combinator: Any,
-        for_combinator_number: Optional[bool] = False
+    combinator: Any,
+    for_type_number: bool = False
 ) -> List[AttrDescription]:
     """
     Builds list of description attributes of combinator in meta order
 
     Args:
         combinator: combinator wich attrs should be described
-        for_combinator_number: dump description for combinator number
+        for_type_number: dump description for combinator number
     Returns:
         list of described attributes
     """
@@ -316,16 +318,16 @@ def build_attr_description_list(
             attr_name,
             combinator.__dataclass_fields__[attr_name].type,
             combinator=combinator,
-            for_combinator_number=for_combinator_number,
+            for_type_number=for_type_number
         )
         for attr_name in order
     ]
 
 
 def build_combinator_description(
-        combinator: Any,
-        constructor: Any,
-        for_combinator_number: Optional[bool] = False
+    combinator: Any,
+    constructor: Any,
+    for_type_number: bool = False
 ) -> str:
     """
     Assume that only correct combinator passed to this function
@@ -335,16 +337,17 @@ def build_combinator_description(
     Args:
         combinator: combinator to build description
         constructor: result constructor of this combinator
-        for_combinator_number: dump description for combinator number
+        for_type_number: dump description for combinator number
 
     Returns:
         string expression
     """
     description_strings = [
         f'{description.name}:{description.type}'
-        for description in build_attr_description_list(
+        for description in
+        build_attr_description_list(
             combinator,
-            for_combinator_number=for_combinator_number
+            for_type_number=for_type_number
         )
     ]
     return " ".join(
@@ -370,8 +373,108 @@ def get_combinator_number(combinator: Any, constructor: Any) -> int:
     description = build_combinator_description(
         combinator,
         constructor,
-        for_combinator_number=True
+        for_type_number=True
     )
     description_bytes = description.encode()
 
     return binascii.crc32(description_bytes)
+
+
+def is_valid_function(
+    func: Callable,
+    constructors: PossibleConstructors = None
+) -> None:
+    """
+    Checks is passed func valid and could be used in schema.
+    Valid function is async function that accepts only basic types and
+    constructor as parameters and return values
+
+    Args:
+        func: function that should be schecked
+        constructors: available constructors
+
+    Raises:
+        InvalidFunction
+    """
+    if constructors is None:
+        constructors = []
+
+    if not iscoroutinefunction(func):
+        raise InvalidFunction("Functions should be async")
+
+    sig = signature(func)
+
+    for parameter in sig.parameters.values():
+        if parameter.kind != Parameter.POSITIONAL_OR_KEYWORD:
+            raise InvalidFunction(
+                "Function accepts only default python parameters" +
+                "(POSITIONAL_OR_KEYWORD)"
+            )
+        check_type = parameter.annotation
+
+        if is_list_type(check_type):
+            check_type = check_type.__args__[0]
+
+        if not is_allowed_type(check_type, constructors):
+            raise InvalidFunction(
+                f"Parameter {parameter.name} should be basic type " +
+                "or one of constructors or vector of allowed types"
+            )
+
+    if not is_allowed_type(sig.return_annotation, constructors):
+        raise InvalidFunction(
+            "Return value should be basic type or one of constructors"
+        )
+
+
+def build_function_description(
+    func: Callable,
+    for_type_number: bool = False
+) -> str:
+    """
+    Assume we've got valid functions. We could build a valid description string
+
+    Args:
+        func: function that should be described
+        for_type_number: will we use for computing combinator number
+
+    Returns:
+        function description string
+    """
+    sig = signature(func)
+    parameter_list = [
+        AttrDescription(
+            name=p.name,
+            type=get_type_name(p.annotation, for_type_number=for_type_number)
+
+        )
+        for p in sig.parameters.values()
+    ]
+    return " ".join(
+        [
+            func.__name__
+        ] +
+        [
+            f'{p.name}:{p.type}'
+            for p in parameter_list
+        ] +
+        [
+            "=",
+            get_type_name(sig.return_annotation)
+        ]
+    )
+
+
+def get_function_number(func: Callable) -> int:
+    """
+    Type number for function computes as crc32 from
+    function description string. Assume that func is a valid function
+
+    Args:
+        func: function for computing number
+
+    Returns:
+        function number
+    """
+    description = build_function_description(func, for_type_number=True)
+    return binascii.crc32(description.encode())
