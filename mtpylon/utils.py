@@ -68,6 +68,21 @@ def is_optional_type(tp: Any) -> bool:
     )
 
 
+def is_annotated_union(tp) -> bool:
+    return is_annotated(tp) and is_union(tp.__args__[0])
+
+
+def get_combinators(tp) -> List[Any]:
+    """
+    Assume that constructor is annotated union.
+    Returns list of types
+    """
+    return [
+        combinator
+        for combinator in tp.__args__[0].__args__
+    ]
+
+
 def is_allowed_type(
     value: Any,
     constructors: PossibleConstructors = None
@@ -427,6 +442,42 @@ def is_valid_function(
         )
 
 
+def get_function_name(func: Callable) -> str:
+    return func.__name__
+
+
+def get_funciton_parameters_list(
+        func: Callable,
+        for_type_number: bool = False,
+) -> List[AttrDescription]:
+    """
+    Parses function parameters and return it as list
+
+    Args:
+        func - function which params should be returns
+        for_type_number: will we use for computing combinator number
+    """
+    sig = signature(func)
+    return [
+        AttrDescription(
+            name=p.name,
+            type=get_type_name(p.annotation, for_type_number=for_type_number)
+        )
+        for p in sig.parameters.values()
+    ]
+
+
+def get_function_return_type_name(func) -> str:
+    """
+    returns name of function return annotation type
+
+    Args:
+        func: function that should be described
+    """
+    sig = signature(func)
+    return get_type_name(sig.return_annotation)
+
+
 def build_function_description(
     func: Callable,
     for_type_number: bool = False
@@ -441,18 +492,13 @@ def build_function_description(
     Returns:
         function description string
     """
-    sig = signature(func)
-    parameter_list = [
-        AttrDescription(
-            name=p.name,
-            type=get_type_name(p.annotation, for_type_number=for_type_number)
-
-        )
-        for p in sig.parameters.values()
-    ]
+    parameter_list = get_funciton_parameters_list(
+        func,
+        for_type_number=for_type_number
+    )
     return " ".join(
         [
-            func.__name__
+            get_function_name(func)
         ] +
         [
             f'{p.name}:{p.type}'
@@ -460,7 +506,7 @@ def build_function_description(
         ] +
         [
             "=",
-            get_type_name(sig.return_annotation)
+            get_function_return_type_name(func)
         ]
     )
 

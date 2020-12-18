@@ -157,3 +157,35 @@ schema = Schema(
         get_task_list,
     ]
 )
+
+
+def test_schema_structure():
+    schema_structure = schema.get_schema_structure()
+
+    constructor_predicates = [
+        constructor.predicate
+        for constructor in schema_structure.constructors
+    ]
+
+    function_names = [
+        function.method
+        for function in schema_structure.methods
+    ]
+
+    for predicate in [
+        'boolTrue',
+        'boolFalse',
+        'authorizedUser',
+        'anonymousUser',
+        'task',
+        'taskList'
+    ]:
+        assert predicate in constructor_predicates
+
+    for method in [
+        'register',
+        'login',
+        'set_task',
+        'get_task_list',
+    ]:
+        assert method in function_names
