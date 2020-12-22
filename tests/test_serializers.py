@@ -6,6 +6,10 @@ from mtpylon.serializers import (
     function_to_dict,
     to_dict,
     to_json,
+    combinator_to_tl,
+    function_to_tl,
+    to_tl_program,
+    FUNCTIONS_SEPARATOR
 )
 
 from .simpleschema import schema
@@ -159,6 +163,30 @@ json_schema = {
 }
 
 
+tl_combinators = [
+    'boolTrue#997275b5 = Bool;',
+    'boolFalse#bc799737 = Bool;',
+    'authorizedUser#599b7638 id:int username:string password:string = User;',
+    'anonymousUser#5d328bc3 = User;',
+    'task#006287c2 id:int content:string completed:Bool = Task;',
+    'taskList#66980046 tasks:Vector<Task> = TaskList;',
+]
+
+
+tl_methods = [
+    'register#79cfe94e username:string password:string = User;',
+    'login#1c5d7e43 username:string password:string = User;',
+    'set_task#0d77615b content:string = Task;',
+    'get_task_list#ca222953 = TaskList;',
+]
+
+
+tl_program = tl_combinators + [FUNCTIONS_SEPARATOR] + tl_methods
+
+
+schema_structure = schema.get_schema_structure()
+
+
 def assert_combinator_data(combinator_data: dict) -> None:
     assert 'id' in combinator_data
     assert 'predicate' in combinator_data
@@ -196,16 +224,12 @@ def assert_function_data(function_data: dict) -> None:
 
 
 def test_combinator_to_dict():
-    schema_structure = schema.get_schema_structure()
-
     for combinator in schema_structure.constructors:
         combinator_data = combinator_to_dict(combinator)
         assert_combinator_data(combinator_data)
 
 
 def test_function_to_dict():
-    schema_structure = schema.get_schema_structure()
-
     for method in schema_structure.methods:
         function_data = function_to_dict(method)
         assert_function_data(function_data)
@@ -227,3 +251,19 @@ def test_to_dict():
 
 def test_to_json():
     assert to_json(schema) == json.dumps(json_schema)
+
+
+def test_combinator_to_tl():
+    for combinator in schema_structure.constructors:
+        combinator_str = combinator_to_tl(combinator)
+        assert combinator_str in tl_combinators
+
+
+def test_function_to_tl():
+    for method in schema_structure.methods:
+        method_str = function_to_tl(method)
+        assert method_str in tl_methods
+
+
+def test_to_tl_program():
+    assert to_tl_program(schema) == '\n'.join(tl_program)
