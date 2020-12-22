@@ -11,6 +11,7 @@ Welcome to mtpylon's documentation!
    :caption: Contents:
 
    1-combinators-and-constructors
+   2-schema-and-its-serializers
 
 Indices and tables
 ==================
