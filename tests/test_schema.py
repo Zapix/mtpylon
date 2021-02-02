@@ -3,8 +3,26 @@ from contextlib import ExitStack
 from unittest.mock import patch, MagicMock
 
 from mtpylon import Schema
-from tests.simpleschema import Bool, User, Task, TaskList, register, login, \
-    set_task, get_task_list, schema
+from tests.simpleschema import (
+    Bool,
+    User,
+    Task,
+    TaskList,
+    BoolTrue,
+    register,
+    login,
+    set_task,
+    get_task_list,
+    schema
+)
+
+
+class WrongCombinator:
+    pass
+
+
+def wrong_funcion():
+    pass
 
 
 def test_schema():
@@ -72,3 +90,35 @@ def test_schema_structure():
         'get_task_list',
     ]:
         assert method in function_names
+
+
+def test_combinator_in_schema():
+    assert BoolTrue in schema
+
+
+def test_constructor_in_schema():
+    assert Bool in schema
+
+
+def test_function_in_schema():
+    assert login in schema
+
+
+def test_combinator_not_in_schema():
+    assert WrongCombinator not in schema
+
+
+def test_function_not_in_schema():
+    assert wrong_funcion not in schema
+
+
+def test_combinator_number_in_schema():
+    assert 1503360568 in schema
+
+
+def test_function_number_in_schema():
+    assert 3391236435 in schema
+
+
+def test_wrong_number():
+    assert 32423 not in schema
