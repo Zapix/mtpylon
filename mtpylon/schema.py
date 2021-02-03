@@ -105,6 +105,29 @@ class Schema:
 
         return False
 
+    def __getitem__(
+            self,
+            item: Union[Callable, Type, int]
+    ) -> Union[CombinatorData, FunctionData]:
+        """
+        Gets function or combinator data.
+
+        Raises:
+            ValueError - if constructor has been passed
+            KyeError if value not fund
+        """
+
+        if item in self._constructors_set:
+            raise ValueError('Schema could return combinator or function data')
+        if isinstance(item, int):
+            return self._number_map[item]
+        if isfunction(item):
+            return self._function_map[item]
+        if isinstance(item, type):
+            return self._combinator_map[item]
+
+        raise KeyError('key could be int, function or type in schema')
+
     def get_schema_structure(self) -> SchemaStructure:
         """
         Structure of schema that could be dumped
