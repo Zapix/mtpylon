@@ -19,3 +19,10 @@ class InvalidFunction(Exception):
     Raises when wrong mtpytlon function has been passed
     """
     pass
+
+
+class SchemaChangeError(Exception):
+    """
+    Raises when user tries add or delete combinator, function after schema
+    initialization
+    """

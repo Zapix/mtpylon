@@ -6,6 +6,7 @@ import pytest
 
 from mtpylon import Schema
 from mtpylon.schema import CombinatorData, FunctionData
+from mtpylon.exceptions import SchemaChangeError
 from tests.simpleschema import (
     Bool,
     User,
@@ -199,3 +200,13 @@ def test_key_error_function():
 def test_key_error_number():
     with pytest.raises(KeyError):
         schema[12312]  # flake8: noqa
+
+
+def test_schema_set_error():
+    with pytest.raises(SchemaChangeError):
+        schema[121312] = WrongCombinator
+
+
+def test_schema_delete_error():
+    with pytest.raises(SchemaChangeError):
+        del schema[BoolTrue]

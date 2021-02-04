@@ -3,6 +3,7 @@ from typing import List, Callable, Any, Union, Type, Dict, Set
 from dataclasses import dataclass
 from inspect import isfunction
 
+from .exceptions import SchemaChangeError
 from .utils import (
     is_annotated_union,
     get_combinators,
@@ -127,6 +128,16 @@ class Schema:
             return self._combinator_map[item]
 
         raise KeyError('key could be int, function or type in schema')
+
+    def __setitem__(self, key, value):
+        raise SchemaChangeError(
+            'Can`t remove combinator or function from schema'
+        )
+
+    def __delitem__(self, key):
+        raise SchemaChangeError(
+            'Can`t remove combinator or function from schema'
+        )
 
     def get_schema_structure(self) -> SchemaStructure:
         """
