@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass
-from typing import Annotated, Union, List
+from typing import Annotated, Union, List, Optional
 
 from mtpylon import Schema
 
@@ -28,10 +28,14 @@ class AuthorizedUser:
     id: int
     username: str
     password: str
+    avatar_url: Optional[str]
 
     class Meta:
         name = 'authorizedUser'
-        order = ('id', 'username', 'password')
+        order = ('id', 'username', 'password', 'avatar_url')
+        flags = {
+            'avatar_url': 0
+        }
 
 
 @dataclass
@@ -68,7 +72,8 @@ async def register(username: str, password: str) -> User:
     return AuthorizedUser(
         id=1,
         username=username,
-        password=password
+        password=password,
+        avatar_url=None
     )
 
 
@@ -77,7 +82,8 @@ async def login(username: str, password: str) -> User:
         return AuthorizedUser(
             id=1,
             username=username,
-            password=password
+            password=password,
+            avatar_url=None
         )
 
     return AnonymousUser()
