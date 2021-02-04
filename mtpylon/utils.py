@@ -3,6 +3,7 @@ import binascii
 from typing import (
     List,
     Any,
+    Type,
     NewType,
     Optional,
     ForwardRef,
@@ -283,8 +284,9 @@ class AttrDescription(NamedTuple):
     """
     Describes attribute or function parameter with name and type of it
     """
-    name: str
-    type: str
+    name: str  # name of parameter
+    type: str  # name of type
+    origin: Type  # origin type
 
 
 def build_attr_description(
@@ -306,7 +308,7 @@ def build_attr_description(
                                   combinator=combinator,
                                   for_type_number=for_type_number)
 
-    return AttrDescription(attr_name, attr_type_str)
+    return AttrDescription(attr_name, attr_type_str, attr_type)
 
 
 def build_attr_description_list(
@@ -326,7 +328,7 @@ def build_attr_description_list(
     flags_attr_list = []
 
     if hasattr(combinator.Meta, 'flags'):
-        flags_attr_list.append(AttrDescription('flags', '#'))
+        flags_attr_list.append(AttrDescription('flags', '#', int))
 
     return flags_attr_list + [
         build_attr_description(
@@ -461,7 +463,8 @@ def get_funciton_parameters_list(
     return [
         AttrDescription(
             name=p.name,
-            type=get_type_name(p.annotation, for_type_number=for_type_number)
+            type=get_type_name(p.annotation, for_type_number=for_type_number),
+            origin=p.annotation
         )
         for p in sig.parameters.values()
     ]
