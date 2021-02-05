@@ -20,7 +20,14 @@ from .int128 import dump as dump_int128
 from .int256 import dump as dump_int256
 from .double import dump as dump_double
 from .string import dump as dump_string
-from ..utils import long, int128, int256, AttrDescription
+from .vector import dump as dump_vector
+from ..utils import (
+    long,
+    int128,
+    int256,
+    is_list_type,
+    AttrDescription,
+)
 from ..schema import Schema, FunctionData, CombinatorData
 from ..exceptions import DumpError
 
@@ -73,17 +80,23 @@ def dump(schema, value, **kwargs):
             bytes: dump_bytes,
             str: dump_string
         }
-        dump_func: DumpFunction = dump_map.get(
-            origin,
-            partial(dump, schema)
-        )
 
         try:
-            dumped = dump_func(dump_value)
+            if is_list_type(origin):
+                item_origin = origin.__args__[0]
+                dump_item: DumpFunction = dump_map.get(
+                    item_origin,
+                    partial(dump, schema)
+                )
+                return dump_vector(dump_item, dump_value)
+            else:
+                dump_func: DumpFunction = dump_map.get(
+                    origin,
+                    partial(dump, schema)
+                )
+                return dump_func(dump_value)
         except Exception:
             raise DumpError(f'Can`t dump {value} as {type_name}')
-
-        return dumped
 
     data: Optional[Union[CombinatorData, FunctionData]] = None
     values_2_dump: List[Value2Dump] = []

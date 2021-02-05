@@ -11,6 +11,7 @@ from ..simpleschema import (
     BoolTrue,
     BoolFalse,
     Task,
+    TaskList,
     AuthorizedUser,
     get_task_list,
     login
@@ -78,6 +79,36 @@ def test_dump_authorized_user_without_optional_field():
         b'\x0c\x00\x00\x00' +  # user id
         b'\x05zapix\x00\x00' +  # username
         b'\x06123123\x00'  # password
+    )
+
+
+def test_dump_task_list():
+    task_list = TaskList(
+        tasks=[
+            Task(
+                id=12,
+                content='dump by schema',
+                completed=BoolTrue()
+            ),
+            Task(
+                id=16,
+                content='dump list',
+                completed=BoolFalse()
+            )
+        ]
+    )
+    assert dump(schema, task_list) == (
+        b'\x46\x00\x98\x66' +  # combinator id
+        b'\x15\xc4\xb5\x1c' +  # vector id
+        b'\x02\x00\x00\x00' +  # vector size
+        b'\xc2\x87b\x00' +  # task combinator number
+        b'\x0c\x00\x00\x00' +  # id number - int
+        b'\x0edump by schema\x00' +  # content - str
+        b'\xb5\x75\x72\x99'  # completed - Bool
+        b'\xc2\x87b\x00' +  # task combinator number
+        b'\x10\x00\x00\x00' +  # id number - int
+        b'\x09dump list\x00\x00' +  # content - str
+        b'\x37\x97\x79\xbc'  # completed - Bool
     )
 
 
