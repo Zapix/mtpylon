@@ -11,6 +11,7 @@ from ..simpleschema import (
     BoolTrue,
     BoolFalse,
     Task,
+    AuthorizedUser,
     get_task_list,
     login
 )
@@ -44,6 +45,39 @@ def test_dump_task_object():
         b'\x0c\x00\x00\x00' +  # id number - int
         b'\x0edump by schema\x00' +  # content - str
         b'\xb5\x75\x72\x99'  # completed - Bool
+    )
+
+
+def test_dump_authroized_user_with_optional_field():
+    authorized_user = AuthorizedUser(
+        id=12,
+        username='zapix',
+        password='123123',
+        avatar_url='http://example.com/1.jpg'
+    )
+    assert dump(schema, authorized_user) == (
+        b'\xe9\xe2\x8f\x5d' +  # combinator id
+        b'\x01\x00\x00\x00' +  # flags
+        b'\x0c\x00\x00\x00' +  # user id
+        b'\x05zapix\x00\x00' +  # username
+        b'\x06123123\x00' +  # password
+        b'\x18http://example.com/1.jpg\x00\x00\x00'
+    )
+
+
+def test_dump_authorized_user_without_optional_field():
+    authorized_user = AuthorizedUser(
+        id=12,
+        username='zapix',
+        password='123123',
+        avatar_url=None,
+    )
+    assert dump(schema, authorized_user) == (
+        b'\xe9\xe2\x8f\x5d' +  # combinator id
+        b'\x00\x00\x00\x00' +  # flags
+        b'\x0c\x00\x00\x00' +  # user id
+        b'\x05zapix\x00\x00' +  # username
+        b'\x06123123\x00'  # password
     )
 
 
