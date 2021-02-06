@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+from dataclasses import dataclass
 from typing import (
+    cast,
     overload,
     Any,
     Callable,
@@ -13,19 +15,21 @@ from typing import (
 from functools import partial
 from inspect import isfunction
 
-from .bytes import dump as dump_bytes
-from .int import dump as dump_int
-from .long import dump as dump_long
-from .int128 import dump as dump_int128
-from .int256 import dump as dump_int256
-from .double import dump as dump_double
-from .string import dump as dump_string
-from .vector import dump as dump_vector
+from .bytes import dump as dump_bytes, load as load_bytes
+from .int import dump as dump_int, load as load_int
+from .long import dump as dump_long, load as load_long
+from .int128 import dump as dump_int128, load as load_int128
+from .int256 import dump as dump_int256, load as load_int256
+from .double import dump as dump_double, load as load_double
+from .string import dump as dump_string, load as load_string
+from .vector import dump as dump_vector, load as load_vector
+from .loaded import LoadedValue
 from ..utils import (
     long,
     int128,
     int256,
     is_list_type,
+    is_optional_type,
     AttrDescription,
 )
 from ..schema import Schema, FunctionData, CombinatorData
@@ -33,6 +37,12 @@ from ..exceptions import DumpError
 
 
 DumpFunction = Callable[[Any], bytes]
+
+
+@dataclass
+class CallableFunc:
+    func: Callable
+    params: Dict[str, Any]
 
 
 class Value2Dump(NamedTuple):
@@ -50,6 +60,20 @@ def get_flag_ids(origin: Type, param_name: str) -> int:
     """
     flags = origin.Meta.flags
     return flags[param_name]
+
+
+def get_flag_value(flag_number: int, param_name: str, origin: Type) -> int:
+    """
+    Get flag value by param name
+    """
+    return (flag_number >> get_flag_ids(origin, param_name)) & 1
+
+
+def set_flag_value(flag_number: int, param_name: str, origin: Type) -> int:
+    """
+    Updates flag value and returns it
+    """
+    return flag_number | (1 << get_flag_ids(origin, param_name))
 
 
 @overload
@@ -141,7 +165,7 @@ def dump(schema, value, **kwargs):
                 continue
             origin = param.origin.__args__[0]
             type_name = param.type
-            flags_value |= 1 << get_flag_ids(data.origin, param.name)
+            flags_value = set_flag_value(flags_value, param.name, data.origin)
         else:
             origin = param.origin
             type_name = param.type
@@ -158,3 +182,81 @@ def dump(schema, value, **kwargs):
         dumped_values
     )
     return dumped
+
+
+def load(
+        schema: Schema,
+        input: bytes
+) -> LoadedValue[Union[CallableFunc, Any]]:
+    """
+    Loads object or function with params from bytes input
+
+    Args:
+        schema - schema that will be used to load
+        input - serialized value
+
+    Raises:
+        ValueError - when can't load data
+    """
+    load_map = {
+        bytes: load_bytes,
+        int: load_int,
+        long: load_long,
+        int128: load_int128,
+        int256: load_int256,
+        float: load_double,
+        str: load_string,
+    }
+
+    def get_load_func(x) -> Callable[[bytes], LoadedValue[Any]]:
+        return load_map.get(x, partial(load, schema))
+
+    def load_empty(x: bytes) -> LoadedValue[None]:
+        return LoadedValue(None, 0)
+
+    offset = 0
+    loaded_combinator = load_int(input)
+    offset += loaded_combinator.offset
+    combinator = loaded_combinator.value
+
+    if combinator not in schema:
+        raise ValueError(f'Can`t find combinator {combinator} in schema')
+
+    data = schema[combinator]
+    print(data)
+
+    flag_number: Optional[int] = None
+    params: Dict[str, Any] = {}
+
+    for param in data.params:
+        if param.name == 'flags':
+            loaded = load_int(input[offset:])
+            flag_number = loaded.value
+            offset += loaded.offset
+            continue
+
+        if is_optional_type(param.origin) and flag_number is not None:
+            if get_flag_value(
+                    flag_number,
+                    param.name,
+                    cast(Type, data.origin),
+            ):
+                load_func = get_load_func(param.origin.__args__[0])
+            else:
+                load_func = load_empty
+        elif is_list_type(param.origin):
+            load_item_func = get_load_func(param.origin.__args__[0])
+            load_func = partial(load_vector, load_item_func)
+        else:
+            load_func = get_load_func(param.origin)
+
+        loaded = load_func(input[offset:])
+        params[param.name] = loaded.value
+        offset += loaded.offset
+
+    if isfunction(data.origin):
+        value = CallableFunc(data.origin, params)
+    else:
+        value = data.origin(**params)
+
+    return LoadedValue(value=value, offset=offset)
