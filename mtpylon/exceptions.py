@@ -26,3 +26,10 @@ class SchemaChangeError(Exception):
     Raises when user tries add or delete combinator, function after schema
     initialization
     """
+
+
+class DumpError(Exception):
+    """
+    Raises error when can't dump object or function call  by schema
+    """
+    pass

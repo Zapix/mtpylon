@@ -117,7 +117,7 @@ def test_function_not_in_schema():
 
 
 def test_combinator_number_in_schema():
-    assert 1503360568 in schema
+    assert 0x5d8fe2e9 in schema
 
 
 def test_function_number_in_schema():
