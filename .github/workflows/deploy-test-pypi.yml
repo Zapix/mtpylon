@@ -1,6 +1,8 @@
 name: Deploy Test Pypi
 
-on: [push]
+on:
+  release:
+    types: [prereleased]
 
 jobs:
   build:
