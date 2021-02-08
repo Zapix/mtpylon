@@ -89,10 +89,14 @@ json_schema = {
       "params": []
     },
     {
-      "id": 6457282,
+      "id": 0xb801a563,
       "predicate": "task",
       "type": "Task",
       "params": [
+        {
+          'name': 'flags',
+          'type': '#'
+        },
         {
           "name": "id",
           "type": "int"
@@ -104,6 +108,10 @@ json_schema = {
         {
           "name": "completed",
           "type": "Bool"
+        },
+        {
+            "name": "tags",
+            "type": "flags.1?Vector<string>"
         }
       ]
     },
@@ -176,7 +184,7 @@ tl_combinators = [
     'boolFalse#bc799737 = Bool;',
     'authorizedUser#5d8fe2e9 flags:# id:int username:string password:string avatar_url:flags.0?string = User;',  # noqa: E501
     'anonymousUser#5d328bc3 = User;',
-    'task#006287c2 id:int content:string completed:Bool = Task;',
+    'task#b801a563 flags:# id:int content:string completed:Bool tags:flags.1?Vector<string> = Task;',  # noqa: E501
     'taskList#66980046 tasks:Vector<Task> = TaskList;',
 ]
 

@@ -10,7 +10,7 @@ from typing import (
     Optional,
     List,
     Type,
-    NamedTuple
+    NamedTuple,
 )
 from functools import partial
 from inspect import isfunction
@@ -198,6 +198,9 @@ def load(
     Raises:
         ValueError - when can't load data
     """
+    def load_empty(x: bytes) -> LoadedValue[None]:
+        return LoadedValue(None, 0)
+
     load_map = {
         bytes: load_bytes,
         int: load_int,
@@ -206,13 +209,11 @@ def load(
         int256: load_int256,
         float: load_double,
         str: load_string,
+        type(None): load_empty
     }
 
     def get_load_func(x) -> Callable[[bytes], LoadedValue[Any]]:
         return load_map.get(x, partial(load, schema))
-
-    def load_empty(x: bytes) -> LoadedValue[None]:
-        return LoadedValue(None, 0)
 
     offset = 0
     loaded_combinator = load_int(input)
@@ -235,20 +236,26 @@ def load(
             offset += loaded.offset
             continue
 
-        if is_optional_type(param.origin) and flag_number is not None:
+        origin = param.origin
+        if is_optional_type(origin) and flag_number is not None:
             if get_flag_value(
                     flag_number,
                     param.name,
                     cast(Type, data.origin),
             ):
-                load_func = get_load_func(param.origin.__args__[0])
+                origin = origin.__args__[0]
             else:
-                load_func = load_empty
-        elif is_list_type(param.origin):
-            load_item_func = get_load_func(param.origin.__args__[0])
-            load_func = partial(load_vector, load_item_func)
+                origin = type(None)
+
+        if is_list_type(origin):
+            load_item_func: Callable[[bytes], LoadedValue[Any]] = (
+                get_load_func(origin.__args__[0])
+            )
+            load_func: Callable[[bytes], LoadedValue[Any]] = (
+                partial(load_vector, load_item_func)
+            )
         else:
-            load_func = get_load_func(param.origin)
+            load_func = get_load_func(origin)
 
         loaded = load_func(input[offset:])
         params[param.name] = loaded.value

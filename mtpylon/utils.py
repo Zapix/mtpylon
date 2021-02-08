@@ -125,13 +125,14 @@ def is_good_for_combinator(
     Returns:
         is passed type good for combinator or not
     """
-    if is_list_type(value):
-        return is_allowed_type(value.__args__[0], constructors=constructors)
+    check_type = value
+    if is_optional_type(check_type):
+        check_type = check_type.__args__[0]
 
-    if is_optional_type(value):
-        return is_allowed_type(value.__args__[0], constructors=constructors)
+    if is_list_type(check_type):
+        check_type = check_type.__args__[0]
 
-    return is_allowed_type(value, constructors=constructors)
+    return is_allowed_type(check_type, constructors=constructors)
 
 
 def is_valid_combinator(

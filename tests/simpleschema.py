@@ -53,10 +53,14 @@ class Task:
     id: int
     content: str
     completed: Bool
+    tags: Optional[List[str]]
 
     class Meta:
         name = 'task'
-        order = ('id', 'content', 'completed')
+        order = ('id', 'content', 'completed', 'tags')
+        flags = {
+            'tags': 1
+        }
 
 
 @dataclass
@@ -93,7 +97,8 @@ async def set_task(content: str) -> Task:
     return Task(
         id=1,
         content=content,
-        completed=BoolFalse()
+        completed=BoolFalse(),
+        tags=None,
     )
 
 
@@ -102,12 +107,14 @@ async def get_task_list() -> TaskList:
         Task(
             id=1,
             content='Init mtpylon project',
-            completed=BoolTrue()
+            completed=BoolTrue(),
+            tags=None,
         ),
         Task(
             id=2,
             content='Describe mtpylon schema',
-            completed=BoolFalse()
+            completed=BoolFalse(),
+            tags=None,
         )
     ])
 
