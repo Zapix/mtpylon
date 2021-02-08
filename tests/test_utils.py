@@ -201,6 +201,20 @@ class Task:
         order = ('content', 'finished')
 
 
+@dataclass
+class TaggedTask:
+    content: str
+    finished: Bool
+    tags: Optional[List[str]]
+
+    class Meta:
+        name = 'taggedTask'
+        order = ('content', 'finished', 'tags')
+        flags = {
+            'tags': 1
+        }
+
+
 class AnotherClass:
 
     def __init__(self, a, b):
@@ -476,6 +490,13 @@ class TestIsGoodForCombinator:
     def test_wrong_forward_ref(self):
         assert not is_good_for_combinator(ForwardRef('Tree'), [Bool])
 
+    def test_options_list(self):
+        assert is_good_for_combinator(Optional[List[str]])
+        assert is_good_for_combinator(
+            Optional[List[Task]],
+            constructors=[Task]
+        )
+
 
 class TestIsValidCombinator:
 
@@ -530,6 +551,9 @@ class TestIsValidCombinator:
     def test_valid_optional_constructor_field(self):
         is_valid_combinator(UpdateDialogFilter, [Update, DialogFilter])
         is_valid_combinator(ExtendedTree, [ExtendedTree])
+
+    def test_valid_optional_list_field(self):
+        is_valid_combinator(TaggedTask, [Bool, TaggedTask])
 
     def test_invalid_not_constructor_optional_field(self):
         with pytest.raises(InvalidCombinator):
@@ -656,6 +680,18 @@ class TestBuildCombinatorDescription:
             ExtendedTree,
             ExtendedTree
         ) == 'extendedTree flags:# val:int left:flags.0?ExtendedTree right:flags.1?ExtendedTree = ExtendedTree'  # noqa
+
+    def test_optional_list_field(self):
+        assert build_combinator_description(
+            TaggedTask,
+            TaggedTask
+        ) == 'taggedTask flags:# content:string finished:Bool tags:flags.1?Vector<string> = TaggedTask'  # noqa
+
+        assert build_combinator_description(
+            TaggedTask,
+            TaggedTask,
+            for_type_number=True,
+        ) == 'taggedTask flags:# content:string finished:Bool tags:flags.1?Vector string = TaggedTask'  # noqa
 
 
 class TestCombinatorNumber:
