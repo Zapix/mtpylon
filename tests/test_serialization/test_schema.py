@@ -39,14 +39,37 @@ def test_dump_task_object():
     task = Task(
         id=12,
         content='dump by schema',
-        completed=BoolTrue()
+        completed=BoolTrue(),
+        tags=None
     )
 
     assert dump(schema, task) == (
-        b'\xc2\x87b\x00' +  # task combinator number
+        b'\x63\xa5\x01\xb8' +  # task combinator number
+        b'\x00\x00\x00\x00' +  # flags
         b'\x0c\x00\x00\x00' +  # id number - int
         b'\x0edump by schema\x00' +  # content - str
         b'\xb5\x75\x72\x99'  # completed - Bool
+    )
+
+
+def test_dump_task_object_with_tags():
+    task = Task(
+        id=12,
+        content='dump by schema',
+        completed=BoolTrue(),
+        tags=['schema', 'dump']
+    )
+
+    assert dump(schema, task) == (
+        b'\x63\xa5\x01\xb8' +  # task combinator number
+        b'\x02\x00\x00\x00' +  # flags
+        b'\x0c\x00\x00\x00' +  # id number - int
+        b'\x0edump by schema\x00' +  # content - str
+        b'\xb5\x75\x72\x99'  # completed - Bool
+        b'\x15\xc4\xb5\x1c' +  # vector id
+        b'\x02\x00\x00\x00' +  # vector size
+        b'\x06schema\x00' +  # tag 'schema'
+        b'\x04dump\x00\x00\x00'  # tag 'dump
     )
 
 
@@ -89,12 +112,14 @@ def test_dump_task_list():
             Task(
                 id=12,
                 content='dump by schema',
-                completed=BoolTrue()
+                completed=BoolTrue(),
+                tags=None,
             ),
             Task(
                 id=16,
                 content='dump list',
-                completed=BoolFalse()
+                completed=BoolFalse(),
+                tags=None,
             )
         ]
     )
@@ -102,11 +127,13 @@ def test_dump_task_list():
         b'\x46\x00\x98\x66' +  # combinator id
         b'\x15\xc4\xb5\x1c' +  # vector id
         b'\x02\x00\x00\x00' +  # vector size
-        b'\xc2\x87b\x00' +  # task combinator number
+        b'\x63\xa5\x01\xb8' +  # task combinator number
+        b'\x00\x00\x00\x00' +  # flags
         b'\x0c\x00\x00\x00' +  # id number - int
         b'\x0edump by schema\x00' +  # content - str
         b'\xb5\x75\x72\x99'  # completed - Bool
-        b'\xc2\x87b\x00' +  # task combinator number
+        b'\x63\xa5\x01\xb8' +  # task combinator number
+        b'\x00\x00\x00\x00' +  # flags
         b'\x10\x00\x00\x00' +  # id number - int
         b'\x09dump list\x00\x00' +  # content - str
         b'\x37\x97\x79\xbc'  # completed - Bool
@@ -143,7 +170,7 @@ def test_wrong_function_params():
 
 @no_type_check
 def test_dump_wrong_object_params():
-    task = Task(id=12, content=12312, completed=BoolFalse())
+    task = Task(id=12, content=12312, completed=BoolFalse(), tags=None)
     with pytest.raises(DumpError):
         dump(schema, task)
 
@@ -164,7 +191,8 @@ def test_load_bool_false():
 
 def test_load_task():
     input = (
-        b'\xc2\x87b\x00' +  # task combinator number
+        b'\x63\xa5\x01\xb8' +  # task combinator number
+        b'\x00\x00\x00\x00' +  # flags
         b'\x0c\x00\x00\x00' +  # id number - int
         b'\x0edump by schema\x00' +  # content - str
         b'\xb5\x75\x72\x99'  # completed - Bool
@@ -175,7 +203,32 @@ def test_load_task():
     assert loaded.value.id == 12
     assert loaded.value.content == 'dump by schema'
     assert loaded.value.completed == BoolTrue()
-    assert loaded.offset == 28
+    assert loaded.offset == 32
+
+
+def test_load_task_with_tags():
+    input = (
+        b'\x63\xa5\x01\xb8' +  # task combinator number
+        b'\x02\x00\x00\x00' +  # flags
+        b'\x0c\x00\x00\x00' +  # id number - int
+        b'\x0edump by schema\x00' +  # content - str
+        b'\xb5\x75\x72\x99'  # completed - Bool
+        b'\x15\xc4\xb5\x1c' +  # vector id
+        b'\x02\x00\x00\x00' +  # vector size
+        b'\x06schema\x00' +  # tag 'schema'
+        b'\x04dump\x00\x00\x00'  # tag 'dump
+    )
+
+    loaded = load(schema, input)
+
+    assert isinstance(loaded.value, Task)
+    assert loaded.value.id == 12
+    assert loaded.value.content == 'dump by schema'
+    assert loaded.value.completed == BoolTrue()
+    assert len(loaded.value.tags) == 2
+    assert 'schema' in loaded.value.tags
+    assert 'dump' in loaded.value.tags
+    assert loaded.offset == 56
 
 
 def test_load_authorized_user_with_avatar_url():
@@ -221,11 +274,13 @@ def test_load_task_list():
         b'\x46\x00\x98\x66' +  # combinator id
         b'\x15\xc4\xb5\x1c' +  # vector id
         b'\x02\x00\x00\x00' +  # vector size
-        b'\xc2\x87b\x00' +  # task combinator number
+        b'\x63\xa5\x01\xb8' +  # task combinator number
+        b'\x00\x00\x00\x00' +  # flags
         b'\x0c\x00\x00\x00' +  # id number - int
         b'\x0edump by schema\x00' +  # content - str
         b'\xb5\x75\x72\x99'  # completed - Bool
-        b'\xc2\x87b\x00' +  # task combinator number
+        b'\x63\xa5\x01\xb8' +  # task combinator number
+        b'\x00\x00\x00\x00' +  # flags
         b'\x10\x00\x00\x00' +  # id number - int
         b'\x09dump list\x00\x00' +  # content - str
         b'\x37\x97\x79\xbc'  # completed - Bool
@@ -235,7 +290,7 @@ def test_load_task_list():
 
     assert isinstance(loaded.value, TaskList)
     assert len(loaded.value.tasks) == 2
-    assert loaded.offset == 64
+    assert loaded.offset == 72
 
 
 def test_load_get_task_list():
