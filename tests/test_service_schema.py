@@ -424,21 +424,21 @@ service_schema_dict = {
     #   ],
     #   "type": "FutureSalts"
     # },
-    # {
-    #   "id": 880243653,
-    #   "predicate": "pong",
-    #   "params": [
-    #     {
-    #       "name": "msg_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "ping_id",
-    #       "type": "long"
-    #     }
-    #   ],
-    #   "type": "Pong"
-    # },
+    {
+      "id": 880243653,
+      "predicate": "pong",
+      "params": [
+        {
+          "name": "msg_id",
+          "type": "long"
+        },
+        {
+          "name": "ping_id",
+          "type": "long"
+        }
+      ],
+      "type": "Pong"
+    },
     # {
     #   "id": -1631450872,
     #   "predicate": "new_session_created",

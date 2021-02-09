@@ -330,6 +330,16 @@ class FutureSalts:
         order = ('req_msg_id', 'now', 'salts')
 
 
+@dataclass
+class Pong:
+    msg_id: long
+    ping_id: long
+
+    class Meta:
+        name = 'pong'
+        order = ('msg_id', 'ping_id')
+
+
 service_schema = Schema(
     constructors=[
         ResPQ,
@@ -343,6 +353,7 @@ service_schema = Schema(
         RpcDropAnswer,
         FutureSalt,
         FutureSalts,
+        Pong,
     ],
     functions=[]
 )
