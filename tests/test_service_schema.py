@@ -176,44 +176,44 @@ service_schema_dict = {
       ],
       "type": "P_Q_inner_data"
     },
-    # {
-    #   "id": 2043348061,
-    #   "predicate": "server_DH_params_fail",
-    #   "params": [
-    #     {
-    #       "name": "nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "server_nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "new_nonce_hash",
-    #       "type": "int128"
-    #     }
-    #   ],
-    #   "type": "Server_DH_Params"
-    # },
-    # {
-    #   "id": -790100132,
-    #   "predicate": "server_DH_params_ok",
-    #   "params": [
-    #     {
-    #       "name": "nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "server_nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "encrypted_answer",
-    #       "type": "bytes"
-    #     }
-    #   ],
-    #   "type": "Server_DH_Params"
-    # },
+    {
+      "id": 2043348061,
+      "predicate": "server_DH_params_fail",
+      "params": [
+        {
+          "name": "nonce",
+          "type": "int128"
+        },
+        {
+          "name": "server_nonce",
+          "type": "int128"
+        },
+        {
+          "name": "new_nonce_hash",
+          "type": "int128"
+        }
+      ],
+      "type": "Server_DH_Params"
+    },
+    {
+      "id": -790100132,
+      "predicate": "server_DH_params_ok",
+      "params": [
+        {
+          "name": "nonce",
+          "type": "int128"
+        },
+        {
+          "name": "server_nonce",
+          "type": "int128"
+        },
+        {
+          "name": "encrypted_answer",
+          "type": "bytes"
+        }
+      ],
+      "type": "Server_DH_Params"
+    },
     # {
     #   "id": -1249309254,
     #   "predicate": "server_DH_inner_data",
