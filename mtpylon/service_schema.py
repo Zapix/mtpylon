@@ -275,6 +275,39 @@ class RpcError:
         order = ('error_code', 'error_message')
 
 
+@dataclass
+class RpcAnswerUnknown:
+    class Meta:
+        name = 'rpc_answer_unknown'
+
+
+@dataclass
+class RpcAnswerDroppedRunning:
+    class Meta:
+        name = 'rpc_answer_dropped_running'
+
+
+@dataclass
+class RpcAnswerDropped:
+    msg_id: long
+    seq_no: int
+    bytes: int
+
+    class Meta:
+        name = 'rpc_answer_dropped'
+        order = ('msg_id', 'seq_no', 'bytes')
+
+
+RpcDropAnswer = Annotated[
+    Union[
+        RpcAnswerUnknown,
+        RpcAnswerDroppedRunning,
+        RpcAnswerDropped,
+    ],
+    'RpcDropAnswer'
+]
+
+
 service_schema = Schema(
     constructors=[
         ResPQ,
@@ -285,6 +318,7 @@ service_schema = Schema(
         Set_client_DH_params_answer,
         RpcResult,
         RpcError,
+        RpcDropAnswer,
     ],
     functions=[]
 )

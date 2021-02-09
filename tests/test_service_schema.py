@@ -355,37 +355,37 @@ service_schema_dict = {
       ],
       "type": "RpcError"
     },
-    # {
-    #   "id": 1579864942,
-    #   "predicate": "rpc_answer_unknown",
-    #   "params": [],
-    #   "type": "RpcDropAnswer"
-    # },
-    # {
-    #   "id": -847714938,
-    #   "predicate": "rpc_answer_dropped_running",
-    #   "params": [],
-    #   "type": "RpcDropAnswer"
-    # },
-    # {
-    #   "id": -1539647305,
-    #   "predicate": "rpc_answer_dropped",
-    #   "params": [
-    #     {
-    #       "name": "msg_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "seq_no",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "bytes",
-    #       "type": "int"
-    #     }
-    #   ],
-    #   "type": "RpcDropAnswer"
-    # },
+    {
+      "id": 1579864942,
+      "predicate": "rpc_answer_unknown",
+      "params": [],
+      "type": "RpcDropAnswer"
+    },
+    {
+      "id": -847714938,
+      "predicate": "rpc_answer_dropped_running",
+      "params": [],
+      "type": "RpcDropAnswer"
+    },
+    {
+      "id": -1539647305,
+      "predicate": "rpc_answer_dropped",
+      "params": [
+        {
+          "name": "msg_id",
+          "type": "long"
+        },
+        {
+          "name": "seq_no",
+          "type": "int"
+        },
+        {
+          "name": "bytes",
+          "type": "int"
+        }
+      ],
+      "type": "RpcDropAnswer"
+    },
     # {
     #   "id": 155834844,
     #   "predicate": "future_salt",
