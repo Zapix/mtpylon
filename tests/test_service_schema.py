@@ -245,29 +245,29 @@ service_schema_dict = {
       ],
       "type": "Server_DH_inner_data"
     },
-    # {
-    #   "id": 1715713620,
-    #   "predicate": "client_DH_inner_data",
-    #   "params": [
-    #     {
-    #       "name": "nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "server_nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "retry_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "g_b",
-    #       "type": "bytes"
-    #     }
-    #   ],
-    #   "type": "Client_DH_Inner_Data"
-    # },
+    {
+      "id": 1715713620,
+      "predicate": "client_DH_inner_data",
+      "params": [
+        {
+          "name": "nonce",
+          "type": "int128"
+        },
+        {
+          "name": "server_nonce",
+          "type": "int128"
+        },
+        {
+          "name": "retry_id",
+          "type": "long"
+        },
+        {
+          "name": "g_b",
+          "type": "bytes"
+        }
+      ],
+      "type": "Client_DH_Inner_Data"
+    },
     # {
     #   "id": 1003222836,
     #   "predicate": "dh_gen_ok",

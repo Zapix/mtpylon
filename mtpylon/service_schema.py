@@ -183,12 +183,30 @@ class Server_DH_inner_data:
         )
 
 
+@dataclass
+class Client_DH_Inner_Data:
+    nonce: int128
+    server_nonce: int128
+    retry_id: long
+    g_b: bytes
+
+    class Meta:
+        name = 'client_DH_inner_data'
+        order = (
+            'nonce',
+            'server_nonce',
+            'retry_id',
+            'g_b',
+        )
+
+
 service_schema = Schema(
     constructors=[
         ResPQ,
         P_Q_inner_data,
         Server_DH_Params,
         Server_DH_inner_data,
+        Client_DH_Inner_Data,
     ],
     functions=[]
 )
