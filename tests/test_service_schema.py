@@ -439,25 +439,25 @@ service_schema_dict = {
       ],
       "type": "Pong"
     },
-    # {
-    #   "id": -1631450872,
-    #   "predicate": "new_session_created",
-    #   "params": [
-    #     {
-    #       "name": "first_msg_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "unique_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "server_salt",
-    #       "type": "long"
-    #     }
-    #   ],
-    #   "type": "NewSession"
-    # },
+    {
+      "id": -1631450872,
+      "predicate": "new_session_created",
+      "params": [
+        {
+          "name": "first_msg_id",
+          "type": "long"
+        },
+        {
+          "name": "unique_id",
+          "type": "long"
+        },
+        {
+          "name": "server_salt",
+          "type": "long"
+        }
+      ],
+      "type": "NewSession"
+    },
     # {
     #   "id": 1945237724,
     #   "predicate": "msg_container",

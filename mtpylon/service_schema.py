@@ -340,6 +340,21 @@ class Pong:
         order = ('msg_id', 'ping_id')
 
 
+@dataclass
+class NewSession:
+    first_msg_id: long
+    unique_id: long
+    server_salt: long
+
+    class Meta:
+        name = 'new_session_created'
+        order = (
+            'first_msg_id',
+            'unique_id',
+            'server_salt',
+        )
+
+
 service_schema = Schema(
     constructors=[
         ResPQ,
@@ -354,6 +369,7 @@ service_schema = Schema(
         FutureSalt,
         FutureSalts,
         Pong,
+        NewSession
     ],
     functions=[]
 )
