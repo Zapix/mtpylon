@@ -243,6 +243,10 @@ def is_valid_constructor(
     raise InvalidConstructor(error)
 
 
+def is_string_type_name(type_name: str, for_type_number) -> bool:
+    return type_name == 'str' or (type_name == 'bytes' and for_type_number)
+
+
 def get_type_name(
     attr_type: Any,
     attr_name: Optional[str] = None,
@@ -259,7 +263,9 @@ def get_type_name(
     """
     if attr_type in BASIC_TYPES:
         type_name = attr_type.__name__
-        return 'string' if type_name == 'str' else type_name
+        if is_string_type_name(type_name, for_type_number):
+            return 'string'
+        return type_name
 
     if isinstance(attr_type, ForwardRef):
         return attr_type.__forward_arg__

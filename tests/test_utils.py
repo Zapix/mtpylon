@@ -11,6 +11,7 @@ from mtpylon.exceptions import (
 )
 from mtpylon.utils import (
     long,
+    int128,
     is_valid_combinator,
     is_valid_constructor,
     is_valid_function,
@@ -213,6 +214,23 @@ class TaggedTask:
         flags = {
             'tags': 1
         }
+
+
+@dataclass
+class ResPQ:
+    nonce: int128
+    server_nonce: int128
+    pq: bytes
+    server_public_key_fingerprints: List[long]
+
+    class Meta:
+        name = 'resPQ'
+        order = (
+            'nonce',
+            'server_nonce',
+            'pq',
+            'server_public_key_fingerprints'
+        )
 
 
 class AnotherClass:
@@ -692,6 +710,17 @@ class TestBuildCombinatorDescription:
             TaggedTask,
             for_type_number=True,
         ) == 'taggedTask flags:# content:string finished:Bool tags:flags.1?Vector string = TaggedTask'  # noqa
+
+    def test_res_pq_with_bytes(self):
+        assert build_combinator_description(
+            ResPQ,
+            ResPQ
+        ) == 'resPQ nonce:int128 server_nonce:int128 pq:bytes server_public_key_fingerprints:Vector<long> = ResPQ'  # noqa
+        assert build_combinator_description(
+            ResPQ,
+            ResPQ,
+            for_type_number=True
+        ) == 'resPQ nonce:int128 server_nonce:int128 pq:string server_public_key_fingerprints:Vector long = ResPQ'  # noqa
 
 
 class TestCombinatorNumber:
