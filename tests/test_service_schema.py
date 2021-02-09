@@ -268,63 +268,63 @@ service_schema_dict = {
       ],
       "type": "Client_DH_Inner_Data"
     },
-    # {
-    #   "id": 1003222836,
-    #   "predicate": "dh_gen_ok",
-    #   "params": [
-    #     {
-    #       "name": "nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "server_nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "new_nonce_hash1",
-    #       "type": "int128"
-    #     }
-    #   ],
-    #   "type": "Set_client_DH_params_answer"
-    # },
-    # {
-    #   "id": 1188831161,
-    #   "predicate": "dh_gen_retry",
-    #   "params": [
-    #     {
-    #       "name": "nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "server_nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "new_nonce_hash2",
-    #       "type": "int128"
-    #     }
-    #   ],
-    #   "type": "Set_client_DH_params_answer"
-    # },
-    # {
-    #   "id": -1499615742,
-    #   "predicate": "dh_gen_fail",
-    #   "params": [
-    #     {
-    #       "name": "nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "server_nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "new_nonce_hash3",
-    #       "type": "int128"
-    #     }
-    #   ],
-    #   "type": "Set_client_DH_params_answer"
-    # },
+    {
+      "id": 1003222836,
+      "predicate": "dh_gen_ok",
+      "params": [
+        {
+          "name": "nonce",
+          "type": "int128"
+        },
+        {
+          "name": "server_nonce",
+          "type": "int128"
+        },
+        {
+          "name": "new_nonce_hash1",
+          "type": "int128"
+        }
+      ],
+      "type": "Set_client_DH_params_answer"
+    },
+    {
+      "id": 1188831161,
+      "predicate": "dh_gen_retry",
+      "params": [
+        {
+          "name": "nonce",
+          "type": "int128"
+        },
+        {
+          "name": "server_nonce",
+          "type": "int128"
+        },
+        {
+          "name": "new_nonce_hash2",
+          "type": "int128"
+        }
+      ],
+      "type": "Set_client_DH_params_answer"
+    },
+    {
+      "id": -1499615742,
+      "predicate": "dh_gen_fail",
+      "params": [
+        {
+          "name": "nonce",
+          "type": "int128"
+        },
+        {
+          "name": "server_nonce",
+          "type": "int128"
+        },
+        {
+          "name": "new_nonce_hash3",
+          "type": "int128"
+        }
+      ],
+      "type": "Set_client_DH_params_answer"
+    },
     # {
     #   "id": -212046591,
     #   "predicate": "rpc_result",
