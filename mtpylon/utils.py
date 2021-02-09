@@ -33,7 +33,7 @@ int256 = NewType('int256', int)
 double = NewType('double', float)
 
 
-BASIC_TYPES = [str, bytes, int, long, int128, int256, double]
+BASIC_TYPES = [str, bytes, int, long, int128, int256, double, Any]
 
 
 def is_union(tp: Any) -> bool:
@@ -262,6 +262,8 @@ def get_type_name(
         for_type_number: dump description for combinator number
     """
     if attr_type in BASIC_TYPES:
+        if attr_type == Any:
+            return 'Object'
         type_name = attr_type.__name__
         if is_string_type_name(type_name, for_type_number):
             return 'string'

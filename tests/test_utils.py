@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Union, ForwardRef, List, Optional, Annotated
+from typing import Union, ForwardRef, List, Optional, Annotated, Any
 from dataclasses import dataclass
 
 import pytest
@@ -231,6 +231,16 @@ class ResPQ:
             'pq',
             'server_public_key_fingerprints'
         )
+
+
+@dataclass
+class RpcResult:
+    req_msg_id: long
+    result: Any
+
+    class Meta:
+        name = 'rpc_result'
+        order = ('req_msg_id', 'result')
 
 
 class AnotherClass:
@@ -515,6 +525,9 @@ class TestIsGoodForCombinator:
             constructors=[Task]
         )
 
+    def test_any_combinator(self):
+        assert is_good_for_combinator(Any)
+
 
 class TestIsValidCombinator:
 
@@ -577,6 +590,9 @@ class TestIsValidCombinator:
         with pytest.raises(InvalidCombinator):
             is_valid_combinator(WrongConstructorUsed)
 
+    def test_valid_with_any_field(self):
+        is_valid_combinator(RpcResult, [RpcResult])
+
 
 class TestIsValidConstructor:
 
@@ -587,6 +603,7 @@ class TestIsValidConstructor:
         is_valid_constructor(Bool, [Bool, Tree])
         is_valid_constructor(Tree, [Bool, Tree])
         is_valid_constructor(ExtendedTree, [ExtendedTree])
+        is_valid_constructor(RpcResult, [RpcResult])
 
     def test_wrong_value(self):
         with pytest.raises(InvalidConstructor):
@@ -722,6 +739,11 @@ class TestBuildCombinatorDescription:
             for_type_number=True
         ) == 'resPQ nonce:int128 server_nonce:int128 pq:string server_public_key_fingerprints:Vector long = ResPQ'  # noqa
 
+    def test_rpc_result(self):
+        assert build_combinator_description(
+            RpcResult, RpcResult
+        ) == 'rpc_result req_msg_id:long result:Object = RpcResult'
+
 
 class TestCombinatorNumber:
 
@@ -766,6 +788,9 @@ class TestCombinatorNumber:
             UpdateDialogFilter,
             Update
         ) == 0x26ffde7d
+
+    def test_rpc_result(self):
+        assert get_combinator_number(RpcResult, RpcResult) == 0xf35c6d01
 
 
 class TestBuildFunctionDescription:
