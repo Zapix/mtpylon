@@ -325,21 +325,21 @@ service_schema_dict = {
       ],
       "type": "Set_client_DH_params_answer"
     },
-    # {
-    #   "id": -212046591,
-    #   "predicate": "rpc_result",
-    #   "params": [
-    #     {
-    #       "name": "req_msg_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "result",
-    #       "type": "Object"
-    #     }
-    #   ],
-    #   "type": "RpcResult"
-    # },
+    {
+      "id": -212046591,
+      "predicate": "rpc_result",
+      "params": [
+        {
+          "name": "req_msg_id",
+          "type": "long"
+        },
+        {
+          "name": "result",
+          "type": "Object"
+        }
+      ],
+      "type": "RpcResult"
+    },
     # {
     #   "id": 558156313,
     #   "predicate": "rpc_error",

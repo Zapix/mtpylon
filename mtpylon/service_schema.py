@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass
-from typing import List, Annotated, Union
+from typing import Any, List, Annotated, Union
 
 from .utils import long, int128, int256
 from .schema import Schema
@@ -255,6 +255,16 @@ Set_client_DH_params_answer = Annotated[
 ]
 
 
+@dataclass
+class RpcResult:
+    req_msg_id: long
+    result: Any
+
+    class Meta:
+        name = 'rpc_result'
+        order = ('req_msg_id', 'result')
+
+
 service_schema = Schema(
     constructors=[
         ResPQ,
@@ -263,6 +273,7 @@ service_schema = Schema(
         Server_DH_inner_data,
         Client_DH_Inner_Data,
         Set_client_DH_params_answer,
+        RpcResult,
     ],
     functions=[]
 )
