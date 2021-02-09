@@ -386,25 +386,25 @@ service_schema_dict = {
       ],
       "type": "RpcDropAnswer"
     },
-    # {
-    #   "id": 155834844,
-    #   "predicate": "future_salt",
-    #   "params": [
-    #     {
-    #       "name": "valid_since",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "valid_until",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "salt",
-    #       "type": "long"
-    #     }
-    #   ],
-    #   "type": "FutureSalt"
-    # },
+    {
+      "id": 155834844,
+      "predicate": "future_salt",
+      "params": [
+        {
+          "name": "valid_since",
+          "type": "int"
+        },
+        {
+          "name": "valid_until",
+          "type": "int"
+        },
+        {
+          "name": "salt",
+          "type": "long"
+        }
+      ],
+      "type": "FutureSalt"
+    },
     # {
     #   "id": -1370486635,
     #   "predicate": "future_salts",

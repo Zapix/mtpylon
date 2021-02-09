@@ -308,6 +308,28 @@ RpcDropAnswer = Annotated[
 ]
 
 
+@dataclass
+class FutureSalt:
+    valid_since: int
+    valid_until: int
+    salt: long
+
+    class Meta:
+        name = 'future_salt'
+        order = ('valid_since', 'valid_until', 'salt')
+
+
+@dataclass
+class FutureSalts:
+    req_msg_id: long
+    now: int
+    salts: List[FutureSalt]
+
+    class Meta:
+        name = 'future_salts'
+        order = ('req_msg_id', 'now', 'salts')
+
+
 service_schema = Schema(
     constructors=[
         ResPQ,
@@ -319,6 +341,8 @@ service_schema = Schema(
         RpcResult,
         RpcError,
         RpcDropAnswer,
+        FutureSalt,
+        FutureSalts,
     ],
     functions=[]
 )
