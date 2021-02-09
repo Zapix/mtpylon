@@ -214,37 +214,37 @@ service_schema_dict = {
       ],
       "type": "Server_DH_Params"
     },
-    # {
-    #   "id": -1249309254,
-    #   "predicate": "server_DH_inner_data",
-    #   "params": [
-    #     {
-    #       "name": "nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "server_nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "g",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "dh_prime",
-    #       "type": "bytes"
-    #     },
-    #     {
-    #       "name": "g_a",
-    #       "type": "bytes"
-    #     },
-    #     {
-    #       "name": "server_time",
-    #       "type": "int"
-    #     }
-    #   ],
-    #   "type": "Server_DH_inner_data"
-    # },
+    {
+      "id": -1249309254,
+      "predicate": "server_DH_inner_data",
+      "params": [
+        {
+          "name": "nonce",
+          "type": "int128"
+        },
+        {
+          "name": "server_nonce",
+          "type": "int128"
+        },
+        {
+          "name": "g",
+          "type": "int"
+        },
+        {
+          "name": "dh_prime",
+          "type": "bytes"
+        },
+        {
+          "name": "g_a",
+          "type": "bytes"
+        },
+        {
+          "name": "server_time",
+          "type": "int"
+        }
+      ],
+      "type": "Server_DH_inner_data"
+    },
     # {
     #   "id": 1715713620,
     #   "predicate": "client_DH_inner_data",

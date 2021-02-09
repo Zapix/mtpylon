@@ -162,11 +162,33 @@ Server_DH_Params = Annotated[
 ]
 
 
+@dataclass
+class Server_DH_inner_data:
+    nonce: int128
+    server_nonce: int128
+    g: int
+    dh_prime: bytes
+    g_a: bytes
+    server_time: int
+
+    class Meta:
+        name = 'server_DH_inner_data'
+        order = (
+            'nonce',
+            'server_nonce',
+            'g',
+            'dh_prime',
+            'g_a',
+            'server_time'
+        )
+
+
 service_schema = Schema(
     constructors=[
         ResPQ,
         P_Q_inner_data,
         Server_DH_Params,
+        Server_DH_inner_data,
     ],
     functions=[]
 )
