@@ -265,6 +265,16 @@ class RpcResult:
         order = ('req_msg_id', 'result')
 
 
+@dataclass
+class RpcError:
+    error_code: int
+    error_message: str
+
+    class Meta:
+        name = 'rpc_error'
+        order = ('error_code', 'error_message')
+
+
 service_schema = Schema(
     constructors=[
         ResPQ,
@@ -274,6 +284,7 @@ service_schema = Schema(
         Client_DH_Inner_Data,
         Set_client_DH_params_answer,
         RpcResult,
+        RpcError,
     ],
     functions=[]
 )

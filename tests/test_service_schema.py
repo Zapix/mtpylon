@@ -340,21 +340,21 @@ service_schema_dict = {
       ],
       "type": "RpcResult"
     },
-    # {
-    #   "id": 558156313,
-    #   "predicate": "rpc_error",
-    #   "params": [
-    #     {
-    #       "name": "error_code",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "error_message",
-    #       "type": "string"
-    #     }
-    #   ],
-    #   "type": "RpcError"
-    # },
+    {
+      "id": 558156313,
+      "predicate": "rpc_error",
+      "params": [
+        {
+          "name": "error_code",
+          "type": "int"
+        },
+        {
+          "name": "error_message",
+          "type": "string"
+        }
+      ],
+      "type": "RpcError"
+    },
     # {
     #   "id": 1579864942,
     #   "predicate": "rpc_answer_unknown",
