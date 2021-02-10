@@ -699,24 +699,24 @@ service_schema_dict = {
       ],
       "type": "BindAuthKeyInner"
     },
-    # {
-    #   "id": -161422892,
-    #   "predicate": "destroy_auth_key_ok",
-    #   "params": [],
-    #   "type": "DestroyAuthKeyRes"
-    # },
-    # {
-    #   "id": 178201177,
-    #   "predicate": "destroy_auth_key_none",
-    #   "params": [],
-    #   "type": "DestroyAuthKeyRes"
-    # },
-    # {
-    #   "id": -368010477,
-    #   "predicate": "destroy_auth_key_fail",
-    #   "params": [],
-    #   "type": "DestroyAuthKeyRes"
-    # },
+    {
+      "id": -161422892,
+      "predicate": "destroy_auth_key_ok",
+      "params": [],
+      "type": "DestroyAuthKeyRes"
+    },
+    {
+      "id": 178201177,
+      "predicate": "destroy_auth_key_none",
+      "params": [],
+      "type": "DestroyAuthKeyRes"
+    },
+    {
+      "id": -368010477,
+      "predicate": "destroy_auth_key_fail",
+      "params": [],
+      "type": "DestroyAuthKeyRes"
+    },
     # {
     #   "id": -501201412,
     #   "predicate": "destroy_session_ok",
