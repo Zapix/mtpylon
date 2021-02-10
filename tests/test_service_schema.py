@@ -525,48 +525,48 @@ service_schema_dict = {
       ],
       "type": "MsgsAck"
     },
-    # {
-    #   "id": -1477445615,
-    #   "predicate": "bad_msg_notification",
-    #   "params": [
-    #     {
-    #       "name": "bad_msg_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "bad_msg_seqno",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "error_code",
-    #       "type": "int"
-    #     }
-    #   ],
-    #   "type": "BadMsgNotification"
-    # },
-    # {
-    #   "id": -307542917,
-    #   "predicate": "bad_server_salt",
-    #   "params": [
-    #     {
-    #       "name": "bad_msg_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "bad_msg_seqno",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "error_code",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "new_server_salt",
-    #       "type": "long"
-    #     }
-    #   ],
-    #   "type": "BadMsgNotification"
-    # },
+    {
+      "id": -1477445615,
+      "predicate": "bad_msg_notification",
+      "params": [
+        {
+          "name": "bad_msg_id",
+          "type": "long"
+        },
+        {
+          "name": "bad_msg_seqno",
+          "type": "int"
+        },
+        {
+          "name": "error_code",
+          "type": "int"
+        }
+      ],
+      "type": "BadMsgNotification"
+    },
+    {
+      "id": -307542917,
+      "predicate": "bad_server_salt",
+      "params": [
+        {
+          "name": "bad_msg_id",
+          "type": "long"
+        },
+        {
+          "name": "bad_msg_seqno",
+          "type": "int"
+        },
+        {
+          "name": "error_code",
+          "type": "int"
+        },
+        {
+          "name": "new_server_salt",
+          "type": "long"
+        }
+      ],
+      "type": "BadMsgNotification"
+    },
     # {
     #   "id": 2105940488,
     #   "predicate": "msg_resend_req",
