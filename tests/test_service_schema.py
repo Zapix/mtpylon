@@ -514,17 +514,17 @@ service_schema_dict = {
     #   ],
     #   "type": "Object"
     # },
-    # {
-    #   "id": 1658238041,
-    #   "predicate": "msgs_ack",
-    #   "params": [
-    #     {
-    #       "name": "msg_ids",
-    #       "type": "Vector<long>"
-    #     }
-    #   ],
-    #   "type": "MsgsAck"
-    # },
+    {
+      "id": 1658238041,
+      "predicate": "msgs_ack",
+      "params": [
+        {
+          "name": "msg_ids",
+          "type": "Vector<long>"
+        }
+      ],
+      "type": "MsgsAck"
+    },
     # {
     #   "id": -1477445615,
     #   "predicate": "bad_msg_notification",

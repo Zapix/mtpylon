@@ -390,6 +390,15 @@ class MessageCopy:
         order = ('orig_message',)
 
 
+@dataclass
+class MsgsAck:
+    msg_ids: List[long]
+
+    class Meta:
+        name = 'msgs_ack'
+        order = ('msg_ids',)
+
+
 service_schema = Schema(
     constructors=[
         ResPQ,
@@ -408,6 +417,7 @@ service_schema = Schema(
         Message,
         MessageContainer,
         MessageCopy,
+        MsgsAck,
     ],
     functions=[]
 )
