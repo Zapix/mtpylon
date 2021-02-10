@@ -575,6 +575,33 @@ DestroyAuthKeyRes = Annotated[
 ]
 
 
+@dataclass
+class DestroySessionOk:
+    session_id: long
+
+    class Meta:
+        name = 'destroy_session_ok'
+        order = ('session_id',)
+
+
+@dataclass
+class DestroySessionNone:
+    session_id: long
+
+    class Meta:
+        name = 'destroy_session_none'
+        order = ('session_id',)
+
+
+DestroySessionRes = Annotated[
+    Union[
+        DestroySessionOk,
+        DestroySessionNone
+    ],
+    'DestroySessionRes'
+]
+
+
 service_schema = Schema(
     constructors=[
         ResPQ,
@@ -601,7 +628,8 @@ service_schema = Schema(
         MsgsAllInfo,
         MsgDetailedInfo,
         BindAuthKeyInner,
-        DestroyAuthKeyRes
+        DestroyAuthKeyRes,
+        DestroySessionRes,
     ],
     functions=[]
 )

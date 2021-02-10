@@ -717,28 +717,28 @@ service_schema_dict = {
       "params": [],
       "type": "DestroyAuthKeyRes"
     },
-    # {
-    #   "id": -501201412,
-    #   "predicate": "destroy_session_ok",
-    #   "params": [
-    #     {
-    #       "name": "session_id",
-    #       "type": "long"
-    #     }
-    #   ],
-    #   "type": "DestroySessionRes"
-    # },
-    # {
-    #   "id": 1658015945,
-    #   "predicate": "destroy_session_none",
-    #   "params": [
-    #     {
-    #       "name": "session_id",
-    #       "type": "long"
-    #     }
-    #   ],
-    #   "type": "DestroySessionRes"
-    # }
+    {
+      "id": -501201412,
+      "predicate": "destroy_session_ok",
+      "params": [
+        {
+          "name": "session_id",
+          "type": "long"
+        }
+      ],
+      "type": "DestroySessionRes"
+    },
+    {
+      "id": 1658015945,
+      "predicate": "destroy_session_none",
+      "params": [
+        {
+          "name": "session_id",
+          "type": "long"
+        }
+      ],
+      "type": "DestroySessionRes"
+    }
   ],
   "methods": [
     {
