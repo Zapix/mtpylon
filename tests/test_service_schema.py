@@ -672,33 +672,33 @@ service_schema_dict = {
       ],
       "type": "MsgDetailedInfo"
     },
-    # {
-    #   "id": 1973679973,
-    #   "predicate": "bind_auth_key_inner",
-    #   "params": [
-    #     {
-    #       "name": "nonce",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "temp_auth_key_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "perm_auth_key_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "temp_session_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "expires_at",
-    #       "type": "int"
-    #     }
-    #   ],
-    #   "type": "BindAuthKeyInner"
-    # },
+    {
+      "id": 1973679973,
+      "predicate": "bind_auth_key_inner",
+      "params": [
+        {
+          "name": "nonce",
+          "type": "long"
+        },
+        {
+          "name": "temp_auth_key_id",
+          "type": "long"
+        },
+        {
+          "name": "perm_auth_key_id",
+          "type": "long"
+        },
+        {
+          "name": "temp_session_id",
+          "type": "long"
+        },
+        {
+          "name": "expires_at",
+          "type": "int"
+        }
+      ],
+      "type": "BindAuthKeyInner"
+    },
     # {
     #   "id": -161422892,
     #   "predicate": "destroy_auth_key_ok",
