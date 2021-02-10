@@ -469,40 +469,40 @@ service_schema_dict = {
     #   ],
     #   "type": "MessageContainer"
     # },
-    # {
-    #   "id": 1538843921,
-    #   "predicate": "message",
-    #   "params": [
-    #     {
-    #       "name": "msg_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "seqno",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "bytes",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "body",
-    #       "type": "Object"
-    #     }
-    #   ],
-    #   "type": "Message"
-    # },
-    # {
-    #   "id": -530561358,
-    #   "predicate": "msg_copy",
-    #   "params": [
-    #     {
-    #       "name": "orig_message",
-    #       "type": "Message"
-    #     }
-    #   ],
-    #   "type": "MessageCopy"
-    # },
+    {
+      "id": 1538843921,
+      "predicate": "message",
+      "params": [
+        {
+          "name": "msg_id",
+          "type": "long"
+        },
+        {
+          "name": "seqno",
+          "type": "int"
+        },
+        {
+          "name": "bytes",
+          "type": "int"
+        },
+        {
+          "name": "body",
+          "type": "Object"
+        }
+      ],
+      "type": "Message"
+    },
+    {
+      "id": -530561358,
+      "predicate": "msg_copy",
+      "params": [
+        {
+          "name": "orig_message",
+          "type": "Message"
+        }
+      ],
+      "type": "MessageCopy"
+    },
     # {
     #   "id": 812830625,
     #   "predicate": "gzip_packed",

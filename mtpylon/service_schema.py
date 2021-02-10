@@ -355,6 +355,41 @@ class NewSession:
         )
 
 
+@dataclass
+class Message:
+    msg_id: long
+    seqno: int
+    bytes: int
+    body: Any
+
+    class Meta:
+        name = 'message'
+        order = (
+            'msg_id',
+            'seqno',
+            'bytes',
+            'body',
+        )
+
+
+@dataclass
+class MessageContainer:
+    messages: List[Message]
+
+    class Meta:
+        name = 'msg_container'
+        order = ('messages',)
+
+
+@dataclass
+class MessageCopy:
+    orig_message: Message
+
+    class Meta:
+        name = 'msg_copy'
+        order = ('orig_message',)
+
+
 service_schema = Schema(
     constructors=[
         ResPQ,
@@ -369,7 +404,10 @@ service_schema = Schema(
         FutureSalt,
         FutureSalts,
         Pong,
-        NewSession
+        NewSession,
+        Message,
+        MessageContainer,
+        MessageCopy,
     ],
     functions=[]
 )
