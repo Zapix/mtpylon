@@ -630,48 +630,48 @@ service_schema_dict = {
       ],
       "type": "MsgsAllInfo"
     },
-    # {
-    #   "id": 661470918,
-    #   "predicate": "msg_detailed_info",
-    #   "params": [
-    #     {
-    #       "name": "msg_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "answer_msg_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "bytes",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "status",
-    #       "type": "int"
-    #     }
-    #   ],
-    #   "type": "MsgDetailedInfo"
-    # },
-    # {
-    #   "id": -2137147681,
-    #   "predicate": "msg_new_detailed_info",
-    #   "params": [
-    #     {
-    #       "name": "answer_msg_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "bytes",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "status",
-    #       "type": "int"
-    #     }
-    #   ],
-    #   "type": "MsgDetailedInfo"
-    # },
+    {
+      "id": 661470918,
+      "predicate": "msg_detailed_info",
+      "params": [
+        {
+          "name": "msg_id",
+          "type": "long"
+        },
+        {
+          "name": "answer_msg_id",
+          "type": "long"
+        },
+        {
+          "name": "bytes",
+          "type": "int"
+        },
+        {
+          "name": "status",
+          "type": "int"
+        }
+      ],
+      "type": "MsgDetailedInfo"
+    },
+    {
+      "id": -2137147681,
+      "predicate": "msg_new_detailed_info",
+      "params": [
+        {
+          "name": "answer_msg_id",
+          "type": "long"
+        },
+        {
+          "name": "bytes",
+          "type": "int"
+        },
+        {
+          "name": "status",
+          "type": "int"
+        }
+      ],
+      "type": "MsgDetailedInfo"
+    },
     # {
     #   "id": 1973679973,
     #   "predicate": "bind_auth_key_inner",
