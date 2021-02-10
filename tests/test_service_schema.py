@@ -567,28 +567,28 @@ service_schema_dict = {
       ],
       "type": "BadMsgNotification"
     },
-    # {
-    #   "id": 2105940488,
-    #   "predicate": "msg_resend_req",
-    #   "params": [
-    #     {
-    #       "name": "msg_ids",
-    #       "type": "Vector<long>"
-    #     }
-    #   ],
-    #   "type": "MsgResendReq"
-    # },
-    # {
-    #   "id": -2045723925,
-    #   "predicate": "msg_resend_ans_req",
-    #   "params": [
-    #     {
-    #       "name": "msg_ids",
-    #       "type": "Vector<long>"
-    #     }
-    #   ],
-    #   "type": "MsgResendReq"
-    # },
+    {
+      "id": 2105940488,
+      "predicate": "msg_resend_req",
+      "params": [
+        {
+          "name": "msg_ids",
+          "type": "Vector<long>"
+        }
+      ],
+      "type": "MsgResendReq"
+    },
+    {
+      "id": -2045723925,
+      "predicate": "msg_resend_ans_req",
+      "params": [
+        {
+          "name": "msg_ids",
+          "type": "Vector<long>"
+        }
+      ],
+      "type": "MsgResendReq"
+    },
     # {
     #   "id": -630588590,
     #   "predicate": "msgs_state_req",
