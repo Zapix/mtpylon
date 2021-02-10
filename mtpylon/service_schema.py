@@ -467,6 +467,15 @@ MsgResendReq = Annotated[
 ]
 
 
+@dataclass
+class MsgsStateReq:
+    msg_ids: List[long]
+
+    class Meta:
+        name = 'msgs_state_req'
+        order = ('msg_ids', )
+
+
 service_schema = Schema(
     constructors=[
         ResPQ,
@@ -488,6 +497,7 @@ service_schema = Schema(
         MsgsAck,
         BadMsgNotification,
         MsgResendReq,
+        MsgsStateReq,
     ],
     functions=[]
 )

@@ -589,17 +589,17 @@ service_schema_dict = {
       ],
       "type": "MsgResendReq"
     },
-    # {
-    #   "id": -630588590,
-    #   "predicate": "msgs_state_req",
-    #   "params": [
-    #     {
-    #       "name": "msg_ids",
-    #       "type": "Vector<long>"
-    #     }
-    #   ],
-    #   "type": "MsgsStateReq"
-    # },
+    {
+      "id": -630588590,
+      "predicate": "msgs_state_req",
+      "params": [
+        {
+          "name": "msg_ids",
+          "type": "Vector<long>"
+        }
+      ],
+      "type": "MsgsStateReq"
+    },
     # {
     #   "id": 81704317,
     #   "predicate": "msgs_state_info",
