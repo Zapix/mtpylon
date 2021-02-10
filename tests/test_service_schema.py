@@ -600,21 +600,21 @@ service_schema_dict = {
       ],
       "type": "MsgsStateReq"
     },
-    # {
-    #   "id": 81704317,
-    #   "predicate": "msgs_state_info",
-    #   "params": [
-    #     {
-    #       "name": "req_msg_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "info",
-    #       "type": "bytes"
-    #     }
-    #   ],
-    #   "type": "MsgsStateInfo"
-    # },
+    {
+      "id": 81704317,
+      "predicate": "msgs_state_info",
+      "params": [
+        {
+          "name": "req_msg_id",
+          "type": "long"
+        },
+        {
+          "name": "info",
+          "type": "bytes"
+        }
+      ],
+      "type": "MsgsStateInfo"
+    },
     # {
     #   "id": -1933520591,
     #   "predicate": "msgs_all_info",
