@@ -615,21 +615,21 @@ service_schema_dict = {
       ],
       "type": "MsgsStateInfo"
     },
-    # {
-    #   "id": -1933520591,
-    #   "predicate": "msgs_all_info",
-    #   "params": [
-    #     {
-    #       "name": "msg_ids",
-    #       "type": "Vector<long>"
-    #     },
-    #     {
-    #       "name": "info",
-    #       "type": "bytes"
-    #     }
-    #   ],
-    #   "type": "MsgsAllInfo"
-    # },
+    {
+      "id": -1933520591,
+      "predicate": "msgs_all_info",
+      "params": [
+        {
+          "name": "msg_ids",
+          "type": "Vector<long>"
+        },
+        {
+          "name": "info",
+          "type": "bytes"
+        }
+      ],
+      "type": "MsgsAllInfo"
+    },
     # {
     #   "id": 661470918,
     #   "predicate": "msg_detailed_info",

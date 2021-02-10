@@ -486,6 +486,16 @@ class MsgsStateInfo:
         order = ('req_msg_id', 'info')
 
 
+@dataclass
+class MsgsAllInfo:
+    msg_ids: List[long]
+    info: bytes
+
+    class Meta:
+        name = 'msgs_all_info'
+        order = ('msg_ids', 'info')
+
+
 service_schema = Schema(
     constructors=[
         ResPQ,
@@ -509,6 +519,7 @@ service_schema = Schema(
         MsgResendReq,
         MsgsStateReq,
         MsgsStateInfo,
+        MsgsAllInfo
     ],
     functions=[]
 )
