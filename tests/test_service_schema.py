@@ -906,7 +906,7 @@ service_schema_dict = {
   service_schema_dict['constructors'],
   ids=lambda x: f"[{x['type']}] {x['predicate']}"
 )
-def test_res_pq(service_constructor):
+def test_constructors(service_constructor):
     constructor_id = to_unsigned_int(service_constructor['id'])
     assert constructor_id in service_schema
 
