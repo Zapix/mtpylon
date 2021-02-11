@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from ..utils import int128
-from .constructors import Set_client_DH_params_answer, DHGenOk
+from ...utils import int128
+from ..constructors import Set_client_DH_params_answer, DHGenOk
 
 
 async def set_client_DH_params(

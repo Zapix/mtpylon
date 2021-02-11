@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from .constructors import ResPQ
-from ..utils import long, int128
+from ..constructors import ResPQ
+from ...utils import long, int128
 
 
 async def req_pq_multi(nonce: int128) -> ResPQ:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from ..utils import int128, long
-from .constructors import Server_DH_Params, ServerDHParamsOk
+from ...utils import int128, long
+from ..constructors import Server_DH_Params, ServerDHParamsOk
 
 
 async def req_DH_params(

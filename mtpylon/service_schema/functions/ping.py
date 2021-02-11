@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from ..utils import long
-from .constructors import Pong
+from ...utils import long
+from ..constructors import Pong
 
 
 async def ping(ping_id: long) -> Pong:

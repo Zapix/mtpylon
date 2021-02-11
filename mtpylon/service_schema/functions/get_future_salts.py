@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from ..utils import long
-from .constructors import FutureSalts
+from ...utils import long
+from ..constructors import FutureSalts
 
 
 async def get_future_salts(num: int) -> FutureSalts:
