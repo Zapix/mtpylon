@@ -36,6 +36,7 @@ from .rpc_drop_answer import rpc_drop_answer
 from .get_future_salts import get_future_salts
 from .ping import ping
 from .ping_delay_disconnect import ping_delay_disconnect
+from .destroy_auth_key import destroy_auth_key
 
 service_schema = Schema(
     constructors=[
@@ -75,5 +76,6 @@ service_schema = Schema(
         get_future_salts,
         ping,
         ping_delay_disconnect,
+        destroy_auth_key,
     ]
 )

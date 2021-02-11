@@ -861,31 +861,12 @@ service_schema_dict = {
       ],
       "type": "Pong"
     },
-    # {
-    #   "id": -1835453025,
-    #   "method": "http_wait",
-    #   "params": [
-    #     {
-    #       "name": "max_delay",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "wait_after",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "max_wait",
-    #       "type": "int"
-    #     }
-    #   ],
-    #   "type": "HttpWait"
-    # },
-    # {
-    #   "id": -784117408,
-    #   "method": "destroy_auth_key",
-    #   "params": [],
-    #   "type": "DestroyAuthKeyRes"
-    # },
+    {
+      "id": -784117408,
+      "method": "destroy_auth_key",
+      "params": [],
+      "type": "DestroyAuthKeyRes"
+    },
     # {
     #   "id": -414113498,
     #   "method": "destroy_session",
