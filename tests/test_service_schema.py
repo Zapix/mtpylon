@@ -835,17 +835,17 @@ service_schema_dict = {
       ],
       "type": "FutureSalts"
     },
-    # {
-    #   "id": 2059302892,
-    #   "method": "ping",
-    #   "params": [
-    #     {
-    #       "name": "ping_id",
-    #       "type": "long"
-    #     }
-    #   ],
-    #   "type": "Pong"
-    # },
+    {
+      "id": 2059302892,
+      "method": "ping",
+      "params": [
+        {
+          "name": "ping_id",
+          "type": "long"
+        }
+      ],
+      "type": "Pong"
+    },
     # {
     #   "id": -213746804,
     #   "method": "ping_delay_disconnect",
