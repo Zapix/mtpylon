@@ -32,6 +32,7 @@ from .req_pq import req_pq
 from .req_pq_multi import req_pq_multi
 from .req_DH_params import req_DH_params
 from .set_client_DH_params import set_client_DH_params
+from .rpc_drop_answer import rpc_drop_answer
 
 service_schema = Schema(
     constructors=[
@@ -67,5 +68,6 @@ service_schema = Schema(
         req_pq_multi,
         req_DH_params,
         set_client_DH_params,
+        rpc_drop_answer,
     ]
 )

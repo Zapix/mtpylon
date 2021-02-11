@@ -813,17 +813,17 @@ service_schema_dict = {
       ],
       "type": "Set_client_DH_params_answer"
     },
-    # {
-    #   "id": 1491380032,
-    #   "method": "rpc_drop_answer",
-    #   "params": [
-    #     {
-    #       "name": "req_msg_id",
-    #       "type": "long"
-    #     }
-    #   ],
-    #   "type": "RpcDropAnswer"
-    # },
+    {
+      "id": 1491380032,
+      "method": "rpc_drop_answer",
+      "params": [
+        {
+          "name": "req_msg_id",
+          "type": "long"
+        }
+      ],
+      "type": "RpcDropAnswer"
+    },
     # {
     #   "id": -1188971260,
     #   "method": "get_future_salts",
