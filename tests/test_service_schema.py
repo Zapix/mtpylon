@@ -752,17 +752,17 @@ service_schema_dict = {
       ],
       "type": "ResPQ"
     },
-    # {
-    #   "id": -1099002127,
-    #   "method": "req_pq_multi",
-    #   "params": [
-    #     {
-    #       "name": "nonce",
-    #       "type": "int128"
-    #     }
-    #   ],
-    #   "type": "ResPQ"
-    # },
+    {
+      "id": -1099002127,
+      "method": "req_pq_multi",
+      "params": [
+        {
+          "name": "nonce",
+          "type": "int128"
+        }
+      ],
+      "type": "ResPQ"
+    },
     # {
     #   "id": -686627650,
     #   "method": "req_DH_params",

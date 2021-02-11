@@ -29,6 +29,7 @@ from .constructors import (
     DestroySessionRes
 )
 from .req_pq import req_pq
+from .req_pq_multi import req_pq_multi
 
 service_schema = Schema(
     constructors=[
@@ -61,5 +62,6 @@ service_schema = Schema(
     ],
     functions=[
         req_pq,
+        req_pq_multi,
     ]
 )
