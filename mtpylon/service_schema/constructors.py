@@ -2,8 +2,7 @@
 from dataclasses import dataclass
 from typing import Any, List, Annotated, Union
 
-from .utils import long, int128, int256
-from .schema import Schema
+from ..utils import long, int128, int256
 
 
 @dataclass
@@ -600,36 +599,3 @@ DestroySessionRes = Annotated[
     ],
     'DestroySessionRes'
 ]
-
-
-service_schema = Schema(
-    constructors=[
-        ResPQ,
-        P_Q_inner_data,
-        Server_DH_Params,
-        Server_DH_inner_data,
-        Client_DH_Inner_Data,
-        Set_client_DH_params_answer,
-        RpcResult,
-        RpcError,
-        RpcDropAnswer,
-        FutureSalt,
-        FutureSalts,
-        Pong,
-        NewSession,
-        Message,
-        MessageContainer,
-        MessageCopy,
-        MsgsAck,
-        BadMsgNotification,
-        MsgResendReq,
-        MsgsStateReq,
-        MsgsStateInfo,
-        MsgsAllInfo,
-        MsgDetailedInfo,
-        BindAuthKeyInner,
-        DestroyAuthKeyRes,
-        DestroySessionRes,
-    ],
-    functions=[]
-)
