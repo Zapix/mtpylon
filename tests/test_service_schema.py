@@ -794,25 +794,25 @@ service_schema_dict = {
       ],
       "type": "Server_DH_Params"
     },
-    # {
-    #   "id": -184262881,
-    #   "method": "set_client_DH_params",
-    #   "params": [
-    #     {
-    #       "name": "nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "server_nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "encrypted_data",
-    #       "type": "bytes"
-    #     }
-    #   ],
-    #   "type": "Set_client_DH_params_answer"
-    # },
+    {
+      "id": -184262881,
+      "method": "set_client_DH_params",
+      "params": [
+        {
+          "name": "nonce",
+          "type": "int128"
+        },
+        {
+          "name": "server_nonce",
+          "type": "int128"
+        },
+        {
+          "name": "encrypted_data",
+          "type": "bytes"
+        }
+      ],
+      "type": "Set_client_DH_params_answer"
+    },
     # {
     #   "id": 1491380032,
     #   "method": "rpc_drop_answer",
