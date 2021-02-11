@@ -846,21 +846,21 @@ service_schema_dict = {
       ],
       "type": "Pong"
     },
-    # {
-    #   "id": -213746804,
-    #   "method": "ping_delay_disconnect",
-    #   "params": [
-    #     {
-    #       "name": "ping_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "disconnect_delay",
-    #       "type": "int"
-    #     }
-    #   ],
-    #   "type": "Pong"
-    # },
+    {
+      "id": -213746804,
+      "method": "ping_delay_disconnect",
+      "params": [
+        {
+          "name": "ping_id",
+          "type": "long"
+        },
+        {
+          "name": "disconnect_delay",
+          "type": "int"
+        }
+      ],
+      "type": "Pong"
+    },
     # {
     #   "id": -1835453025,
     #   "method": "http_wait",

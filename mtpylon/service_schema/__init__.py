@@ -35,6 +35,7 @@ from .set_client_DH_params import set_client_DH_params
 from .rpc_drop_answer import rpc_drop_answer
 from .get_future_salts import get_future_salts
 from .ping import ping
+from .ping_delay_disconnect import ping_delay_disconnect
 
 service_schema = Schema(
     constructors=[
@@ -73,5 +74,6 @@ service_schema = Schema(
         rpc_drop_answer,
         get_future_salts,
         ping,
+        ping_delay_disconnect,
     ]
 )
