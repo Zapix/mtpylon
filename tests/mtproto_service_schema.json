@@ -1,20 +1,13 @@
-# -*- coding: utf-8 -*-
-import struct
-
-import pytest
-
-from mtpylon.service_schema import service_schema
-from mtpylon.schema import CombinatorData, FunctionData
-
-
-def to_unsigned_int(value: int) -> int:
-    return struct.unpack('<I', struct.pack('<i', value))[0]
-
-
-service_schema_dict = {
+{
   "constructors": [
     {
-      "id": 85337187,
+      "id": "481674261",
+      "predicate": "vector",
+      "params": [],
+      "type": "Vector t"
+    },
+    {
+      "id": "85337187",
       "predicate": "resPQ",
       "params": [
         {
@@ -37,7 +30,7 @@ service_schema_dict = {
       "type": "ResPQ"
     },
     {
-      "id": -2083955988,
+      "id": "-2083955988",
       "predicate": "p_q_inner_data",
       "params": [
         {
@@ -68,7 +61,7 @@ service_schema_dict = {
       "type": "P_Q_inner_data"
     },
     {
-      "id": -1443537003,
+      "id": "-1443537003",
       "predicate": "p_q_inner_data_dc",
       "params": [
         {
@@ -103,7 +96,7 @@ service_schema_dict = {
       "type": "P_Q_inner_data"
     },
     {
-      "id": 1013613780,
+      "id": "1013613780",
       "predicate": "p_q_inner_data_temp",
       "params": [
         {
@@ -138,7 +131,7 @@ service_schema_dict = {
       "type": "P_Q_inner_data"
     },
     {
-      "id": 1459478408,
+      "id": "1459478408",
       "predicate": "p_q_inner_data_temp_dc",
       "params": [
         {
@@ -174,10 +167,10 @@ service_schema_dict = {
           "type": "int"
         }
       ],
-      "type": "P_Q_inner_data"
+      "type": "P_Q_inner_d"
     },
     {
-      "id": 2043348061,
+      "id": "2043348061",
       "predicate": "server_DH_params_fail",
       "params": [
         {
@@ -196,7 +189,7 @@ service_schema_dict = {
       "type": "Server_DH_Params"
     },
     {
-      "id": -790100132,
+      "id": "-790100132",
       "predicate": "server_DH_params_ok",
       "params": [
         {
@@ -215,7 +208,7 @@ service_schema_dict = {
       "type": "Server_DH_Params"
     },
     {
-      "id": -1249309254,
+      "id": "-1249309254",
       "predicate": "server_DH_inner_data",
       "params": [
         {
@@ -246,7 +239,7 @@ service_schema_dict = {
       "type": "Server_DH_inner_data"
     },
     {
-      "id": 1715713620,
+      "id": "1715713620",
       "predicate": "client_DH_inner_data",
       "params": [
         {
@@ -269,7 +262,7 @@ service_schema_dict = {
       "type": "Client_DH_Inner_Data"
     },
     {
-      "id": 1003222836,
+      "id": "1003222836",
       "predicate": "dh_gen_ok",
       "params": [
         {
@@ -288,7 +281,7 @@ service_schema_dict = {
       "type": "Set_client_DH_params_answer"
     },
     {
-      "id": 1188831161,
+      "id": "1188831161",
       "predicate": "dh_gen_retry",
       "params": [
         {
@@ -307,7 +300,7 @@ service_schema_dict = {
       "type": "Set_client_DH_params_answer"
     },
     {
-      "id": -1499615742,
+      "id": "-1499615742",
       "predicate": "dh_gen_fail",
       "params": [
         {
@@ -326,7 +319,7 @@ service_schema_dict = {
       "type": "Set_client_DH_params_answer"
     },
     {
-      "id": -212046591,
+      "id": "-212046591",
       "predicate": "rpc_result",
       "params": [
         {
@@ -341,7 +334,7 @@ service_schema_dict = {
       "type": "RpcResult"
     },
     {
-      "id": 558156313,
+      "id": "558156313",
       "predicate": "rpc_error",
       "params": [
         {
@@ -356,19 +349,19 @@ service_schema_dict = {
       "type": "RpcError"
     },
     {
-      "id": 1579864942,
+      "id": "1579864942",
       "predicate": "rpc_answer_unknown",
       "params": [],
       "type": "RpcDropAnswer"
     },
     {
-      "id": -847714938,
+      "id": "-847714938",
       "predicate": "rpc_answer_dropped_running",
       "params": [],
       "type": "RpcDropAnswer"
     },
     {
-      "id": -1539647305,
+      "id": "-1539647305",
       "predicate": "rpc_answer_dropped",
       "params": [
         {
@@ -387,7 +380,7 @@ service_schema_dict = {
       "type": "RpcDropAnswer"
     },
     {
-      "id": 155834844,
+      "id": "155834844",
       "predicate": "future_salt",
       "params": [
         {
@@ -405,27 +398,27 @@ service_schema_dict = {
       ],
       "type": "FutureSalt"
     },
-    # {
-    #   "id": -1370486635,
-    #   "predicate": "future_salts",
-    #   "params": [
-    #     {
-    #       "name": "req_msg_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "now",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "salts",
-    #       "type": "vector<future_salt>"
-    #     }
-    #   ],
-    #   "type": "FutureSalts"
-    # },
     {
-      "id": 880243653,
+      "id": "-1370486635",
+      "predicate": "future_salts",
+      "params": [
+        {
+          "name": "req_msg_id",
+          "type": "long"
+        },
+        {
+          "name": "now",
+          "type": "int"
+        },
+        {
+          "name": "salts",
+          "type": "vector<future_salt>"
+        }
+      ],
+      "type": "FutureSalts"
+    },
+    {
+      "id": "880243653",
       "predicate": "pong",
       "params": [
         {
@@ -440,7 +433,7 @@ service_schema_dict = {
       "type": "Pong"
     },
     {
-      "id": -1631450872,
+      "id": "-1631450872",
       "predicate": "new_session_created",
       "params": [
         {
@@ -458,19 +451,19 @@ service_schema_dict = {
       ],
       "type": "NewSession"
     },
-    # {
-    #   "id": 1945237724,
-    #   "predicate": "msg_container",
-    #   "params": [
-    #     {
-    #       "name": "messages",
-    #       "type": "vector<%Message>"
-    #     }
-    #   ],
-    #   "type": "MessageContainer"
-    # },
     {
-      "id": 1538843921,
+      "id": "1945237724",
+      "predicate": "msg_container",
+      "params": [
+        {
+          "name": "messages",
+          "type": "vector<%Message>"
+        }
+      ],
+      "type": "MessageContainer"
+    },
+    {
+      "id": "1538843921",
       "predicate": "message",
       "params": [
         {
@@ -493,7 +486,7 @@ service_schema_dict = {
       "type": "Message"
     },
     {
-      "id": -530561358,
+      "id": "-530561358",
       "predicate": "msg_copy",
       "params": [
         {
@@ -503,19 +496,19 @@ service_schema_dict = {
       ],
       "type": "MessageCopy"
     },
-    # {
-    #   "id": 812830625,
-    #   "predicate": "gzip_packed",
-    #   "params": [
-    #     {
-    #       "name": "packed_data",
-    #       "type": "bytes"
-    #     }
-    #   ],
-    #   "type": "Object"
-    # },
     {
-      "id": 1658238041,
+      "id": "812830625",
+      "predicate": "gzip_packed",
+      "params": [
+        {
+          "name": "packed_data",
+          "type": "bytes"
+        }
+      ],
+      "type": "Object"
+    },
+    {
+      "id": "1658238041",
       "predicate": "msgs_ack",
       "params": [
         {
@@ -526,7 +519,7 @@ service_schema_dict = {
       "type": "MsgsAck"
     },
     {
-      "id": -1477445615,
+      "id": "-1477445615",
       "predicate": "bad_msg_notification",
       "params": [
         {
@@ -545,7 +538,7 @@ service_schema_dict = {
       "type": "BadMsgNotification"
     },
     {
-      "id": -307542917,
+      "id": "-307542917",
       "predicate": "bad_server_salt",
       "params": [
         {
@@ -568,7 +561,7 @@ service_schema_dict = {
       "type": "BadMsgNotification"
     },
     {
-      "id": 2105940488,
+      "id": "2105940488",
       "predicate": "msg_resend_req",
       "params": [
         {
@@ -579,7 +572,7 @@ service_schema_dict = {
       "type": "MsgResendReq"
     },
     {
-      "id": -2045723925,
+      "id": "-2045723925",
       "predicate": "msg_resend_ans_req",
       "params": [
         {
@@ -590,7 +583,7 @@ service_schema_dict = {
       "type": "MsgResendReq"
     },
     {
-      "id": -630588590,
+      "id": "-630588590",
       "predicate": "msgs_state_req",
       "params": [
         {
@@ -601,7 +594,7 @@ service_schema_dict = {
       "type": "MsgsStateReq"
     },
     {
-      "id": 81704317,
+      "id": "81704317",
       "predicate": "msgs_state_info",
       "params": [
         {
@@ -616,7 +609,7 @@ service_schema_dict = {
       "type": "MsgsStateInfo"
     },
     {
-      "id": -1933520591,
+      "id": "-1933520591",
       "predicate": "msgs_all_info",
       "params": [
         {
@@ -631,7 +624,7 @@ service_schema_dict = {
       "type": "MsgsAllInfo"
     },
     {
-      "id": 661470918,
+      "id": "661470918",
       "predicate": "msg_detailed_info",
       "params": [
         {
@@ -654,7 +647,7 @@ service_schema_dict = {
       "type": "MsgDetailedInfo"
     },
     {
-      "id": -2137147681,
+      "id": "-2137147681",
       "predicate": "msg_new_detailed_info",
       "params": [
         {
@@ -673,7 +666,7 @@ service_schema_dict = {
       "type": "MsgDetailedInfo"
     },
     {
-      "id": 1973679973,
+      "id": "1973679973",
       "predicate": "bind_auth_key_inner",
       "params": [
         {
@@ -700,25 +693,25 @@ service_schema_dict = {
       "type": "BindAuthKeyInner"
     },
     {
-      "id": -161422892,
+      "id": "-161422892",
       "predicate": "destroy_auth_key_ok",
       "params": [],
       "type": "DestroyAuthKeyRes"
     },
     {
-      "id": 178201177,
+      "id": "178201177",
       "predicate": "destroy_auth_key_none",
       "params": [],
       "type": "DestroyAuthKeyRes"
     },
     {
-      "id": -368010477,
+      "id": "-368010477",
       "predicate": "destroy_auth_key_fail",
       "params": [],
       "type": "DestroyAuthKeyRes"
     },
     {
-      "id": -501201412,
+      "id": "-501201412",
       "predicate": "destroy_session_ok",
       "params": [
         {
@@ -729,7 +722,7 @@ service_schema_dict = {
       "type": "DestroySessionRes"
     },
     {
-      "id": 1658015945,
+      "id": "1658015945",
       "predicate": "destroy_session_none",
       "params": [
         {
@@ -742,7 +735,7 @@ service_schema_dict = {
   ],
   "methods": [
     {
-      "id": 1615239032,
+      "id": "1615239032",
       "method": "req_pq",
       "params": [
         {
@@ -753,7 +746,7 @@ service_schema_dict = {
       "type": "ResPQ"
     },
     {
-      "id": -1099002127,
+      "id": "-1099002127",
       "method": "req_pq_multi",
       "params": [
         {
@@ -764,7 +757,7 @@ service_schema_dict = {
       "type": "ResPQ"
     },
     {
-      "id": -686627650,
+      "id": "-686627650",
       "method": "req_DH_params",
       "params": [
         {
@@ -795,7 +788,7 @@ service_schema_dict = {
       "type": "Server_DH_Params"
     },
     {
-      "id": -184262881,
+      "id": "-184262881",
       "method": "set_client_DH_params",
       "params": [
         {
@@ -814,7 +807,7 @@ service_schema_dict = {
       "type": "Set_client_DH_params_answer"
     },
     {
-      "id": 1491380032,
+      "id": "1491380032",
       "method": "rpc_drop_answer",
       "params": [
         {
@@ -825,7 +818,7 @@ service_schema_dict = {
       "type": "RpcDropAnswer"
     },
     {
-      "id": -1188971260,
+      "id": "-1188971260",
       "method": "get_future_salts",
       "params": [
         {
@@ -835,108 +828,67 @@ service_schema_dict = {
       ],
       "type": "FutureSalts"
     },
-    # {
-    #   "id": 2059302892,
-    #   "method": "ping",
-    #   "params": [
-    #     {
-    #       "name": "ping_id",
-    #       "type": "long"
-    #     }
-    #   ],
-    #   "type": "Pong"
-    # },
-    # {
-    #   "id": -213746804,
-    #   "method": "ping_delay_disconnect",
-    #   "params": [
-    #     {
-    #       "name": "ping_id",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "disconnect_delay",
-    #       "type": "int"
-    #     }
-    #   ],
-    #   "type": "Pong"
-    # },
-    # {
-    #   "id": -1835453025,
-    #   "method": "http_wait",
-    #   "params": [
-    #     {
-    #       "name": "max_delay",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "wait_after",
-    #       "type": "int"
-    #     },
-    #     {
-    #       "name": "max_wait",
-    #       "type": "int"
-    #     }
-    #   ],
-    #   "type": "HttpWait"
-    # },
-    # {
-    #   "id": -784117408,
-    #   "method": "destroy_auth_key",
-    #   "params": [],
-    #   "type": "DestroyAuthKeyRes"
-    # },
-    # {
-    #   "id": -414113498,
-    #   "method": "destroy_session",
-    #   "params": [
-    #     {
-    #       "name": "session_id",
-    #       "type": "long"
-    #     }
-    #   ],
-    #   "type": "DestroySessionRes"
-    # }
+    {
+      "id": "2059302892",
+      "method": "ping",
+      "params": [
+        {
+          "name": "ping_id",
+          "type": "long"
+        }
+      ],
+      "type": "Pong"
+    },
+    {
+      "id": "-213746804",
+      "method": "ping_delay_disconnect",
+      "params": [
+        {
+          "name": "ping_id",
+          "type": "long"
+        },
+        {
+          "name": "disconnect_delay",
+          "type": "int"
+        }
+      ],
+      "type": "Pong"
+    },
+    {
+      "id": "-1835453025",
+      "method": "http_wait",
+      "params": [
+        {
+          "name": "max_delay",
+          "type": "int"
+        },
+        {
+          "name": "wait_after",
+          "type": "int"
+        },
+        {
+          "name": "max_wait",
+          "type": "int"
+        }
+      ],
+      "type": "HttpWait"
+    },
+    {
+      "id": "-784117408",
+      "method": "destroy_auth_key",
+      "params": [],
+      "type": "DestroyAuthKeyRes"
+    },
+    {
+      "id": "-414113498",
+      "method": "destroy_session",
+      "params": [
+        {
+          "name": "session_id",
+          "type": "long"
+        }
+      ],
+      "type": "DestroySessionRes"
+    }
   ]
 }
-
-
-@pytest.mark.parametrize(
-  'service_constructor',
-  service_schema_dict['constructors'],
-  ids=lambda x: f"[{x['type']}] {x['predicate']}"
-)
-def test_constructors(service_constructor):
-    constructor_id = to_unsigned_int(service_constructor['id'])
-    assert constructor_id in service_schema
-
-    data = service_schema[constructor_id]
-
-    assert isinstance(data, CombinatorData)
-    assert data.predicate == service_constructor['predicate']
-    assert data.type == service_constructor['type']
-
-    param_names = set([param.name for param in data.params])
-    for param in service_constructor['params']:
-        assert param['name'] in param_names
-
-
-@pytest.mark.parametrize(
-  'method',
-  service_schema_dict['methods'],
-  ids=lambda x: x['method']
-)
-def test_methods(method):
-    method_id = to_unsigned_int(method['id'])
-
-    assert method_id in service_schema
-
-    data = service_schema[method_id]
-
-    assert isinstance(data, FunctionData)
-    assert method['method'] == data.method
-    assert method['type'] == data.type
-
-    param_names = set([param.name for param in data.params])
-    for param in method['params']:
-        param['name'] in param_names
