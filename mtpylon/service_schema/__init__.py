@@ -28,6 +28,7 @@ from .constructors import (
     DestroyAuthKeyRes,
     DestroySessionRes
 )
+from .req_pq import req_pq
 
 service_schema = Schema(
     constructors=[
@@ -58,5 +59,7 @@ service_schema = Schema(
         DestroyAuthKeyRes,
         DestroySessionRes,
     ],
-    functions=[]
+    functions=[
+        req_pq,
+    ]
 )

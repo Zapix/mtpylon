@@ -4,7 +4,7 @@ import struct
 import pytest
 
 from mtpylon.service_schema import service_schema
-from mtpylon.schema import CombinatorData
+from mtpylon.schema import CombinatorData, FunctionData
 
 
 def to_unsigned_int(value: int) -> int:
@@ -752,151 +752,151 @@ service_schema_dict = {
       ],
       "type": "ResPQ"
     },
-    {
-      "id": -1099002127,
-      "method": "req_pq_multi",
-      "params": [
-        {
-          "name": "nonce",
-          "type": "int128"
-        }
-      ],
-      "type": "ResPQ"
-    },
-    {
-      "id": -686627650,
-      "method": "req_DH_params",
-      "params": [
-        {
-          "name": "nonce",
-          "type": "int128"
-        },
-        {
-          "name": "server_nonce",
-          "type": "int128"
-        },
-        {
-          "name": "p",
-          "type": "bytes"
-        },
-        {
-          "name": "q",
-          "type": "bytes"
-        },
-        {
-          "name": "public_key_fingerprint",
-          "type": "long"
-        },
-        {
-          "name": "encrypted_data",
-          "type": "bytes"
-        }
-      ],
-      "type": "Server_DH_Params"
-    },
-    {
-      "id": -184262881,
-      "method": "set_client_DH_params",
-      "params": [
-        {
-          "name": "nonce",
-          "type": "int128"
-        },
-        {
-          "name": "server_nonce",
-          "type": "int128"
-        },
-        {
-          "name": "encrypted_data",
-          "type": "bytes"
-        }
-      ],
-      "type": "Set_client_DH_params_answer"
-    },
-    {
-      "id": 1491380032,
-      "method": "rpc_drop_answer",
-      "params": [
-        {
-          "name": "req_msg_id",
-          "type": "long"
-        }
-      ],
-      "type": "RpcDropAnswer"
-    },
-    {
-      "id": -1188971260,
-      "method": "get_future_salts",
-      "params": [
-        {
-          "name": "num",
-          "type": "int"
-        }
-      ],
-      "type": "FutureSalts"
-    },
-    {
-      "id": 2059302892,
-      "method": "ping",
-      "params": [
-        {
-          "name": "ping_id",
-          "type": "long"
-        }
-      ],
-      "type": "Pong"
-    },
-    {
-      "id": -213746804,
-      "method": "ping_delay_disconnect",
-      "params": [
-        {
-          "name": "ping_id",
-          "type": "long"
-        },
-        {
-          "name": "disconnect_delay",
-          "type": "int"
-        }
-      ],
-      "type": "Pong"
-    },
-    {
-      "id": -1835453025,
-      "method": "http_wait",
-      "params": [
-        {
-          "name": "max_delay",
-          "type": "int"
-        },
-        {
-          "name": "wait_after",
-          "type": "int"
-        },
-        {
-          "name": "max_wait",
-          "type": "int"
-        }
-      ],
-      "type": "HttpWait"
-    },
-    {
-      "id": -784117408,
-      "method": "destroy_auth_key",
-      "params": [],
-      "type": "DestroyAuthKeyRes"
-    },
-    {
-      "id": -414113498,
-      "method": "destroy_session",
-      "params": [
-        {
-          "name": "session_id",
-          "type": "long"
-        }
-      ],
-      "type": "DestroySessionRes"
-    }
+    # {
+    #   "id": -1099002127,
+    #   "method": "req_pq_multi",
+    #   "params": [
+    #     {
+    #       "name": "nonce",
+    #       "type": "int128"
+    #     }
+    #   ],
+    #   "type": "ResPQ"
+    # },
+    # {
+    #   "id": -686627650,
+    #   "method": "req_DH_params",
+    #   "params": [
+    #     {
+    #       "name": "nonce",
+    #       "type": "int128"
+    #     },
+    #     {
+    #       "name": "server_nonce",
+    #       "type": "int128"
+    #     },
+    #     {
+    #       "name": "p",
+    #       "type": "bytes"
+    #     },
+    #     {
+    #       "name": "q",
+    #       "type": "bytes"
+    #     },
+    #     {
+    #       "name": "public_key_fingerprint",
+    #       "type": "long"
+    #     },
+    #     {
+    #       "name": "encrypted_data",
+    #       "type": "bytes"
+    #     }
+    #   ],
+    #   "type": "Server_DH_Params"
+    # },
+    # {
+    #   "id": -184262881,
+    #   "method": "set_client_DH_params",
+    #   "params": [
+    #     {
+    #       "name": "nonce",
+    #       "type": "int128"
+    #     },
+    #     {
+    #       "name": "server_nonce",
+    #       "type": "int128"
+    #     },
+    #     {
+    #       "name": "encrypted_data",
+    #       "type": "bytes"
+    #     }
+    #   ],
+    #   "type": "Set_client_DH_params_answer"
+    # },
+    # {
+    #   "id": 1491380032,
+    #   "method": "rpc_drop_answer",
+    #   "params": [
+    #     {
+    #       "name": "req_msg_id",
+    #       "type": "long"
+    #     }
+    #   ],
+    #   "type": "RpcDropAnswer"
+    # },
+    # {
+    #   "id": -1188971260,
+    #   "method": "get_future_salts",
+    #   "params": [
+    #     {
+    #       "name": "num",
+    #       "type": "int"
+    #     }
+    #   ],
+    #   "type": "FutureSalts"
+    # },
+    # {
+    #   "id": 2059302892,
+    #   "method": "ping",
+    #   "params": [
+    #     {
+    #       "name": "ping_id",
+    #       "type": "long"
+    #     }
+    #   ],
+    #   "type": "Pong"
+    # },
+    # {
+    #   "id": -213746804,
+    #   "method": "ping_delay_disconnect",
+    #   "params": [
+    #     {
+    #       "name": "ping_id",
+    #       "type": "long"
+    #     },
+    #     {
+    #       "name": "disconnect_delay",
+    #       "type": "int"
+    #     }
+    #   ],
+    #   "type": "Pong"
+    # },
+    # {
+    #   "id": -1835453025,
+    #   "method": "http_wait",
+    #   "params": [
+    #     {
+    #       "name": "max_delay",
+    #       "type": "int"
+    #     },
+    #     {
+    #       "name": "wait_after",
+    #       "type": "int"
+    #     },
+    #     {
+    #       "name": "max_wait",
+    #       "type": "int"
+    #     }
+    #   ],
+    #   "type": "HttpWait"
+    # },
+    # {
+    #   "id": -784117408,
+    #   "method": "destroy_auth_key",
+    #   "params": [],
+    #   "type": "DestroyAuthKeyRes"
+    # },
+    # {
+    #   "id": -414113498,
+    #   "method": "destroy_session",
+    #   "params": [
+    #     {
+    #       "name": "session_id",
+    #       "type": "long"
+    #     }
+    #   ],
+    #   "type": "DestroySessionRes"
+    # }
   ]
 }
 
@@ -915,7 +915,28 @@ def test_constructors(service_constructor):
     assert isinstance(data, CombinatorData)
     assert data.predicate == service_constructor['predicate']
     assert data.type == service_constructor['type']
-    param_names = [param.name for param in data.params]
 
+    param_names = set([param.name for param in data.params])
     for param in service_constructor['params']:
         assert param['name'] in param_names
+
+
+@pytest.mark.parametrize(
+  'method',
+  service_schema_dict['methods'],
+  ids=lambda x: x['method']
+)
+def test_methods(method):
+    method_id = to_unsigned_int(method['id'])
+
+    assert method_id in service_schema
+
+    data = service_schema[method_id]
+
+    assert isinstance(data, FunctionData)
+    assert method['method'] == data.method
+    assert method['type'] == data.type
+
+    param_names = set([param.name for param in data.params])
+    for param in method['params']:
+        param['name'] in param_names
