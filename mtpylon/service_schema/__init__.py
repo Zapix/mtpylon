@@ -37,6 +37,7 @@ from .get_future_salts import get_future_salts
 from .ping import ping
 from .ping_delay_disconnect import ping_delay_disconnect
 from .destroy_auth_key import destroy_auth_key
+from .destroy_session import destroy_session
 
 service_schema = Schema(
     constructors=[
@@ -77,5 +78,6 @@ service_schema = Schema(
         ping,
         ping_delay_disconnect,
         destroy_auth_key,
+        destroy_session
     ]
 )
