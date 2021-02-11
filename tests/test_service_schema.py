@@ -763,37 +763,37 @@ service_schema_dict = {
       ],
       "type": "ResPQ"
     },
-    # {
-    #   "id": -686627650,
-    #   "method": "req_DH_params",
-    #   "params": [
-    #     {
-    #       "name": "nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "server_nonce",
-    #       "type": "int128"
-    #     },
-    #     {
-    #       "name": "p",
-    #       "type": "bytes"
-    #     },
-    #     {
-    #       "name": "q",
-    #       "type": "bytes"
-    #     },
-    #     {
-    #       "name": "public_key_fingerprint",
-    #       "type": "long"
-    #     },
-    #     {
-    #       "name": "encrypted_data",
-    #       "type": "bytes"
-    #     }
-    #   ],
-    #   "type": "Server_DH_Params"
-    # },
+    {
+      "id": -686627650,
+      "method": "req_DH_params",
+      "params": [
+        {
+          "name": "nonce",
+          "type": "int128"
+        },
+        {
+          "name": "server_nonce",
+          "type": "int128"
+        },
+        {
+          "name": "p",
+          "type": "bytes"
+        },
+        {
+          "name": "q",
+          "type": "bytes"
+        },
+        {
+          "name": "public_key_fingerprint",
+          "type": "long"
+        },
+        {
+          "name": "encrypted_data",
+          "type": "bytes"
+        }
+      ],
+      "type": "Server_DH_Params"
+    },
     # {
     #   "id": -184262881,
     #   "method": "set_client_DH_params",
