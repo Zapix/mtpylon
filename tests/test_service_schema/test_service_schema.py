@@ -3,7 +3,7 @@ import struct
 
 import pytest
 
-from mtpylon.service_schema import service_schema
+from mtpylon.service_schema.service_schema import service_schema
 from mtpylon.schema import CombinatorData, FunctionData
 
 
