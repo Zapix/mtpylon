@@ -128,7 +128,7 @@ def dump(schema, value, custom_dumpers=None, **kwargs):
                 item_origin = origin.__args__[0]
                 dump_item: DumpFunction = dump_map.get(
                     item_origin,
-                    partial(dump, schema)
+                    partial(dump, schema, custom_dumpers=custom_dumpers)
                 )
                 return dump_vector(dump_item, dump_value)
             else:
