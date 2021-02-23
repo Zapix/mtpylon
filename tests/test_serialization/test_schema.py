@@ -152,6 +152,25 @@ def test_dump_login_function():
     )
 
 
+def test_dump_custom_bool():
+    def dump_custom_bool_true(value):
+        return b'\xb5\x75\x72\x99' + b'custom'
+
+    def dump_custom_bool_false(value):
+        return b'\x37\x97\x79\xbc' + b'custom'
+
+    custom_dumpers = {
+        BoolTrue: dump_custom_bool_true,
+        BoolFalse: dump_custom_bool_false
+    }
+
+    dumped_true = dump(schema, BoolTrue(), custom_dumpers=custom_dumpers)
+    assert dumped_true == b'\xb5\x75\x72\x99' + b'custom'
+
+    dumped_false = dump(schema, BoolFalse(), custom_dumpers=custom_dumpers)
+    assert dumped_false == b'\x37\x97\x79\xbc' + b'custom'
+
+
 def test_dump_wrong_object():
     obj = WrongObject()
     with pytest.raises(DumpError):

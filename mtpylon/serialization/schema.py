@@ -39,6 +39,8 @@ from ..exceptions import DumpError
 
 DumpFunction = Callable[[Any], bytes]
 
+CustomDumpersMap = Dict[Type, DumpFunction]
+
 
 @dataclass
 class CallableFunc:
@@ -78,19 +80,31 @@ def set_flag_value(flag_number: int, param_name: str, origin: Type) -> int:
 
 
 @overload
-def dump(schema: Schema, value: Any) -> bytes:
+def dump(
+        schema: Schema,
+        value: Any,
+        custom_dumpers: Optional[CustomDumpersMap],
+) -> bytes:
     ...
 
 
 @overload
-def dump(schema: Schema, value: Callable, **kwargs: Any) -> bytes:
+def dump(
+        schema: Schema,
+        value: Callable,
+        custom_dumpers: Optional[CustomDumpersMap],
+        **kwargs: Any,
+) -> bytes:
     ...
 
 
-def dump(schema, value, **kwargs):
+def dump(schema, value, custom_dumpers=None, **kwargs):
     """
     Dumps basic or boxed types by schema
     """
+    if custom_dumpers is None:
+        custom_dumpers = {}
+
     def dump_by_type(
             dump_value: Any,
             origin: Type,
@@ -123,6 +137,10 @@ def dump(schema, value, **kwargs):
                 return dump_func(dump_value)
         except Exception:
             raise DumpError(f'Can`t dump {value} as {type_name}')
+
+    if type(value) in custom_dumpers:
+        dump_function = custom_dumpers[type(value)]
+        return dump_function(value)
 
     data: Optional[Union[CombinatorData, FunctionData]] = None
     values_2_dump: List[Value2Dump] = []
