@@ -38,8 +38,10 @@ from ..exceptions import DumpError
 
 
 DumpFunction = Callable[[Any], bytes]
+LoadFunction = Callable[[bytes], LoadedValue[Any]]
 
 CustomDumpersMap = Dict[Type, DumpFunction]
+CustomLoadersMap = Dict[Type, LoadFunction]
 
 
 @dataclass
@@ -206,7 +208,8 @@ def dump(schema, value, custom_dumpers=None, **kwargs):
 
 def load(
         schema: Schema,
-        input: bytes
+        input: bytes,
+        custom_loaders: Optional[CustomLoadersMap] = None
 ) -> LoadedValue[Union[CallableFunc, Any]]:
     """
     Loads object or function with params from bytes input
@@ -218,6 +221,9 @@ def load(
     Raises:
         ValueError - when can't load data
     """
+    if custom_loaders is None:
+        custom_loaders = {}
+
     def load_empty(x: bytes) -> LoadedValue[None]:
         return LoadedValue(None, 0)
 
@@ -233,8 +239,11 @@ def load(
         type(None): load_empty,
     }
 
-    def get_load_func(x) -> Callable[[bytes], LoadedValue[Any]]:
-        return load_map.get(x, partial(load, schema))
+    def get_load_func(x) -> LoadFunction:
+        return load_map.get(
+            x,
+            partial(load, schema, custom_loaders=custom_loaders)
+        )
 
     offset = 0
     loaded_combinator = load_int(input)
@@ -245,7 +254,10 @@ def load(
         raise ValueError(f'Can`t find combinator {combinator} in schema')
 
     data = schema[combinator]
-    print(data)
+
+    if isinstance(data.origin, type) and data.origin in custom_loaders:
+        loader = custom_loaders[data.origin]
+        return loader(input)
 
     flag_number: Optional[int] = None
     params: Dict[str, Any] = {}
