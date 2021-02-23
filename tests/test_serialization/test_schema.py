@@ -6,6 +6,7 @@ import pytest
 from mtpylon.serialization import dump, load
 from mtpylon.serialization.schema import CallableFunc
 from mtpylon.exceptions import DumpError
+from mtpylon.serialization.loaded import LoadedValue
 
 from ..simpleschema import (
     schema,
@@ -150,6 +151,25 @@ def test_dump_login_function():
         b'\x04root\x00\x00\x00' +  # username
         b'\x04root\x00\x00\x00'  # password
     )
+
+
+def test_dump_custom_bool():
+    def dump_custom_bool_true(value):
+        return b'\xb5\x75\x72\x99' + b'custom'
+
+    def dump_custom_bool_false(value):
+        return b'\x37\x97\x79\xbc' + b'custom'
+
+    custom_dumpers = {
+        BoolTrue: dump_custom_bool_true,
+        BoolFalse: dump_custom_bool_false
+    }
+
+    dumped_true = dump(schema, BoolTrue(), custom_dumpers=custom_dumpers)
+    assert dumped_true == b'\xb5\x75\x72\x99' + b'custom'
+
+    dumped_false = dump(schema, BoolFalse(), custom_dumpers=custom_dumpers)
+    assert dumped_false == b'\x37\x97\x79\xbc' + b'custom'
 
 
 def test_dump_wrong_object():
@@ -320,6 +340,31 @@ def test_load_login_func():
     assert loaded.value.params['username'] == 'root'
     assert loaded.value.params['password'] == 'root'
     assert loaded.offset == 20
+
+
+def test_custom_loaders():
+    dumped_true = b'\xb5\x75\x72\x99' + b'custom'
+    dumped_false = b'\x37\x97\x79\xbc' + b'custom'
+
+    def bool_true_loader(input: bytes) -> LoadedValue[BoolTrue]:
+        return LoadedValue(BoolTrue(), offset=10)
+
+    def bool_false_loader(input: bytes) -> LoadedValue[BoolFalse]:
+        return LoadedValue(BoolFalse(), offset=10)
+
+    custom_loaders = {
+        BoolTrue: bool_true_loader,
+        BoolFalse: bool_false_loader,
+    }
+    loaded = load(schema, dumped_true, custom_loaders=custom_loaders)
+
+    assert loaded.value == BoolTrue()
+    assert loaded.offset == 10
+
+    loaded = load(schema, dumped_false, custom_loaders=custom_loaders)
+
+    assert loaded.value == BoolFalse()
+    assert loaded.offset == 10
 
 
 def test_no_value():
