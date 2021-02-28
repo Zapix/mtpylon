@@ -82,3 +82,17 @@ def is_miller_rabin_passed(value: int) -> bool:
             return False
 
     return True
+
+
+def random_prime(n_bits: int) -> int:
+    """
+    Returns random primary number
+    """
+    while True:
+        possible_prime = random_odd(n_bits)
+
+        if (
+                is_low_level_test_passed(possible_prime) and
+                is_miller_rabin_passed(possible_prime)
+        ):
+            return possible_prime
