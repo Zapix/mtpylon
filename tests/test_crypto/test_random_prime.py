@@ -3,7 +3,8 @@ import pytest
 
 from mtpylon.crypto.random_prime import (
     random_odd,
-    is_low_level_test_passed
+    is_low_level_test_passed,
+    is_miller_rabin_passed
 )
 
 
@@ -35,3 +36,12 @@ def test_random_odd():
 )
 def test_is_low_level_test_passed(value, expected):
     assert is_low_level_test_passed(value) == expected
+
+
+@pytest.mark.parametrize(
+    'value,expected',
+    prime_tests,
+    ids=lambda x: x
+)
+def test_is_miller_rabin_passed(value, expected):
+    assert is_miller_rabin_passed(value) == expected

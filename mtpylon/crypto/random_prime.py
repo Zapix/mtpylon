@@ -36,3 +36,49 @@ def is_low_level_test_passed(value: int) -> bool:
             return False
 
     return True
+
+
+TESTS_COUNT = 20
+
+
+def is_composite_value(value: int, a: int, ec: int, max_pow_2: int) -> bool:
+    """
+    Returns True if value is composite. otherwise false
+    """
+    b0 = pow(a, ec, value)
+
+    if b0 == 1 or b0 == value - 1:
+        return False
+    b_prev = b0
+
+    for _ in range(max_pow_2):
+        bi = pow(b_prev, 2, value)
+
+        if bi == 1:
+            break
+        elif bi == value - 1:
+            return False
+
+        b_prev = bi
+
+    return True
+
+
+def is_miller_rabin_passed(value: int) -> bool:
+    """
+    Checks is value a prime number with Fermat theorem
+    and Miller Rabin algorithm
+    """
+    ec = value - 1
+    max_pow_2 = 0
+    while ec % 2 == 0:
+        ec >>= 1
+        max_pow_2 += 1
+
+    for i in range(TESTS_COUNT):
+        a = random.randint(2, ec)
+
+        if is_composite_value(value, a, ec, max_pow_2):
+            return False
+
+    return True
