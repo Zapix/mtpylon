@@ -15,18 +15,18 @@ class KeyPair:
 
 class RsaManagerProtocol(Protocol):
 
-    def __contains__(self, item: int) -> bool:
+    def __contains__(self, item: int) -> bool:  # pragma: no cover
         ...
 
-    def __getitem__(self, item: int) -> KeyPair:
-        ...
-
-    @property
-    def public_key_list(self) -> List[bytes]:
+    def __getitem__(self, item: int) -> KeyPair:  # pragma: no cover
         ...
 
     @property
-    def fingerprint_list(self) -> List[int]:
+    def public_key_list(self) -> List[bytes]:  # pragma: no cover
+        ...
+
+    @property
+    def fingerprint_list(self) -> List[int]:  # pragma: no cover
         ...
 
 
