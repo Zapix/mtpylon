@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import pytest
 from rsa import PublicKey, PrivateKey  # type: ignore
 
-from mtpylon.crypto.rsa_manager import KeyPair, RsaManager
+from mtpylon.crypto import KeyPair, RsaManager
 
 
 @dataclass
