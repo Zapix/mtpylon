@@ -18,8 +18,8 @@ class AuthKeyManagerProtocol(Protocol):
         ...
 
     async def has_key(
-            self, value:
-            Union[AuthKey, int]
+            self,
+            value: Union[AuthKey, int]
     ) -> bool:  # pragma: nocover
         """
         Checks is this AuthKey store in manager or not. This method
@@ -39,7 +39,7 @@ class AuthKeyManagerProtocol(Protocol):
         """
         ...
 
-    async def del_key(self, value: Union[AuthKey, int]):
+    async def del_key(self, value: Union[AuthKey, int]):  # pragma: nocover
         """
         Delete auth key from manager by it's id, value or AuthKey instance
         It'll be async function coz we could use separated service to store
@@ -47,6 +47,7 @@ class AuthKeyManagerProtocol(Protocol):
 
         Raises:  AuthKeyDoesNotExist if key doesn't store in manager
         """
+        ...
 
 
 class AuthKeyManager(AuthKeyManagerProtocol):
