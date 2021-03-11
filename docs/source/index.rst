@@ -12,6 +12,8 @@ Welcome to mtpylon's documentation!
 
    1-combinators-and-constructors
    2-schema-and-its-serializers
+   3-rsa-key-manager
+   4-auth-key-and-auth-key-manager
 
 Indices and tables
 ==================

@@ -16,6 +16,9 @@ public rsa keys as python `bytes`. Also It returns list of available fingerprint
 
 .. _RsaManager_implementation:
 
+RSA Key Manager implementation
+------------------------------
+
 MTPylon has got simple RSA Key Manager implementation example of usage:
 
 .. code-block:: python
@@ -66,6 +69,10 @@ MTPylon has got simple RSA Key Manager implementation example of usage:
 
 
 .. _Rsa_Manager_Protocol:
+
+
+RSA Key Manager protocol
+------------------------
 
 You could implement and use your custom rsa manager by implementing protocol
 `mtpylon.crypto.rsa_manager.RasManagerProtocol`
