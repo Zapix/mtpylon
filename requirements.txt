@@ -19,3 +19,4 @@ typed-ast==1.4.1
 typing-extensions==3.7.4.3
 rsa==4.7.2
 tgcrypto==1.2.2
+pyaes==1.6.1
