@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import pytest
+
 import rsa  # type: ignore
 
+from mtpylon import long
 from mtpylon.crypto.rsa_fingerprint import get_fingerprint
 
 public_keys_with_fingerprint = [
@@ -18,7 +20,7 @@ public_keys_with_fingerprint = [
             -----END RSA PUBLIC KEY-----
             """,
         ),
-        0xc3b42b026ce86b21,
+        long(0xc3b42b026ce86b21),
         id='c3b42b026ce86b21'
     ),
     pytest.param(
@@ -35,7 +37,7 @@ public_keys_with_fingerprint = [
             -----END PUBLIC KEY-----
             """
         ),
-        0x0bc35f3509f7b7a5,
+        long(0x0bc35f3509f7b7a5),
         id='0bc35f3509f7b7a5'
     ),
     pytest.param(
@@ -52,7 +54,7 @@ public_keys_with_fingerprint = [
             -----END PUBLIC KEY-----
             """
         ),
-        0x15ae5fa8b5529542,
+        long(0x15ae5fa8b5529542),
         id="15ae5fa8b5529542"
     ),
     pytest.param(
@@ -69,25 +71,25 @@ public_keys_with_fingerprint = [
             -----END PUBLIC KEY-----
             """
         ),
-        0xaeae98e13cd7f94f,
+        long(0xaeae98e13cd7f94f),
         id="aeae98e13cd7f94f"
     ),
     pytest.param(
-       rsa.PublicKey.load_pkcs1_openssl_pem(
-           """
-           -----BEGIN PUBLIC KEY-----
-            MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvmpxVY7ld/8DAjz6F6q0
-            5shjg8/4p6047bn6/m8yPy1RBsvIyvuDuGnP/RzPEhzXQ9UJ5Ynmh2XJZgHoE9xb
-            nfxL5BXHplJhMtADXKM9bWB11PU1Eioc3+AXBB8QiNFBn2XI5UkO5hPhbb9mJpjA
-            9Uhw8EdfqJP8QetVsI/xrCEbwEXe0xvifRLJbY08/Gp66KpQvy7g8w7VB8wlgePe
-            xW3pT13Ap6vuC+mQuJPyiHvSxjEKHgqePji9NP3tJUFQjcECqcm0yV7/2d0t/pbC
-            m+ZH1sadZspQCEPPrtbkQBlvHb4OLiIWPGHKSMeRFvp3IWcmdJqXahxLCUS1Eh6M
-            AQIDAQAB
-            -----END PUBLIC KEY-----
-           """
-       ),
-       0x5a181b2235057d98,
-       id="5a181b2235057d98"
+        rsa.PublicKey.load_pkcs1_openssl_pem(
+            """
+            -----BEGIN PUBLIC KEY-----
+             MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvmpxVY7ld/8DAjz6F6q0
+             5shjg8/4p6047bn6/m8yPy1RBsvIyvuDuGnP/RzPEhzXQ9UJ5Ynmh2XJZgHoE9xb
+             nfxL5BXHplJhMtADXKM9bWB11PU1Eioc3+AXBB8QiNFBn2XI5UkO5hPhbb9mJpjA
+             9Uhw8EdfqJP8QetVsI/xrCEbwEXe0xvifRLJbY08/Gp66KpQvy7g8w7VB8wlgePe
+             xW3pT13Ap6vuC+mQuJPyiHvSxjEKHgqePji9NP3tJUFQjcECqcm0yV7/2d0t/pbC
+             m+ZH1sadZspQCEPPrtbkQBlvHb4OLiIWPGHKSMeRFvp3IWcmdJqXahxLCUS1Eh6M
+             AQIDAQAB
+             -----END PUBLIC KEY-----
+            """
+        ),
+        long(0x5a181b2235057d98),
+        id="5a181b2235057d98"
     ),
 ]
 

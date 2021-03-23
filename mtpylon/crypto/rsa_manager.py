@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from rsa import PublicKey, PrivateKey  # type: ignore
 
+from ..utils import long
 from .rsa_fingerprint import get_fingerprint
 
 
@@ -15,10 +16,10 @@ class KeyPair:
 
 class RsaManagerProtocol(Protocol):
 
-    def __contains__(self, item: int) -> bool:  # pragma: no cover
+    def __contains__(self, item: long) -> bool:  # pragma: no cover
         ...
 
-    def __getitem__(self, item: int) -> KeyPair:  # pragma: no cover
+    def __getitem__(self, item: long) -> KeyPair:  # pragma: no cover
         ...
 
     @property
@@ -26,22 +27,22 @@ class RsaManagerProtocol(Protocol):
         ...
 
     @property
-    def fingerprint_list(self) -> List[int]:  # pragma: no cover
+    def fingerprint_list(self) -> List[long]:  # pragma: no cover
         ...
 
 
 class RsaManager(RsaManagerProtocol):
 
     def __init__(self, rsa_keys: List[KeyPair]):
-        self._key_map: Dict[int, KeyPair] = {
+        self._key_map: Dict[long, KeyPair] = {
             get_fingerprint(item.public): item
             for item in rsa_keys
         }
 
-    def __contains__(self, item: int) -> bool:
+    def __contains__(self, item: long) -> bool:
         return item in self._key_map
 
-    def __getitem__(self, item: int) -> KeyPair:
+    def __getitem__(self, item: long) -> KeyPair:
         return self._key_map[item]
 
     @property
@@ -52,8 +53,8 @@ class RsaManager(RsaManagerProtocol):
         ]
 
     @property
-    def fingerprint_list(self) -> List[int]:
+    def fingerprint_list(self) -> List[long]:
         return [
-            fingerprint
+            long(fingerprint)
             for fingerprint in self._key_map.keys()
         ]

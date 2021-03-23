@@ -1,18 +1,29 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass
+from unittest.mock import patch, MagicMock
+from contextlib import ExitStack
 
 import pytest
-from rsa import PublicKey, PrivateKey  # type: ignore
 
-from mtpylon import long
-from mtpylon.crypto import KeyPair, RsaManager
+import rsa  # type: ignore
+
+from mtpylon import int128, long
+from mtpylon.crypto import RsaManager, KeyPair
+from mtpylon.contextvars import (
+    server_nonce,
+    p,
+    q,
+    pq,
+    rsa_manager
+)
+from mtpylon.service_schema.functions import req_pq
 
 
 @dataclass
 class KeyData:
     public_str: str
     private_str: str
-    fingerprint: long
+    fingerprint: int
 
 
 key_data_list = [
@@ -34,7 +45,7 @@ key_data_list = [
         hIa7d4vHIPPflSd0GRsdJ8bmY0rJjB4qWXiav0xgHA==
         -----END RSA PRIVATE KEY-----
         ''',
-        fingerprint=long(13923728974697425819)
+        fingerprint=13923728974697425819
     ),
     KeyData(
         public_str='''
@@ -54,7 +65,7 @@ key_data_list = [
         j7pPPfkOdQmWybZxk19n3309S2Tf/OM411Da3S3m5Cix
         -----END RSA PRIVATE KEY-----
         ''',
-        fingerprint=long(2244281079002705184)
+        fingerprint=2244281079002705184
     ),
     KeyData(
         public_str='''
@@ -74,60 +85,60 @@ key_data_list = [
         v3q7L38lqQ7um1ycT7QY8Sh4SfX/HFdcTPe1dnDUhvE=
         -----END RSA PRIVATE KEY-----
         ''',
-        fingerprint=long(5339281804123932840)
+        fingerprint=5339281804123932840
     )
 ]
 
-
 key_pairs = [
     KeyPair(
-        public=PublicKey.load_pkcs1(item.public_str),
-        private=PrivateKey.load_pkcs1(item.private_str),
+        public=rsa.PublicKey.load_pkcs1(item.public_str),
+        private=rsa.PrivateKey.load_pkcs1(item.private_str),
     )
     for item in key_data_list
 ]
 
-rsa_manager = RsaManager(key_pairs)
+manager = RsaManager(key_pairs)
 
 
-@pytest.mark.parametrize(
-    'key_data',
-    key_data_list,
-    ids=lambda x: x.fingerprint
-)
-def test_contians_fingerprint(key_data):
-    assert key_data.fingerprint in rsa_manager
+@pytest.mark.asyncio
+async def test_req_pq():
+    nonce_value = int128(88224628713810667588887952107997447839)
+    server_nonce_value = int128(235045274609009641577718790092619182246)
+    p_value = 1834598767
+    q_value = 1932921469
+    pq_value = 3546135343735228723
 
+    rsa_manager.set(manager)
 
-@pytest.mark.parametrize(
-    'key_data',
-    key_data_list,
-    ids=lambda x: x.fingerprint
-)
-def test_get_keypair(key_data):
-    public = PublicKey.load_pkcs1(key_data.public_str)
-    private = PrivateKey.load_pkcs1(key_data.private_str)
+    getrandbits = MagicMock(return_value=server_nonce_value)
 
-    key_pair = rsa_manager[key_data.fingerprint]
-    assert key_pair.public == public
-    assert key_pair.private == private
+    random_prime = MagicMock(side_effect=[q_value, p_value])
 
+    with ExitStack() as patcher:
+        patcher.enter_context(
+            patch(
+                'mtpylon.service_schema.functions.req_pq_func.getrandbits',
+                getrandbits
+            )
+        )
+        patcher.enter_context(
+            patch(
+                'mtpylon.service_schema.functions.req_pq_func.random_prime',
+                random_prime
+            )
+        )
 
-@pytest.mark.parametrize(
-    'key_data',
-    key_data_list,
-    ids=lambda x: x.public_str
-)
-def test_check_public_str(key_data):
-    public = PublicKey.load_pkcs1(key_data.public_str)
-    public_bytes = public.save_pkcs1()
-    assert public_bytes in rsa_manager.public_key_list
+        result = await req_pq(nonce_value)
 
+        assert result.nonce == nonce_value
+        assert result.server_nonce == server_nonce_value
+        assert server_nonce.get() == server_nonce_value
 
-@pytest.mark.parametrize(
-    'key_data',
-    key_data_list,
-    ids=lambda x: x.fingerprint
-)
-def test_check_fingerprint_in_list(key_data):
-    assert key_data.fingerprint in rsa_manager.fingerprint_list
+        assert int.from_bytes(result.pq, 'big') == pq_value
+        assert int.from_bytes(pq.get(), 'big') == pq_value
+        assert p.get() == long(p_value)
+        assert q.get() == long(q_value)
+
+        assert len(result.server_public_key_fingerprints) == 1
+        fingerprint = result.server_public_key_fingerprints[0]
+        assert fingerprint in manager.fingerprint_list
