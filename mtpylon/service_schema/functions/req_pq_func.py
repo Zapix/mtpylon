@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from random import getrandbits, choices
 
-from mtpylon.utils import long, int128, bytes_needed
-from mtpylon.contextvars import rsa_manager, server_nonce, p, q, pq
-from mtpylon.crypto.random_prime import random_prime
+from mtpylon.utils import int128, bytes_needed
+from mtpylon.contextvars import rsa_manager, server_nonce
 
 from ..constructors import ResPQ
+from ..utils import generates_pq, set_pq_context
 
 
 async def req_pq(nonce: int128) -> ResPQ:
@@ -20,20 +20,15 @@ async def req_pq(nonce: int128) -> ResPQ:
     server_nonce_value = int128(getrandbits(128))
     server_nonce.set(server_nonce_value)
 
-    p_value = random_prime(64)
-    q_value = random_prime(64)
+    p, q = generates_pq()
+    set_pq_context(p, q)
 
-    if q_value < p_value:
-        p_value, q_value = q_value, p_value
+    pq = p * q
 
-    p.set(long(p_value))
-    q.set(long(q_value))
-    pq_value = p_value * q_value
-    pq_bytes = pq_value.to_bytes(
-        bytes_needed(pq_value),
+    pq_bytes = pq.to_bytes(
+        bytes_needed(pq),
         'big'
     )
-    pq.set(pq_bytes)
 
     manager = rsa_manager.get()
 

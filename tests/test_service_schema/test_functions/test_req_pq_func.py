@@ -4,12 +4,12 @@ from contextlib import ExitStack
 
 import pytest
 
-from mtpylon import int128, long
+from mtpylon import int128
 from mtpylon.contextvars import (
     server_nonce,
-    p,
-    q,
-    pq,
+    p_var,
+    q_var,
+    pq_var,
     rsa_manager
 )
 from mtpylon.service_schema.functions import req_pq
@@ -40,7 +40,7 @@ async def test_req_pq():
         )
         patcher.enter_context(
             patch(
-                'mtpylon.service_schema.functions.req_pq_func.random_prime',
+                'mtpylon.service_schema.utils.random_prime',
                 random_prime
             )
         )
@@ -52,9 +52,9 @@ async def test_req_pq():
         assert server_nonce.get() == server_nonce_value
 
         assert int.from_bytes(result.pq, 'big') == pq_value
-        assert int.from_bytes(pq.get(), 'big') == pq_value
-        assert p.get() == long(p_value)
-        assert q.get() == long(q_value)
+        assert pq_var.get() == pq_value
+        assert p_var.get() == p_value
+        assert q_var.get() == q_value
 
         assert len(result.server_public_key_fingerprints) == 1
         fingerprint = result.server_public_key_fingerprints[0]
