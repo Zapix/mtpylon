@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from .req_pq_func import req_pq
-from .req_pq_multi import req_pq_multi
+from .req_pq_multi_func import req_pq_multi
 from .req_DH_params import req_DH_params
 from .set_client_DH_params import set_client_DH_params
 from .rpc_drop_answer import rpc_drop_answer
