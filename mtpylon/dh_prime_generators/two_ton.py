@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-from typing import AsyncIterator
-
 from aiohttp import ClientSession
 
+from .typing import DhPrimeGenerator
 
 SAFE_PRIME_URL = "https://2ton.com.au/getprimes/random/2048/3"
 
 
-async def generate() -> AsyncIterator[int]:
+async def generate() -> DhPrimeGenerator:
     """
     Get's 2048 dh prime number from open api(https://2ton.com.au/safeprimes/)
     Returns this value as integer
