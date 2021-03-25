@@ -3,6 +3,7 @@ from .auth_key import AuthKey
 from .auth_key_manager import AuthKeyManager
 from .exceptions import AuthKeyDoesNotExist
 from .rsa_manager import RsaManager, KeyPair
+from .key_iv_pair import KeyIvPair
 
 __all__ = [
     'RsaManager',
@@ -10,4 +11,5 @@ __all__ = [
     'AuthKey',
     'AuthKeyManager',
     'AuthKeyDoesNotExist',
+    'KeyIvPair',
 ]
