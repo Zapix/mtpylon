@@ -5,7 +5,7 @@ from contextlib import ExitStack
 
 import pytest
 
-from mtpylon import int128, long
+from mtpylon import int128
 from mtpylon.contextvars import (
     server_nonce,
     p_var,
