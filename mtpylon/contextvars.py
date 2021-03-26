@@ -6,7 +6,7 @@ from contextvars import ContextVar
 
 from .crypto.rsa_manager import RsaManagerProtocol
 from .dh_prime_generators.typing import DhPrimeGenerator
-from .utils import int128
+from .utils import int128, int256
 
 """
 Store rsa_manager in context to get access for all values.
@@ -28,6 +28,8 @@ dh_prime_generator: ContextVar[DhPrimeGenerator] = ContextVar(
 Stores server_nonces for authorization key creation process
 """
 server_nonce_var: ContextVar[int128] = ContextVar('server_nonce')
+
+new_nonce_var: ContextVar[int256] = ContextVar('new_nonce')
 
 
 """

@@ -11,7 +11,8 @@ from tgcrypto import ige256_encrypt  # type: ignore
 from mtpylon import Schema
 from mtpylon.contextvars import (
     rsa_manager,
-    server_nonce_var as server_nonce_context,
+    server_nonce_var,
+    new_nonce_var,
     p_var,
     q_var,
     pq_var,
@@ -142,10 +143,11 @@ async def req_DH_params(
         ServerDHParamsOK - if p,q values are valid
     """
     inner_data = decrypt_inner_data(encrypted_data, public_key_fingerprint)
+    new_nonce_var.set(inner_data.new_nonce)
     new_nonce_hash = build_new_nonce_hash(inner_data.new_nonce)
 
     if (
-            server_nonce != server_nonce_context.get() or
+            server_nonce != server_nonce_var.get() or
             server_nonce != inner_data.server_nonce
     ):
         raise ValueError('Wrong server nonces')
@@ -154,7 +156,7 @@ async def req_DH_params(
         logger.debug('Wrong server  pq params')
         return ServerDHParamsFail(
             nonce=nonce,
-            server_nonce=server_nonce_context.get(),
+            server_nonce=server_nonce_var.get(),
             new_nonce_hash=new_nonce_hash
         )
 

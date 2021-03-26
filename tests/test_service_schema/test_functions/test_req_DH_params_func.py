@@ -13,6 +13,7 @@ from mtpylon.contextvars import (
     rsa_manager,
     dh_prime_generator,
     server_nonce_var,
+    new_nonce_var,
     p_var,
     q_var,
     pq_var,
@@ -212,6 +213,8 @@ async def test_req_DH_params_ok():
     assert value.server_nonce == server_nonce_value
     assert value.nonce == nonce_value
     assert int.from_bytes(value.dh_prime, 'big') == DH_PRIME
+
+    assert new_nonce_value == new_nonce_var.get()
 
 
 @pytest.mark.asyncio
