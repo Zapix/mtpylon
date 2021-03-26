@@ -7,7 +7,7 @@ import pytest
 
 from mtpylon import int128
 from mtpylon.contextvars import (
-    server_nonce,
+    server_nonce_var,
     p_var,
     q_var,
     pq_var,
@@ -52,7 +52,7 @@ async def test_req_pq_multi():
 
         assert result.nonce == nonce_value
         assert result.server_nonce == server_nonce_value
-        assert server_nonce.get() == server_nonce_value
+        assert server_nonce_var.get() == server_nonce_value
 
         assert int.from_bytes(result.pq, 'big') == pq_value
         assert pq_var.get() == pq_value

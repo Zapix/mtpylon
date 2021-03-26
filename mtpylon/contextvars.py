@@ -27,7 +27,7 @@ dh_prime_generator: ContextVar[DhPrimeGenerator] = ContextVar(
 """
 Stores server_nonces for authorization key creation process
 """
-server_nonce: ContextVar[int128] = ContextVar('server_nonce')
+server_nonce_var: ContextVar[int128] = ContextVar('server_nonce')
 
 
 """

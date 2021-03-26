@@ -12,7 +12,7 @@ from mtpylon import int128, long
 from mtpylon.contextvars import (
     rsa_manager,
     dh_prime_generator,
-    server_nonce,
+    server_nonce_var,
     p_var,
     q_var,
     pq_var,
@@ -44,7 +44,7 @@ pq_value = 3546135343735228723
 
 def setup_function(function):
     rsa_manager.set(manager)
-    server_nonce.set(server_nonce_value)
+    server_nonce_var.set(server_nonce_value)
     p_var.set(p_value)
     q_var.set(q_value)
     pq_var.set(pq_value)

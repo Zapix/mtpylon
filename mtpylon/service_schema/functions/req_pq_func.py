@@ -2,7 +2,7 @@
 from random import getrandbits, choices
 
 from mtpylon.utils import int128, bytes_needed
-from mtpylon.contextvars import rsa_manager, server_nonce
+from mtpylon.contextvars import rsa_manager, server_nonce_var
 
 from ..constructors import ResPQ
 from ..utils import generates_pq, set_pq_context
@@ -18,7 +18,7 @@ async def req_pq(nonce: int128) -> ResPQ:
     context variable
     """
     server_nonce_value = int128(getrandbits(128))
-    server_nonce.set(server_nonce_value)
+    server_nonce_var.set(server_nonce_value)
 
     p, q = generates_pq()
     set_pq_context(p, q)

@@ -11,7 +11,7 @@ from tgcrypto import ige256_encrypt  # type: ignore
 from mtpylon import Schema
 from mtpylon.contextvars import (
     rsa_manager,
-    server_nonce as server_nonce_context,
+    server_nonce_var as server_nonce_context,
     p_var,
     q_var,
     pq_var,
