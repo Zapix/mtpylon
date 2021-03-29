@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
+from hashlib import sha1
 from typing import Tuple
 from random import getrandbits
 
+from mtpylon import int128, int256
+from mtpylon.crypto import KeyIvPair
+
 from mtpylon.crypto.random_prime import random_prime
 from mtpylon.contextvars import p_var, q_var, pq_var, dh_prime_generator
+from mtpylon.utils import dump_integer_big_endian
 
 
 def generates_pq() -> Tuple[int, int]:
@@ -47,3 +52,15 @@ async def generate_dh_prime() -> int:
     gen = dh_prime_generator.get()
 
     return await gen.asend(None)
+
+
+def generate_tmp_key_iv(server_nonce: int128, new_nonce: int256) -> KeyIvPair:
+    server_nonce_bytes = dump_integer_big_endian(server_nonce)
+    new_nonce_bytes = dump_integer_big_endian(new_nonce)
+    new_server_hash = sha1(new_nonce_bytes + server_nonce_bytes).digest()
+    server_new_hash = sha1(server_nonce_bytes + new_nonce_bytes).digest()
+
+    key = new_server_hash + server_new_hash[:12]
+    iv = server_new_hash[12:] + new_server_hash + new_nonce_bytes[:4]
+
+    return KeyIvPair(key=key, iv=iv)

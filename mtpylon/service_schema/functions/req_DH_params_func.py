@@ -22,7 +22,6 @@ from mtpylon.contextvars import (
 )
 from mtpylon.serialization import LoadedValue
 from mtpylon.serialization.schema import load, dump
-from mtpylon.crypto import KeyIvPair
 
 from ..constructors import (
     Server_DH_Params,
@@ -32,8 +31,8 @@ from ..constructors import (
     P_Q_inner_data
 )
 from ...utils import int128, int256, long, dump_integer_big_endian
-from ..utils import generate_a, generate_g, generate_dh_prime
-
+from ..utils import generate_a, generate_g, generate_dh_prime, \
+    generate_tmp_key_iv
 
 logger = logging.getLogger('authorization_process')
 
@@ -97,18 +96,6 @@ def is_valid_pq_params(p: bytes, q: bytes, inner_data: P_Q_inner_data):
         int.from_bytes(inner_data.pq, 'big') == pq_var.get()
 
     )
-
-
-def generate_tmp_key_iv(server_nonce: int128, new_nonce: int256) -> KeyIvPair:
-    server_nonce_bytes = dump_integer_big_endian(server_nonce)
-    new_nonce_bytes = dump_integer_big_endian(new_nonce)
-    new_server_hash = sha1(new_nonce_bytes + server_nonce_bytes).digest()
-    server_new_hash = sha1(server_nonce_bytes + new_nonce_bytes).digest()
-
-    key = new_server_hash + server_new_hash[:12]
-    iv = server_new_hash[12:] + new_server_hash + new_nonce_bytes[:4]
-
-    return KeyIvPair(key=key, iv=iv)
 
 
 def prepare_for_encrypt(data: bytes) -> bytes:

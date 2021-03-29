@@ -17,6 +17,9 @@ from mtpylon.contextvars import (
     p_var,
     q_var,
     pq_var,
+
+    g_var,
+    a_var,
 )
 from mtpylon.dh_prime_generators.single_prime import (
     generate as generate_dh,
@@ -31,7 +34,8 @@ from mtpylon.service_schema.constructors import (
 )
 from mtpylon.service_schema.functions import req_DH_params
 from mtpylon.service_schema.functions.req_DH_params_func import \
-    decrypt_inner_data, generate_tmp_key_iv
+    decrypt_inner_data
+from mtpylon.service_schema.utils import generate_tmp_key_iv
 from mtpylon.utils import int256, dump_integer_big_endian
 
 from tests.simple_manager import manager
@@ -215,6 +219,9 @@ async def test_req_DH_params_ok():
     assert int.from_bytes(value.dh_prime, 'big') == DH_PRIME
 
     assert new_nonce_value == new_nonce_var.get()
+    print(new_nonce_value)
+    print(g_var.get())
+    print(a_var.get())
 
 
 @pytest.mark.asyncio
