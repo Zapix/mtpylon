@@ -16,6 +16,7 @@ from typing import (
 )
 from dataclasses import is_dataclass, fields
 from inspect import signature, iscoroutinefunction, Parameter
+from math import log
 
 from .exceptions import (
     InvalidCombinator,
@@ -536,3 +537,19 @@ def get_function_number(func: Callable) -> int:
     """
     description = build_function_description(func, for_type_number=True)
     return binascii.crc32(description.encode())
+
+
+def bytes_needed(n: int) -> int:
+    if n == 0:
+        return 1
+    return int(log(n, 256)) + 1
+
+
+def dump_integer_big_endian(value: int) -> bytes:
+    """
+    Dumps integer with minimum number of bytes in big endian order
+    """
+    return value.to_bytes(
+        bytes_needed(value),
+        'big'
+    )

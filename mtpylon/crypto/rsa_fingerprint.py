@@ -4,6 +4,7 @@ import hashlib
 
 from rsa import PublicKey  # type: ignore
 
+from mtpylon import long
 from mtpylon.serialization.bytes import dump as dump_bytes
 
 
@@ -28,7 +29,7 @@ def num_to_tl_bytes(value: int) -> bytes:
     return dump_bytes(num_to_bytes(value))
 
 
-def get_fingerprint(key: PublicKey) -> int:
+def get_fingerprint(key: PublicKey) -> long:
     """
     Builds fingerprint for RSA public key
 
@@ -38,4 +39,4 @@ def get_fingerprint(key: PublicKey) -> int:
     """
     res = num_to_tl_bytes(key.n) + num_to_tl_bytes(key.e)
     h = hashlib.sha1(res)
-    return int.from_bytes(h.digest()[-8:], 'little')
+    return long(int.from_bytes(h.digest()[-8:], 'little'))
