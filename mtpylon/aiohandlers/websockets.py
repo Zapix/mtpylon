@@ -61,6 +61,14 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
         obfuscator = cast(Obfuscator, obfuscator)
         transport_wrapper = cast(TransportWrapper, transport_wrapper)
 
+        try:
+            transport_message = obfuscator.decrypt(msg.data)
+            message = transport_wrapper.unwrap(transport_message)
+            logger.debug('Parse message:', message)
+        except ValueError as e:
+            logger.error(str(e))
+            break
+
     logger.info("Close websocket connection")
     return ws
 
