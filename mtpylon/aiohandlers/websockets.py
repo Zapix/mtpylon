@@ -2,6 +2,7 @@
 import logging
 from functools import partial
 from typing import cast, Optional, Callable, Awaitable
+from asyncio import create_task
 
 from aiohttp import WSMsgType
 from aiohttp.web import Request, WebSocketResponse
@@ -10,9 +11,9 @@ from mtpylon.schema import Schema
 from mtpylon.transports import (
     parse_header,
     get_wrapper,
-    TransportWrapper,
-    Obfuscator
 )
+from mtpylon.message_sender import MessageSender
+from mtpylon.message_handler import MessageHandler
 
 logger = logging.getLogger(__name__)
 
@@ -34,8 +35,8 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
     await ws.prepare(request)
 
     transport_tag: Optional[int] = None
-    obfuscator: Optional[Obfuscator] = None
-    transport_wrapper: Optional[TransportWrapper] = None
+    message_handler: Optional[MessageHandler] = None
+    message_sender: Optional[MessageSender] = None
 
     logger.info("New websocket connection")
 
@@ -43,12 +44,24 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
         if msg.type != WSMsgType.BINARY:
             logger.error('MTProto accepts only binary data')
             break
+        data = cast(bytes, msg.data)
         logger.debug('Handle income message')
 
         if transport_tag is None:
             try:
-                transport_tag, obfuscator = parse_header(msg.data)
+                transport_tag, obfuscator = parse_header(data)
                 transport_wrapper = get_wrapper(transport_tag)
+                message_sender = MessageSender(
+                    schema=schema,
+                    obfuscator=obfuscator,
+                    transport_wrapper=transport_wrapper
+                )
+                message_handler = MessageHandler(
+                    schema=schema,
+                    obfuscator=obfuscator,
+                    transport_wrapper=transport_wrapper,
+                    message_sender=message_sender
+                )
             except ValueError as e:
                 logger.error(str(e))
                 break
@@ -58,13 +71,9 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
                 )
                 continue
 
-        obfuscator = cast(Obfuscator, obfuscator)
-        transport_wrapper = cast(TransportWrapper, transport_wrapper)
-
+        message_handler = cast(MessageHandler, message_handler)
         try:
-            transport_message = obfuscator.decrypt(msg.data)
-            message = transport_wrapper.unwrap(transport_message)
-            logger.debug('Parse message:', message)
+            create_task(message_handler.handle(data))
         except ValueError as e:
             logger.error(str(e))
             break

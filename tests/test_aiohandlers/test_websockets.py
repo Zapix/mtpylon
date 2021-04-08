@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from unittest.mock import MagicMock, patch
+from contextlib import ExitStack
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
@@ -72,20 +73,52 @@ class WsHandlerTestCase(AioHTTPTestCase):
     @unittest_run_loop
     async def test_valid_transport_tag_passed(self):
         logger = MagicMock()
-        with patch('mtpylon.aiohandlers.websockets.logger', logger):
+        MessageHandler = MagicMock()
+        with ExitStack() as patcher:
+            patcher.enter_context(
+                patch(
+                    'mtpylon.aiohandlers.websockets.logger',
+                    logger
+                )
+            )
+            patcher.enter_context(
+                patch(
+                    'mtpylon.aiohandlers.websockets.MessageHandler',
+                    MessageHandler
+                )
+            )
             async with self.client.ws_connect('/ws') as conn:
                 await conn.send_bytes(good_header)
                 assert not conn.closed
 
         assert not logger.error.called
+        assert MessageHandler.called
 
     @unittest_run_loop
     async def test_valid_transport_tag_message(self):
         logger = MagicMock()
-        with patch('mtpylon.aiohandlers.websockets.logger', logger):
+
+        message_entity = AsyncMock()
+        MessageHandler = MagicMock(return_value=message_entity)
+
+        with ExitStack() as patcher:
+            patcher.enter_context(
+                patch(
+                    'mtpylon.aiohandlers.websockets.logger',
+                    logger
+                )
+            )
+            patcher.enter_context(
+                patch(
+                    'mtpylon.aiohandlers.websockets.MessageHandler',
+                    MessageHandler
+                )
+            )
             async with self.client.ws_connect('/ws') as conn:
                 await conn.send_bytes(good_header)
                 await conn.send_bytes(clients_message)
                 assert not conn.closed
 
         assert not logger.error.called
+        assert MessageHandler.called
+        assert message_entity.handle.called
