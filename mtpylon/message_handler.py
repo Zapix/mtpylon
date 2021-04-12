@@ -1,9 +1,20 @@
 # -*- coding: utf-8 -*-
+import logging
+from typing import cast, Any
 from dataclasses import dataclass
 
+from .exceptions import InvalidMessageError, InvalidServerSalt
 from .schema import Schema
+from .serialization import CallableFunc
 from .transports import Obfuscator, TransportWrapper
 from .message_sender import MessageSender
+from .messages import UnencryptedMessage, unpack_message
+from .service_schema.constructors import (
+    BadMessageNotification,
+    BadServerSalt
+)
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -14,4 +25,56 @@ class MessageHandler:
     message_sender: MessageSender
 
     async def handle(self, obfuscated_data: bytes):
+        message = await self.decrypt_message(obfuscated_data)
+        logger.debug(f'Received message: {message.msg_id}')
+
+        result: Any = None
+
+        try:
+            self.validate_message(message)
+        except InvalidMessageError as e:
+            msg_id = message.msg_id
+            e_code = e.error_code
+            logger.error(f'Msg {msg_id}: is invalid message. code: {e_code}')
+            result = BadMessageNotification(
+                bad_msg_id=msg_id,
+                bad_msg_seqno=getattr(message, 'seqno', 0),
+                error_code=e.error_code
+            )
+        except InvalidServerSalt as e:
+            msg_id = message.msg_id
+            logger.error(f'Msg {msg_id}: has bad server salt.')
+            logger.info(f'Msg {msg_id}: new server salt: {e.new_server_salt}')
+            result = BadServerSalt(
+                bad_msg_id=msg_id,
+                bad_msg_seqno=getattr(message, 'seqno', 0),
+                error_code=e.error_code,
+                new_server_salt=e.new_server_salt
+            )
+        else:
+            value = cast(CallableFunc, message.value)
+            logger.info(f'Msg {message.msg_id}: call rpc function: {value}')
+            result = await value.func(**value.params)
+
+        logger.info(f'Responsd to message {message.msg_id} with {result}')
+        await self.message_sender.send_message(result)
+
+    async def decrypt_message(
+            self,
+            obfuscated_data: bytes
+    ) -> UnencryptedMessage:
+        transport_message = self.obfuscator.decrypt(obfuscated_data)
+        message_bytes = self.transport_wrapper.unwrap(transport_message)
+        return await unpack_message(message_bytes)
+
+    def validate_message(self, msg: UnencryptedMessage) -> UnencryptedMessage:
+        """
+        Validate message and returns it.
+
+        Raises:
+            InvalidMessageError - when wrong message has been received
+
+        :param msg:
+        :return:
+        """
         ...

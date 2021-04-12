@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+from dataclasses import dataclass
+
+from .types import long
+
 
 class InvalidCombinator(Exception):
     """
@@ -33,3 +37,20 @@ class DumpError(Exception):
     Raises error when can't dump object or function call  by schema
     """
     pass
+
+
+@dataclass
+class InvalidMessageError(Exception):
+    """
+    Raises when invalid message has been received
+    """
+    error_code: int
+
+
+@dataclass
+class InvalidServerSalt(Exception):
+    """
+    Raises when message with wrong server_salt has been received
+    """
+    error_code: int
+    new_server_salt: long

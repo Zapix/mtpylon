@@ -9,7 +9,7 @@ from aiohttp.web import Request
 from .crypto.auth_key_manager import AuthKeyManagerProtocol
 from .crypto.rsa_manager import RsaManagerProtocol
 from .dh_prime_generators.typing import DhPrimeGenerator
-from .utils import int128, int256
+from . import int128, int256
 from .message_sender import MessageSender
 
 """
