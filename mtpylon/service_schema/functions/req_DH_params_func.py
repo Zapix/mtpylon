@@ -8,7 +8,7 @@ from random import getrandbits
 import rsa  # type: ignore
 from tgcrypto import ige256_encrypt  # type: ignore
 
-from mtpylon import Schema
+from mtpylon import Schema, long, int128, int256
 from mtpylon.contextvars import (
     rsa_manager,
     server_nonce_var,
@@ -30,7 +30,7 @@ from ..constructors import (
     Server_DH_inner_data,
     P_Q_inner_data
 )
-from ...utils import int128, int256, long, dump_integer_big_endian
+from ...utils import dump_integer_big_endian
 from ..utils import generate_a, generate_g, generate_dh_prime, \
     generate_tmp_key_iv
 

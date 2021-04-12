@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import Annotated, Union
 
-from mtpylon.utils import int128
+from mtpylon import int128
 
 
 @dataclass

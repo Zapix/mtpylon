@@ -2,7 +2,7 @@
 import struct
 
 from .loaded import LoadedValue
-from ..utils import double
+from .. import double
 
 
 def dump(value: double) -> bytes:

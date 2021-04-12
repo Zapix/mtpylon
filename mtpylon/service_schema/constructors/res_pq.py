@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import List
 
-from mtpylon.utils import int128, long
+from mtpylon import long, int128
 
 
 @dataclass

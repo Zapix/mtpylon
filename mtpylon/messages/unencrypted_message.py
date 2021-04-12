@@ -3,7 +3,7 @@ import asyncio
 from dataclasses import dataclass
 from typing import Any
 
-from mtpylon.utils import long
+from mtpylon import long
 from mtpylon.service_schema import load as load_schema, dump as dump_schema
 from mtpylon.serialization.int import load as load_int, dump as dump_int
 from mtpylon.serialization.long import load as load_long, dump as dump_long

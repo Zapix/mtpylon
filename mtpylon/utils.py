@@ -4,7 +4,6 @@ from typing import (
     List,
     Any,
     Type,
-    NewType,
     Optional,
     ForwardRef,
     NamedTuple,
@@ -23,18 +22,9 @@ from .exceptions import (
     InvalidConstructor,
     InvalidFunction,
 )
-
+from .types import BASIC_TYPES
 
 PossibleConstructors = Optional[List[Any]]
-
-
-long = NewType('long', int)
-int128 = NewType('int128', int)
-int256 = NewType('int256', int)
-double = NewType('double', float)
-
-
-BASIC_TYPES = [str, bytes, int, long, int128, int256, double, Any]
 
 
 def is_union(tp: Any) -> bool:

@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import Annotated, Union
 
-from mtpylon.utils import long
+from mtpylon import long
 
 
 @dataclass

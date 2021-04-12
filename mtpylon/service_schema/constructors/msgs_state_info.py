@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass
 
-from mtpylon.utils import long
+from mtpylon import long
 
 
 @dataclass

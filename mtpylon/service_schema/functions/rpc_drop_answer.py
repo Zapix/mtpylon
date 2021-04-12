@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ...utils import long
+from ... import long
 from ..constructors import RpcDropAnswer, RpcAnswerUnknown
 
 
