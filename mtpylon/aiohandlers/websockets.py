@@ -14,6 +14,7 @@ from mtpylon.transports import (
 )
 from mtpylon.message_sender import MessageSender
 from mtpylon.message_handler import MessageHandler
+from mtpylon.contextvars import ws_sender, ws_request
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +55,8 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
                 message_sender = MessageSender(
                     schema=schema,
                     obfuscator=obfuscator,
-                    transport_wrapper=transport_wrapper
+                    transport_wrapper=transport_wrapper,
+                    ws=ws,
                 )
                 message_handler = MessageHandler(
                     schema=schema,
@@ -62,6 +64,8 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
                     transport_wrapper=transport_wrapper,
                     message_sender=message_sender
                 )
+                ws_sender.set(message_sender)
+                ws_request.set(request)
             except ValueError as e:
                 logger.error(str(e))
                 break
