@@ -8,7 +8,7 @@ from tgcrypto import ige256_decrypt  # type: ignore
 
 import pytest
 
-from mtpylon import int128, long
+from mtpylon import int128, long, int256
 from mtpylon.contextvars import (
     rsa_manager,
     dh_prime_generator,
@@ -36,7 +36,7 @@ from mtpylon.service_schema.functions import req_DH_params
 from mtpylon.service_schema.functions.req_DH_params_func import \
     decrypt_inner_data
 from mtpylon.service_schema.utils import generate_tmp_key_iv
-from mtpylon.utils import int256, dump_integer_big_endian
+from mtpylon.utils import dump_integer_big_endian
 
 from tests.simple_manager import manager
 

@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import List
 
-from mtpylon.utils import long
+from ... import long
 from .future_salt import FutureSalt
 
 

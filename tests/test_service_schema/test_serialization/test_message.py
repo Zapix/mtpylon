@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from mtpylon.utils import long
+from mtpylon import long
 from mtpylon.service_schema.constructors import Message
 from mtpylon.service_schema.serialization.message import load, dump
 

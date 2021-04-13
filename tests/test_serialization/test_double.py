@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from mtpylon.utils import double
+from mtpylon import double
 from mtpylon.serialization.double import load, dump
 
 

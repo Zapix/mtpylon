@@ -26,13 +26,11 @@ from .vector import dump as dump_vector, load as load_vector
 from .object import dump as dump_object, load as load_object
 from .loaded import LoadedValue
 from ..utils import (
-    long,
-    int128,
-    int256,
     is_list_type,
     is_optional_type,
     AttrDescription,
 )
+from .. import long, int128, int256
 from ..schema import Schema, FunctionData, CombinatorData
 from ..exceptions import DumpError
 

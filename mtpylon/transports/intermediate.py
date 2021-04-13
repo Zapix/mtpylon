@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from .transport_wrapper import TransportWrapper
 """
     Intermediate payload structure is:
 
@@ -21,3 +22,10 @@ def wrap(buffer: bytes) -> bytes:
 def unwrap(buffer: bytes) -> bytes:
     tlen = int.from_bytes(buffer[:4], 'little')
     return buffer[4:tlen + 4]
+
+
+wrapper = TransportWrapper(
+    PROTOCOL_TAG,
+    wrap,
+    unwrap
+)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from .loaded import LoadedValue
-from ..utils import int256
+from .. import int256
 
 
 def dump(value: int256) -> bytes:

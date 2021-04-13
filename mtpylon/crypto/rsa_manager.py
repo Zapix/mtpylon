@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from rsa import PublicKey, PrivateKey  # type: ignore
 
-from ..utils import long
+from .. import long
 from .rsa_fingerprint import get_fingerprint
 
 

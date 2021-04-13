@@ -10,8 +10,6 @@ from mtpylon.exceptions import (
     InvalidFunction,
 )
 from mtpylon.utils import (
-    long,
-    int128,
     is_valid_combinator,
     is_valid_constructor,
     is_valid_function,
@@ -22,6 +20,7 @@ from mtpylon.utils import (
     build_function_description,
     get_function_number,
 )
+from mtpylon import long, int128
 
 
 @dataclass

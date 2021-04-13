@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from random import getrandbits, choices
 
-from mtpylon.utils import int128, bytes_needed
+from mtpylon.utils import bytes_needed
+from ... import int128
 from mtpylon.contextvars import rsa_manager, server_nonce_var
 
 from ..constructors import ResPQ
