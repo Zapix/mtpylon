@@ -10,7 +10,6 @@ from .crypto.auth_key_manager import AuthKeyManagerProtocol
 from .crypto.rsa_manager import RsaManagerProtocol
 from .dh_prime_generators.typing import DhPrimeGenerator
 from . import int128, int256
-from .message_sender import MessageSender
 
 """
 Store rsa_manager in context to get access for all values.
@@ -67,9 +66,3 @@ NOTE: not sure will request in context has got access to shared request
 resources.
 """
 ws_request: ContextVar[Request] = ContextVar('ws_request')
-
-
-"""
-Stores message sender to opened connection in context
-"""
-ws_sender: ContextVar[MessageSender] = ContextVar('ws_sender')

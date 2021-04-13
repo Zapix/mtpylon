@@ -74,7 +74,6 @@ class WsHandlerTestCase(AioHTTPTestCase):
     async def test_valid_transport_tag_passed(self):
         logger = MagicMock()
         MessageHandler = MagicMock()
-        MessageSender = MagicMock()
         with ExitStack() as patcher:
             patcher.enter_context(
                 patch(
@@ -88,19 +87,12 @@ class WsHandlerTestCase(AioHTTPTestCase):
                     MessageHandler
                 )
             )
-            patcher.enter_context(
-                patch(
-                    'mtpylon.aiohandlers.websockets.MessageSender',
-                    MessageSender
-                )
-            )
             async with self.client.ws_connect('/ws') as conn:
                 await conn.send_bytes(good_header)
                 assert not conn.closed
 
         assert not logger.error.called
         assert MessageHandler.called
-        assert MessageSender.called
 
     @unittest_run_loop
     async def test_valid_transport_tag_message(self):
@@ -109,7 +101,6 @@ class WsHandlerTestCase(AioHTTPTestCase):
         message_entity = AsyncMock()
         MessageHandler = MagicMock(return_value=message_entity)
         MessageSender = MagicMock()
-        ws_sender = MagicMock()
         ws_request = MagicMock()
 
         with ExitStack() as patcher:
@@ -137,12 +128,6 @@ class WsHandlerTestCase(AioHTTPTestCase):
                     ws_request
                 )
             )
-            patcher.enter_context(
-                patch(
-                    'mtpylon.aiohandlers.websockets.ws_sender',
-                    ws_sender
-                )
-            )
             async with self.client.ws_connect('/ws') as conn:
                 await conn.send_bytes(good_header)
                 await conn.send_bytes(clients_message)
@@ -153,5 +138,4 @@ class WsHandlerTestCase(AioHTTPTestCase):
         assert MessageSender.called
         assert message_entity.handle.called
 
-        assert ws_sender.set.called
         assert ws_request.set.called
