@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import logging
 from functools import partial
-from typing import cast, Optional, Callable, Awaitable
+from typing import cast, Optional
 from asyncio import create_task
 
 from aiohttp import WSMsgType
 from aiohttp.web import Request, WebSocketResponse
 
+from mtpylon.aiohandlers.types import WebSocketHandler
 from mtpylon.schema import Schema
 from mtpylon.transports import (
     parse_header,
@@ -17,8 +18,6 @@ from mtpylon.message_handler import MessageHandler
 from mtpylon.contextvars import ws_request
 
 logger = logging.getLogger(__name__)
-
-WebSocketHandler = Callable[[Request], Awaitable[WebSocketResponse]]
 
 
 async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
