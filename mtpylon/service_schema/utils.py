@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 from hashlib import sha1
 from typing import Tuple
 from random import getrandbits
@@ -10,6 +11,9 @@ from mtpylon.serialization.int256 import dump as dump_256
 
 from mtpylon.crypto.random_prime import random_prime
 from mtpylon.contextvars import p_var, q_var, pq_var, dh_prime_generator
+
+
+logger = logging.getLogger(__name__)
 
 
 def generates_pq() -> Tuple[int, int]:
@@ -75,5 +79,14 @@ def generate_tmp_key_iv(server_nonce: int128, new_nonce: int256) -> KeyIvPair:
         new_none_new_nonce_hash +
         new_nonce_bytes[:4]
     )
+
+    logger.debug('Server nonce {:0x}'.format(
+        int.from_bytes(server_nonce_bytes, 'big')
+    ))
+    logger.debug('New nonce {:0x}'.format(
+        int.from_bytes(new_nonce_bytes, 'big')
+    ))
+    logger.debug('Key {:0x}'.format(int.from_bytes(key, 'big')))
+    logger.debug('Iv {:0x}'.format(int.from_bytes(iv, 'big')))
 
     return KeyIvPair(key=key, iv=iv)

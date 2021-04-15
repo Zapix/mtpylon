@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 from typing import cast, Literal, Optional
 from hashlib import sha1
 from contextvars import ContextVar
@@ -27,6 +28,9 @@ from ..constructors import (
     DHGenRetry,
     Client_DH_Inner_Data
 )
+
+
+logger = logging.getLogger('mtpylon.authorization')
 
 
 HASH_MODE = Literal[1, 2, 3]
@@ -120,8 +124,11 @@ async def set_client_DH_params(
         DHGenRetry - retry if key created but auth_key id has been used
         DHGenFail - wrong retry_id has been passed
     """
+    logger.info("Handle set client dh params")
     server_nonce_value = server_nonce_var.get()
     new_nonce_value = new_nonce_var.get()
+    logger.debug(f'server nonce: {server_nonce_value}')
+    logger.debug(f'new nonce: {new_nonce_value}')
 
     key_iv_pair = generate_tmp_key_iv(server_nonce_value, new_nonce_value)
 
@@ -131,7 +138,8 @@ async def set_client_DH_params(
         server_nonce != server_nonce_value or
         inner_data.server_nonce != server_nonce_value
     ):
-        raise ValueError('Server Nonce are not equals')
+        logger.error('Server nonce are not equals')
+        raise ValueError('Server nonce are not equals')
 
     g_b = int.from_bytes(inner_data.g_b, 'big')
     a_value = a_var.get()
@@ -170,6 +178,12 @@ async def set_client_DH_params(
         )
 
     await auth_manager.set_key(auth_key)
+
+    logger.info('Auth key has been created:')
+    logger.info(f'Auth key: {auth_key.value}')
+    logger.info(f'Autk key hash: {auth_key.hash}')
+    logger.info(f'Auth key id: {auth_key.id}')
+    logger.info(f'Auth key aux hash: {auth_key.aux_hash}')
 
     return DHGenOk(
         nonce=nonce,

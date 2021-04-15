@@ -44,7 +44,7 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
             logger.error('MTProto accepts only binary data')
             break
         data = cast(bytes, msg.data)
-        logger.debug('Handle income message')
+        logger.info('Handle income message')
 
         if transport_tag is None:
             try:
