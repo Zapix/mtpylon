@@ -5,7 +5,6 @@ from hashlib import sha1
 from datetime import datetime
 from random import getrandbits
 
-import rsa  # type: ignore
 from tgcrypto import ige256_encrypt  # type: ignore
 
 from mtpylon import Schema, long, int128, int256
@@ -22,6 +21,7 @@ from mtpylon.contextvars import (
 )
 from mtpylon.serialization import LoadedValue
 from mtpylon.serialization.schema import load, dump
+from mtpylon.crypto.rsa import decrypt as rsa_decrypt
 
 from ..constructors import (
     Server_DH_Params,
@@ -34,7 +34,8 @@ from ...utils import dump_integer_big_endian
 from ..utils import generate_a, generate_g, generate_dh_prime, \
     generate_tmp_key_iv
 
-logger = logging.getLogger('authorization_process')
+
+logger = logging.getLogger('mtpylon.authorization')
 
 
 def get_servertime():
@@ -67,8 +68,8 @@ def decrypt_inner_data(
     key_pair = manager[fingerprint]
 
     try:
-        unencrypted_data = rsa.decrypt(encrypted_data, key_pair.private)
-    except rsa.DecryptionError:
+        unencrypted_data = rsa_decrypt(encrypted_data, key_pair.private)
+    except OverflowError:
         raise ValueError(f'Can`t decrypt data with fingerprint {fingerprint}')
 
     loaded_value = load_pq_inner_data(unencrypted_data[20:])
@@ -129,9 +130,16 @@ async def req_DH_params(
         ServerDHParamsFail - if p,q value has been wrong computed on client
         ServerDHParamsOK - if p,q values are valid
     """
+    logger.info('Handle req DH params')
+
     inner_data = decrypt_inner_data(encrypted_data, public_key_fingerprint)
     new_nonce_var.set(inner_data.new_nonce)
+    logger.debug(f'New nonce: {inner_data.new_nonce}')
     new_nonce_hash = build_new_nonce_hash(inner_data.new_nonce)
+
+    logger.debug(f'Context var server none: {server_nonce_var.get()}')
+    logger.debug(f'Server nonce: {server_nonce}')
+    logger.debug(f'Server nonce inner: {inner_data.server_nonce}')
 
     if (
             server_nonce != server_nonce_var.get() or
@@ -140,7 +148,7 @@ async def req_DH_params(
         raise ValueError('Wrong server nonces')
 
     if not is_valid_pq_params(p, q, inner_data):
-        logger.debug('Wrong server  pq params')
+        logger.error('Wrong server  pq params')
         return ServerDHParamsFail(
             nonce=nonce,
             server_nonce=server_nonce_var.get(),
@@ -157,6 +165,11 @@ async def req_DH_params(
     a_var.set(a)
 
     g_a = pow(g, a, dh_prime)
+
+    logger.debug(f'DH prime: {dh_prime}')
+    logger.debug(f'g: {g}')
+    logger.debug(f'a: {a}')
+    logger.debug(f'g_a: {g_a}')
 
     server_dh_inner_data = Server_DH_inner_data(
         nonce=nonce,
@@ -178,6 +191,7 @@ async def req_DH_params(
         key_iv_pair.iv
     )
 
+    logger.info('Send dh params')
     return ServerDHParamsOk(
         nonce=nonce,
         server_nonce=server_nonce,

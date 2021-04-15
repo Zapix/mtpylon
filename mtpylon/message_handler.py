@@ -13,6 +13,8 @@ from .service_schema.constructors import (
     BadMessageNotification,
     BadServerSalt
 )
+from .utils import get_function_name
+
 
 logger = logging.getLogger(__name__)
 
@@ -53,11 +55,14 @@ class MessageHandler:
             )
         else:
             value = cast(CallableFunc, message.value)
-            logger.info(f'Msg {message.msg_id}: call rpc function: {value}')
+            func_name = get_function_name(value.func)
+            logger.info(
+                f'Msg {message.msg_id}: call rpc function: {func_name}'
+            )
             result = await value.func(**value.params)
 
-        logger.info(f'Responsd to message {message.msg_id} with {result}')
-        await self.message_sender.send_message(result)
+        logger.info(f'Response to message {message.msg_id}')
+        await self.message_sender.send_message(result, response=True)
 
     async def decrypt_message(
             self,

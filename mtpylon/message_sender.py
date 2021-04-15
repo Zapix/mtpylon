@@ -46,4 +46,6 @@ class MessageSender:
         else:
             wrapped_message = self.transport_wrapper.wrap(message_bytes)
             encrypted_data = self.obfuscator.encrypt(wrapped_message)
+            msg_type = 'response' if response else 'notification'
+            logger.info(f'Send {msg_type} with id {message.msg_id}')
             await self.ws.send_bytes(encrypted_data)

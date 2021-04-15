@@ -2,7 +2,6 @@
 from random import getrandbits, randbytes
 from hashlib import sha1
 
-import rsa  # type: ignore
 from tgcrypto import ige256_decrypt  # type: ignore
 
 
@@ -37,6 +36,7 @@ from mtpylon.service_schema.functions.req_DH_params_func import \
     decrypt_inner_data
 from mtpylon.service_schema.utils import generate_tmp_key_iv
 from mtpylon.utils import dump_integer_big_endian
+from mtpylon.crypto.rsa import encrypt as rsa_encrypt
 
 from tests.simple_manager import manager
 
@@ -65,7 +65,7 @@ def encrypt_client_data(serialized_data: bytes, fingerprint: long) -> bytes:
 
     key_pair = rsa_manager.get()[fingerprint]
 
-    return rsa.encrypt(data_with_hash, key_pair.public)
+    return rsa_encrypt(data_with_hash, key_pair.public)
 
 
 def wrong_encrypted_data(serialized_data: bytes, fingerprint: long) -> bytes:
@@ -76,7 +76,7 @@ def wrong_encrypted_data(serialized_data: bytes, fingerprint: long) -> bytes:
 
     key_pair = rsa_manager.get()[fingerprint]
 
-    return rsa.encrypt(data_with_hash, key_pair.public)
+    return rsa_encrypt(data_with_hash, key_pair.public)
 
 
 def test_decrypt_success():

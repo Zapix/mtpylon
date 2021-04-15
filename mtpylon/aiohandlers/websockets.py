@@ -2,7 +2,6 @@
 import logging
 from functools import partial
 from typing import cast, Optional
-from asyncio import create_task
 
 from aiohttp import WSMsgType
 from aiohttp.web import Request, WebSocketResponse
@@ -45,7 +44,7 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
             logger.error('MTProto accepts only binary data')
             break
         data = cast(bytes, msg.data)
-        logger.debug('Handle income message')
+        logger.info('Handle income message')
 
         if transport_tag is None:
             try:
@@ -75,7 +74,7 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
 
         message_handler = cast(MessageHandler, message_handler)
         try:
-            create_task(message_handler.handle(data))
+            await message_handler.handle(data)
         except ValueError as e:
             logger.error(str(e))
             break
