@@ -5,7 +5,6 @@ from hashlib import sha1
 from datetime import datetime
 from random import getrandbits
 
-import rsa  # type: ignore
 from tgcrypto import ige256_encrypt  # type: ignore
 
 from mtpylon import Schema, long, int128, int256
@@ -22,6 +21,7 @@ from mtpylon.contextvars import (
 )
 from mtpylon.serialization import LoadedValue
 from mtpylon.serialization.schema import load, dump
+from mtpylon.crypto.rsa import decrypt as rsa_decrypt
 
 from ..constructors import (
     Server_DH_Params,
@@ -67,8 +67,8 @@ def decrypt_inner_data(
     key_pair = manager[fingerprint]
 
     try:
-        unencrypted_data = rsa.decrypt(encrypted_data, key_pair.private)
-    except rsa.DecryptionError:
+        unencrypted_data = rsa_decrypt(encrypted_data, key_pair.private)
+    except OverflowError:
         raise ValueError(f'Can`t decrypt data with fingerprint {fingerprint}')
 
     loaded_value = load_pq_inner_data(unencrypted_data[20:])
