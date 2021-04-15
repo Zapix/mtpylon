@@ -6,7 +6,6 @@ from contextvars import ContextVar
 from tgcrypto import ige256_decrypt  # type: ignore
 
 from mtpylon import Schema, long, int128, int256
-from mtpylon.utils import dump_integer_big_endian
 from mtpylon.crypto import AuthKey, KeyIvPair
 from mtpylon.contextvars import (
     new_nonce_var,
@@ -18,6 +17,8 @@ from mtpylon.contextvars import (
 )
 from mtpylon.serialization import LoadedValue
 from mtpylon.serialization.schema import load
+from mtpylon.serialization.int256 import dump as dump_int256
+from mtpylon.serialization.int128 import load as load_int128
 from ..utils import generate_tmp_key_iv
 from ..constructors import (
     Set_client_DH_params_answer,
@@ -51,12 +52,12 @@ def build_new_nonce_hash(
     response dh_gen_ok into dh_gen_retry.
     """
     data = (
-        dump_integer_big_endian(new_nonce) +
+        dump_int256(new_nonce) +
         hash_type.to_bytes(1, 'big') +
         auth_key.aux_hash.to_bytes(8, 'big')
     )
 
-    return int128(int.from_bytes(sha1(data).digest()[-16:], 'big'))
+    return load_int128(sha1(data).digest()[-16:]).value
 
 
 def load_client_dh_inner_data(
