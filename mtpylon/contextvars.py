@@ -6,17 +6,7 @@ from contextvars import ContextVar
 
 from aiohttp.web import Request
 
-from .crypto.auth_key_manager import AuthKeyManagerProtocol
 from . import int128, int256
-
-
-"""
-Store auth key manager in context to get access for all value.
-Should be global for all data
-"""
-auth_key_manager: ContextVar[AuthKeyManagerProtocol] = ContextVar(
-    'auth_key_manager'
-)
 
 
 """

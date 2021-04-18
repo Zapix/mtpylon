@@ -12,7 +12,6 @@ from mtpylon.crypto import AuthKey, KeyIvPair
 from mtpylon.contextvars import (
     new_nonce_var,
     server_nonce_var,
-    auth_key_manager,
 
     a_var,
     dh_prime_var,
@@ -166,7 +165,7 @@ async def set_client_DH_params(
             )
         )
 
-    auth_manager = auth_key_manager.get()
+    auth_manager = request.app['auth_key_manager']
 
     if await auth_manager.has_key(auth_key):
         return DHGenRetry(
