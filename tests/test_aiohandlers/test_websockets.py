@@ -6,8 +6,11 @@ from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 
 from mtpylon.aiohandlers.websockets import create_websocket_handler
+from mtpylon.crypto import AuthKeyManager
+from mtpylon.dh_prime_generators.single_prime import generate
 
 from tests.helpers import hexstr_to_bytes
+from tests.simple_manager import manager
 from tests.simpleschema import schema
 
 
@@ -24,12 +27,81 @@ clients_message = hexstr_to_bytes(
 )
 
 
-class WsHandlerTestCase(AioHTTPTestCase):
+class WsHandlerNoRsaManagerTestCase(AioHTTPTestCase):
 
-    async def get_application(self):
+    async def get_application(self) -> web.Application:
         ws_handler = create_websocket_handler(schema)
 
         app = web.Application()
+        app.router.add_get('/ws', ws_handler)
+
+        return app
+
+    @unittest_run_loop
+    async def test_no_rsa_manager(self):
+        logger = MagicMock()
+
+        with patch('mtpylon.aiohandlers.websockets.logger', logger):
+            async with self.client.ws_connect('/ws') as conn:
+                assert logger.error.called
+
+            assert conn.closed
+
+
+class WsHandlerNoAuthkKeyManagerTestCase(AioHTTPTestCase):
+
+    async def get_application(self) -> web.Application:
+        ws_handler = create_websocket_handler(schema)
+
+        app = web.Application()
+        app['rsa_manager'] = manager
+        app.router.add_get('/ws', ws_handler)
+
+        return app
+
+    @unittest_run_loop
+    async def test_no_auth_key_manager(self):
+        logger = MagicMock()
+
+        with patch('mtpylon.aiohandlers.websockets.logger', logger):
+            async with self.client.ws_connect('/ws') as conn:
+                assert logger.error.called
+
+            assert conn.closed
+
+
+class WsHandlerNoDhPrimeGeneratorTestCase(AioHTTPTestCase):
+
+    async def get_application(self) -> web.Application:
+        ws_handler = create_websocket_handler(schema)
+
+        app = web.Application()
+        app['rsa_manager'] = manager
+        app['auth_key_manager'] = AuthKeyManager()
+        app.router.add_get('/ws', ws_handler)
+
+        return app
+
+    @unittest_run_loop
+    async def test_no_auth_key_manager(self):
+        logger = MagicMock()
+
+        with patch('mtpylon.aiohandlers.websockets.logger', logger):
+            async with self.client.ws_connect('/ws') as conn:
+                assert logger.error.called
+
+            assert conn.closed
+
+
+class WsHandlerTestCase(AioHTTPTestCase):
+
+    async def get_application(self) -> web.Application:
+        ws_handler = create_websocket_handler(schema)
+
+        app = web.Application()
+        app['auth_key_manager'] = AuthKeyManager()
+        app['rsa_manager'] = manager
+        app['dh_prime_generator'] = generate()
         app.router.add_get('/ws', ws_handler)
 
         return app
