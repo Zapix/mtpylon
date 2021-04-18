@@ -17,6 +17,8 @@ from dataclasses import is_dataclass, fields
 from inspect import signature, iscoroutinefunction, Parameter
 from math import log
 
+from aiohttp import web
+
 from .exceptions import (
     InvalidCombinator,
     InvalidConstructor,
@@ -403,7 +405,8 @@ def is_valid_function(
 ) -> None:
     """
     Checks is passed func valid and could be used in schema.
-    Valid function is async function that accepts only basic types and
+    Valid function is async function that takes asyncio request object as first
+    argument. Other arguments could be only basic types and
     constructor as parameters and return values
 
     Args:
@@ -421,13 +424,20 @@ def is_valid_function(
 
     sig = signature(func)
 
-    for parameter in sig.parameters.values():
+    for i, parameter in enumerate(sig.parameters.values()):
         if parameter.kind != Parameter.POSITIONAL_OR_KEYWORD:
             raise InvalidFunction(
                 "Function accepts only default python parameters" +
                 "(POSITIONAL_OR_KEYWORD)"
             )
         check_type = parameter.annotation
+
+        if i == 0:
+            if check_type != web.Request:
+                raise InvalidFunction(
+                    "First argument of mtpylon function should be request obj"
+                )
+            continue
 
         if is_list_type(check_type):
             check_type = check_type.__args__[0]
@@ -466,7 +476,7 @@ def get_funciton_parameters_list(
             type=get_type_name(p.annotation, for_type_number=for_type_number),
             origin=p.annotation
         )
-        for p in sig.parameters.values()
+        for p in list(sig.parameters.values())[1:]
     ]
 
 

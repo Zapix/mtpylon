@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from unittest.mock import MagicMock
 from random import getrandbits, randbytes
 from hashlib import sha1
 
@@ -169,6 +170,8 @@ def test_decrypt_wrong_value_encoded():
 
 @pytest.mark.asyncio
 async def test_req_DH_params_ok():
+    request = MagicMock()
+
     fingerprint = manager.fingerprint_list[0]
 
     new_nonce_value = int256(getrandbits(256))
@@ -190,6 +193,7 @@ async def test_req_DH_params_ok():
     encrypted_data = encrypt_client_data(p_q_inner_data_bytes, fingerprint)
 
     result = await req_DH_params(
+        request,
         nonce_value,
         server_nonce_value,
         p_bytes,
@@ -226,6 +230,8 @@ async def test_req_DH_params_ok():
 
 @pytest.mark.asyncio
 async def test_req_DH_wront_encrypted_hash():
+    request = MagicMock()
+
     fingerprint = manager.fingerprint_list[0]
 
     new_nonce_value = int256(getrandbits(256))
@@ -248,6 +254,7 @@ async def test_req_DH_wront_encrypted_hash():
 
     with pytest.raises(ValueError):
         await req_DH_params(
+            request,
             nonce_value,
             server_nonce_value,
             p_bytes,
@@ -259,6 +266,8 @@ async def test_req_DH_wront_encrypted_hash():
 
 @pytest.mark.asyncio
 async def test_req_DH_fail_p_bytes():
+    request = MagicMock()
+
     fingerprint = manager.fingerprint_list[0]
 
     new_nonce_value = int256(getrandbits(256))
@@ -284,6 +293,7 @@ async def test_req_DH_fail_p_bytes():
     encrypted_data = encrypt_client_data(p_q_inner_data_bytes, fingerprint)
 
     result = await req_DH_params(
+        request,
         nonce_value,
         server_nonce_value,
         p_bytes,
@@ -300,6 +310,8 @@ async def test_req_DH_fail_p_bytes():
 
 @pytest.mark.asyncio
 async def test_req_DH_fail_wrong_server_nonce():
+    request = MagicMock()
+
     fingerprint = manager.fingerprint_list[0]
 
     new_nonce_value = int256(getrandbits(256))
@@ -322,6 +334,7 @@ async def test_req_DH_fail_wrong_server_nonce():
 
     with pytest.raises(ValueError):
         await req_DH_params(
+            request,
             nonce_value,
             server_nonce_value,
             p_bytes,

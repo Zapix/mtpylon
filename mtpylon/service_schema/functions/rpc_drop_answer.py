@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
-from ... import long
+from aiohttp import web
+
+from mtpylon.types import long
 from ..constructors import RpcDropAnswer, RpcAnswerUnknown
 
 
-async def rpc_drop_answer(req_msg_id: long) -> RpcDropAnswer:
+async def rpc_drop_answer(
+    request: web.Request,
+    req_msg_id: long
+) -> RpcDropAnswer:
     return RpcAnswerUnknown()

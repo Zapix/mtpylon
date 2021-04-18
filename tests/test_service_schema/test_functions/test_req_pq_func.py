@@ -19,6 +19,7 @@ from tests.simple_manager import manager
 
 @pytest.mark.asyncio
 async def test_req_pq():
+    request = MagicMock()
     nonce_value = int128(88224628713810667588887952107997447839)
     server_nonce_value = int128(235045274609009641577718790092619182246)
     p_value = 1834598767
@@ -45,7 +46,7 @@ async def test_req_pq():
             )
         )
 
-        result = await req_pq(nonce_value)
+        result = await req_pq(request, nonce_value)
 
         assert result.nonce == nonce_value
         assert result.server_nonce == server_nonce_value

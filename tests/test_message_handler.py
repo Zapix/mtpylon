@@ -25,6 +25,7 @@ async def test_unpack_message_correct():
     message_sender = MagicMock(
         send_message=AsyncMock()
     )
+    request = MagicMock()
 
     msg_id = long(0x51e57ac42770964a)
 
@@ -46,7 +47,7 @@ async def test_unpack_message_correct():
             message_sender=message_sender
         )
 
-        await handler.handle(b'obfuscated message')
+        await handler.handle(request, b'obfuscated message')
 
         assert obfuscator.decrypt.called
         assert transport_wrapper.unwrap.called
@@ -68,6 +69,7 @@ async def test_invalid_message_id():
     message_sender = MagicMock(
         send_message=AsyncMock()
     )
+    request = MagicMock()
 
     msg_id = long(0x51e57ac42770964a)
 
@@ -90,12 +92,12 @@ async def test_invalid_message_id():
             schema=schema,
             obfuscator=obfuscator,
             transport_wrapper=transport_wrapper,
-            message_sender=message_sender
+            message_sender=message_sender,
         )
 
         with patch.object(handler, 'validate_message', validate_message):
 
-            await handler.handle(b'obfuscated message')
+            await handler.handle(request, b'obfuscated message')
 
             assert obfuscator.decrypt.called
             assert transport_wrapper.unwrap.called
@@ -118,6 +120,7 @@ async def test_invalid_server_salt():
     message_sender = MagicMock(
         send_message=AsyncMock()
     )
+    request = MagicMock()
 
     msg_id = long(0x51e57ac42770964a)
 
@@ -145,7 +148,7 @@ async def test_invalid_server_salt():
         )
 
         with patch.object(handler, 'validate_message', validate_message):
-            await handler.handle(b'obfuscated message')
+            await handler.handle(request, b'obfuscated message')
 
             assert obfuscator.decrypt.called
             assert transport_wrapper.unwrap.called

@@ -4,6 +4,7 @@ from typing import cast, Literal, Optional
 from hashlib import sha1
 from contextvars import ContextVar
 
+from aiohttp import web
 from tgcrypto import ige256_decrypt  # type: ignore
 
 from mtpylon import Schema, long, int128, int256
@@ -107,6 +108,7 @@ def decrypt_inner_data(
 
 
 async def set_client_DH_params(
+    request: web.Request,
     nonce: int128,
     server_nonce: int128,
     encrypted_data: bytes

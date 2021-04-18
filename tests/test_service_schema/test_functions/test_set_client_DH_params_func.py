@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from unittest.mock import MagicMock
+
 import pytest
 from tgcrypto import ige256_encrypt  # type: ignore
 
@@ -162,6 +164,8 @@ def test_wrong_hash():
 
 @pytest.mark.asyncio
 async def test_set_client_dh_gen_ok():
+    request = MagicMock()
+
     auth_manager = AuthKeyManager()
     auth_key_manager.set(auth_manager)
 
@@ -184,6 +188,7 @@ async def test_set_client_dh_gen_ok():
     )
 
     result = await set_client_DH_params(
+        request,
         nonce_value,
         server_nonce_value,
         encrypted_data
@@ -199,6 +204,8 @@ async def test_set_client_dh_gen_ok():
 
 @pytest.mark.asyncio
 async def test_set_client_dh_gen_retry():
+    request = MagicMock()
+
     auth_manager = AuthKeyManager()
     await auth_manager.set_key(auth_key)
 
@@ -223,6 +230,7 @@ async def test_set_client_dh_gen_retry():
     )
 
     result = await set_client_DH_params(
+        request,
         nonce_value,
         server_nonce_value,
         encrypted_data
@@ -236,6 +244,8 @@ async def test_set_client_dh_gen_retry():
 
 @pytest.mark.asyncio
 async def test_set_client_dh_gen_fail():
+    request = MagicMock()
+
     auth_manager = AuthKeyManager()
     await auth_manager.set_key(auth_key)
 
@@ -261,6 +271,7 @@ async def test_set_client_dh_gen_fail():
     )
 
     result = await set_client_DH_params(
+        request,
         nonce_value,
         server_nonce_value,
         encrypted_data
@@ -278,6 +289,8 @@ async def test_set_client_dh_gen_fail():
 
 @pytest.mark.asyncio
 async def test_set_cliend_dh_gen_ok_second_attempt():
+    request = MagicMock()
+
     auth_manager = AuthKeyManager()
     await auth_manager.set_key(auth_key)
 
@@ -303,6 +316,7 @@ async def test_set_cliend_dh_gen_ok_second_attempt():
     )
 
     result = await set_client_DH_params(
+        request,
         nonce_value,
         server_nonce_value,
         encrypted_data
@@ -320,6 +334,8 @@ async def test_set_cliend_dh_gen_ok_second_attempt():
 
 @pytest.mark.asyncio
 async def test_set_client_dh_wrong_server_nonce():
+    request = MagicMock()
+
     auth_manager = AuthKeyManager()
     auth_key_manager.set(auth_manager)
 
@@ -343,6 +359,7 @@ async def test_set_client_dh_wrong_server_nonce():
 
     with pytest.raises(ValueError):
         await set_client_DH_params(
+            request,
             nonce_value,
             int128(0),
             encrypted_data

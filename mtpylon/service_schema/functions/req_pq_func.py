@@ -2,8 +2,10 @@
 import logging
 from random import getrandbits, choices
 
+from aiohttp import web
+
 from mtpylon.utils import bytes_needed
-from ... import int128
+from mtpylon.types import int128
 from mtpylon.contextvars import rsa_manager, server_nonce_var
 
 from ..constructors import ResPQ
@@ -13,7 +15,7 @@ from ..utils import generates_pq, set_pq_context
 logger = logging.getLogger('mtpylon.authorization')
 
 
-async def req_pq(nonce: int128) -> ResPQ:
+async def req_pq(request: web.Request, nonce: int128) -> ResPQ:
     """
     Handles DH exchange initiation.
     Generates server_nonce and store them in context var for further validation

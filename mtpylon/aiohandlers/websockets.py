@@ -60,7 +60,7 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
                     schema=schema,
                     obfuscator=obfuscator,
                     transport_wrapper=transport_wrapper,
-                    message_sender=message_sender
+                    message_sender=message_sender,
                 )
                 ws_request.set(request)
             except ValueError as e:
@@ -74,7 +74,7 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
 
         message_handler = cast(MessageHandler, message_handler)
         try:
-            await message_handler.handle(data)
+            await message_handler.handle(request, data)
         except ValueError as e:
             logger.error(str(e))
             break
