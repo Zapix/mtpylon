@@ -7,7 +7,6 @@ from contextvars import ContextVar
 from aiohttp.web import Request
 
 from .crypto.auth_key_manager import AuthKeyManagerProtocol
-from .dh_prime_generators.typing import DhPrimeGenerator
 from . import int128, int256
 
 
@@ -17,15 +16,6 @@ Should be global for all data
 """
 auth_key_manager: ContextVar[AuthKeyManagerProtocol] = ContextVar(
     'auth_key_manager'
-)
-
-
-"""
-Store dh_prime generator that returns 2048-bit safe prime numbers.
-Coz 2048-values are to big we assume that it'll be async generator
-"""
-dh_prime_generator: ContextVar[DhPrimeGenerator] = ContextVar(
-    'dh_prime_generator'
 )
 
 

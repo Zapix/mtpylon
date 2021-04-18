@@ -160,7 +160,7 @@ async def req_DH_params(
             new_nonce_hash=new_nonce_hash
         )
 
-    dh_prime = await generate_dh_prime()
+    dh_prime = await generate_dh_prime(request.app['dh_prime_generator'])
     dh_prime_var.set(dh_prime)
 
     g = await generate_g()

@@ -11,7 +11,6 @@ import pytest
 from mtpylon import int128, long, int256
 from mtpylon.crypto.rsa_manager import RsaManagerProtocol
 from mtpylon.contextvars import (
-    dh_prime_generator,
     server_nonce_var,
     new_nonce_var,
     p_var,
@@ -51,8 +50,6 @@ def setup_function(function):
     q_var.set(q_value)
     pq_var.set(pq_value)
 
-    dh_prime_generator.set(generate_dh())
-
 
 @pytest.fixture
 def aiohttp_request():
@@ -61,7 +58,8 @@ def aiohttp_request():
     """
     request = MagicMock()
     request.app = {
-        'rsa_manager': manager
+        'rsa_manager': manager,
+        'dh_prime_generator': generate_dh(),
     }
 
     return request
