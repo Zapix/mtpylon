@@ -6,7 +6,7 @@ from aiohttp import web
 
 from mtpylon.utils import bytes_needed
 from mtpylon.types import int128
-from mtpylon.contextvars import rsa_manager, server_nonce_var
+from mtpylon.contextvars import server_nonce_var
 
 from ..constructors import ResPQ
 from ..utils import generates_pq, set_pq_context
@@ -40,7 +40,7 @@ async def req_pq_multi(request: web.Request, nonce: int128) -> ResPQ:
         'big'
     )
 
-    manager = rsa_manager.get()
+    manager = request.app['rsa_manager']
 
     return ResPQ(
         nonce=nonce,

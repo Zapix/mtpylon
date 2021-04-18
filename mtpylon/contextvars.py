@@ -7,15 +7,8 @@ from contextvars import ContextVar
 from aiohttp.web import Request
 
 from .crypto.auth_key_manager import AuthKeyManagerProtocol
-from .crypto.rsa_manager import RsaManagerProtocol
 from .dh_prime_generators.typing import DhPrimeGenerator
 from . import int128, int256
-
-"""
-Store rsa_manager in context to get access for all values.
-Probably should be global variable.
-"""
-rsa_manager: ContextVar[RsaManagerProtocol] = ContextVar('rsa_manager')
 
 
 """

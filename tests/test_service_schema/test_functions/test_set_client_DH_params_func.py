@@ -12,7 +12,6 @@ from mtpylon.service_schema.functions.set_client_DH_params_func import (
     decrypt_inner_data
 )
 from mtpylon.contextvars import (
-    rsa_manager,
     auth_key_manager,
     server_nonce_var,
     new_nonce_var,
@@ -61,15 +60,25 @@ new_nonce_hash3 = int128(98077897061349472903732881789191985947)
 
 
 def setup_function(function):
-
-    rsa_manager.set(manager)
-
     server_nonce_var.set(server_nonce_value)
     new_nonce_var.set(new_nonce_value)
 
     dh_prime_var.set(DH_PRIME)
     g_var.set(g_value)
     a_var.set(a_value)
+
+
+@pytest.fixture
+def aiohttp_request():
+    """
+    Returns mocked aiohttp request
+    """
+    request = MagicMock()
+    request.app = {
+        'rsa_manager': manager
+    }
+
+    return request
 
 
 def test_build_new_nonce_hash_1():
@@ -163,9 +172,7 @@ def test_wrong_hash():
 
 
 @pytest.mark.asyncio
-async def test_set_client_dh_gen_ok():
-    request = MagicMock()
-
+async def test_set_client_dh_gen_ok(aiohttp_request):
     auth_manager = AuthKeyManager()
     auth_key_manager.set(auth_manager)
 
@@ -188,7 +195,7 @@ async def test_set_client_dh_gen_ok():
     )
 
     result = await set_client_DH_params(
-        request,
+        aiohttp_request,
         nonce_value,
         server_nonce_value,
         encrypted_data
@@ -203,9 +210,7 @@ async def test_set_client_dh_gen_ok():
 
 
 @pytest.mark.asyncio
-async def test_set_client_dh_gen_retry():
-    request = MagicMock()
-
+async def test_set_client_dh_gen_retry(aiohttp_request):
     auth_manager = AuthKeyManager()
     await auth_manager.set_key(auth_key)
 
@@ -230,7 +235,7 @@ async def test_set_client_dh_gen_retry():
     )
 
     result = await set_client_DH_params(
-        request,
+        aiohttp_request,
         nonce_value,
         server_nonce_value,
         encrypted_data
@@ -243,9 +248,7 @@ async def test_set_client_dh_gen_retry():
 
 
 @pytest.mark.asyncio
-async def test_set_client_dh_gen_fail():
-    request = MagicMock()
-
+async def test_set_client_dh_gen_fail(aiohttp_request):
     auth_manager = AuthKeyManager()
     await auth_manager.set_key(auth_key)
 
@@ -271,7 +274,7 @@ async def test_set_client_dh_gen_fail():
     )
 
     result = await set_client_DH_params(
-        request,
+        aiohttp_request,
         nonce_value,
         server_nonce_value,
         encrypted_data
@@ -288,9 +291,7 @@ async def test_set_client_dh_gen_fail():
 
 
 @pytest.mark.asyncio
-async def test_set_cliend_dh_gen_ok_second_attempt():
-    request = MagicMock()
-
+async def test_set_cliend_dh_gen_ok_second_attempt(aiohttp_request):
     auth_manager = AuthKeyManager()
     await auth_manager.set_key(auth_key)
 
@@ -316,7 +317,7 @@ async def test_set_cliend_dh_gen_ok_second_attempt():
     )
 
     result = await set_client_DH_params(
-        request,
+        aiohttp_request,
         nonce_value,
         server_nonce_value,
         encrypted_data
@@ -333,9 +334,7 @@ async def test_set_cliend_dh_gen_ok_second_attempt():
 
 
 @pytest.mark.asyncio
-async def test_set_client_dh_wrong_server_nonce():
-    request = MagicMock()
-
+async def test_set_client_dh_wrong_server_nonce(aiohttp_request):
     auth_manager = AuthKeyManager()
     auth_key_manager.set(auth_manager)
 
@@ -359,7 +358,7 @@ async def test_set_client_dh_wrong_server_nonce():
 
     with pytest.raises(ValueError):
         await set_client_DH_params(
-            request,
+            aiohttp_request,
             nonce_value,
             int128(0),
             encrypted_data

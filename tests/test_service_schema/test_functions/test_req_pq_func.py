@@ -10,7 +10,6 @@ from mtpylon.contextvars import (
     p_var,
     q_var,
     pq_var,
-    rsa_manager
 )
 from mtpylon.service_schema.functions import req_pq
 
@@ -20,13 +19,15 @@ from tests.simple_manager import manager
 @pytest.mark.asyncio
 async def test_req_pq():
     request = MagicMock()
+    request.app = {
+        'rsa_manager': manager
+    }
+
     nonce_value = int128(88224628713810667588887952107997447839)
     server_nonce_value = int128(235045274609009641577718790092619182246)
     p_value = 1834598767
     q_value = 1932921469
     pq_value = 3546135343735228723
-
-    rsa_manager.set(manager)
 
     getrandbits = MagicMock(return_value=server_nonce_value)
 
