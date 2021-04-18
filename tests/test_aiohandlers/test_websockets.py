@@ -101,7 +101,6 @@ class WsHandlerTestCase(AioHTTPTestCase):
         message_entity = AsyncMock()
         MessageHandler = MagicMock(return_value=message_entity)
         MessageSender = MagicMock()
-        ws_request = MagicMock()
 
         with ExitStack() as patcher:
             patcher.enter_context(
@@ -122,12 +121,6 @@ class WsHandlerTestCase(AioHTTPTestCase):
                     MessageSender
                 )
             )
-            patcher.enter_context(
-                patch(
-                    'mtpylon.aiohandlers.websockets.ws_request',
-                    ws_request
-                )
-            )
             async with self.client.ws_connect('/ws') as conn:
                 await conn.send_bytes(good_header)
                 await conn.send_bytes(clients_message)
@@ -137,5 +130,3 @@ class WsHandlerTestCase(AioHTTPTestCase):
         assert MessageHandler.called
         assert MessageSender.called
         assert message_entity.handle.called
-
-        assert ws_request.set.called
