@@ -2,6 +2,8 @@
 from dataclasses import dataclass
 from typing import Annotated, Union, List, Optional
 
+from aiohttp import web
+
 from mtpylon import Schema
 
 
@@ -18,8 +20,8 @@ class BoolFalse:
 
 
 Bool = Annotated[
-  Union[BoolTrue, BoolFalse],
-  'Bool'
+    Union[BoolTrue, BoolFalse],
+    'Bool'
 ]
 
 
@@ -72,7 +74,7 @@ class TaskList:
         order = ('tasks', )
 
 
-async def register(username: str, password: str) -> User:
+async def register(request: web.Request, username: str, password: str) -> User:
     return AuthorizedUser(
         id=1,
         username=username,
@@ -81,7 +83,7 @@ async def register(username: str, password: str) -> User:
     )
 
 
-async def login(username: str, password: str) -> User:
+async def login(request: web.Request, username: str, password: str) -> User:
     if username == 'zapix' and password == '123123':
         return AuthorizedUser(
             id=1,
@@ -93,7 +95,7 @@ async def login(username: str, password: str) -> User:
     return AnonymousUser()
 
 
-async def set_task(content: str) -> Task:
+async def set_task(request: web.Request, content: str) -> Task:
     return Task(
         id=1,
         content=content,
@@ -102,7 +104,7 @@ async def set_task(content: str) -> Task:
     )
 
 
-async def get_task_list() -> TaskList:
+async def get_task_list(request: web.Request) -> TaskList:
     return TaskList(tasks=[
         Task(
             id=1,

@@ -3,6 +3,8 @@ import logging
 from typing import cast, Any
 from dataclasses import dataclass
 
+from aiohttp import web
+
 from .exceptions import InvalidMessageError, InvalidServerSalt
 from .schema import Schema
 from .serialization import CallableFunc
@@ -26,7 +28,7 @@ class MessageHandler:
     transport_wrapper: TransportWrapper
     message_sender: MessageSender
 
-    async def handle(self, obfuscated_data: bytes):
+    async def handle(self, request: web.Request, obfuscated_data: bytes):
         message = await self.decrypt_message(obfuscated_data)
         logger.debug(f'Received message: {message.msg_id}')
 
@@ -59,7 +61,7 @@ class MessageHandler:
             logger.info(
                 f'Msg {message.msg_id}: call rpc function: {func_name}'
             )
-            result = await value.func(**value.params)
+            result = await value.func(request, **value.params)
 
         logger.info(f'Response to message {message.msg_id}')
         await self.message_sender.send_message(result, response=True)

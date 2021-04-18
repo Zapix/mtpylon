@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from aiohttp.web import Request
+
 from typing import Union, ForwardRef, List, Optional, Annotated, Any
 from dataclasses import dataclass
 
@@ -431,54 +433,62 @@ class IncorrectNoMetaCombinator:
     pass
 
 
-async def equals(a: int, b: int) -> Bool:
+async def equals(request: Request, a: int, b: int) -> Bool:
     if a == b:
         return BoolTrue()
     return BoolFalse()
 
 
-async def get_task_content(task: Task) -> str:
+async def get_task_content(request: Request, task: Task) -> str:
     return task.content
 
 
-async def has_tasks(tasks: List[Task]) -> Bool:
+async def has_tasks(request: Request, tasks: List[Task]) -> Bool:
     if len(tasks) > 0:
         return BoolTrue()
     return BoolFalse()
 
 
-def not_async_func(a: int, b: int) -> Bool:
+def not_async_func(request: Request, a: int, b: int) -> Bool:
     if a == b:
         return BoolTrue()
     return BoolFalse()
 
 
-async def invalid_param(a: AnotherClass, b: int) -> Bool:
+async def invalid_param(request: Request, a: AnotherClass, b: int) -> Bool:
     if str(a) == str(b):
         return BoolTrue()
     return BoolFalse()
 
 
-async def invalid_return_type(a: int, b: int) -> AnotherClass:
+async def invalid_return_type(
+    request: Request,
+    a: int,
+    b: int
+) -> AnotherClass:
     return AnotherClass(a, b)
 
 
-async def invalid_not_annotated_params(a, b) -> Bool:
+async def invalid_not_annotated_params(request: Request, a, b) -> Bool:
     if a == b:
         return BoolTrue()
     return BoolFalse()
 
 
-async def invalid_args(*args: List[Task]) -> Bool:
+async def invalid_args(request: Request, *args: List[Task]) -> Bool:
     if len(args) > 0:
         return BoolTrue()
     return BoolFalse()
 
 
-async def invalid_kwargs(**kwargs) -> Bool:
+async def invalid_kwargs(request: Request, **kwargs) -> Bool:
     if 'value' in kwargs:
         return BoolTrue()
     return BoolFalse()
+
+
+async def func_no_request(task: Task) -> Bool:
+    return BoolTrue()
 
 
 class TestIsOptionalType:
@@ -647,6 +657,10 @@ class TestIsValidFunction:
     def test_invalid_kwargs(self):
         with pytest.raises(InvalidFunction):
             is_valid_function(invalid_kwargs)
+
+    def test_request_object_does_not_passed(self):
+        with pytest.raises(InvalidFunction):
+            is_valid_function(func_no_request)
 
 
 class TestBuildCombinatorDescription:

@@ -5,6 +5,7 @@ from hashlib import sha1
 from datetime import datetime
 from random import getrandbits
 
+from aiohttp import web
 from tgcrypto import ige256_encrypt  # type: ignore
 
 from mtpylon import Schema, long, int128, int256
@@ -110,6 +111,7 @@ def prepare_for_encrypt(data: bytes) -> bytes:
 
 
 async def req_DH_params(
+        request: web.Request,
         nonce: int128,
         server_nonce: int128,
         p: bytes,
