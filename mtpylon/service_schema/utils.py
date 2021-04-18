@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 import logging
 from hashlib import sha1
-from typing import Tuple
+from typing import AsyncGenerator, Tuple
 from random import getrandbits
 
 from mtpylon import int128, int256
 from mtpylon.crypto import KeyIvPair
 from mtpylon.serialization.int128 import dump as dump_128
 from mtpylon.serialization.int256 import dump as dump_256
-
 from mtpylon.crypto.random_prime import random_prime
-from mtpylon.contextvars import p_var, q_var, pq_var, dh_prime_generator
+from mtpylon.contextvars import p_var, q_var, pq_var
 
 
 logger = logging.getLogger(__name__)
@@ -49,12 +48,11 @@ async def generate_a() -> int:
     return getrandbits(2048)
 
 
-async def generate_dh_prime() -> int:
+async def generate_dh_prime(gen: AsyncGenerator[int, None]) -> int:
     """
     Generate dh_prime for key exchange. dh_prime is a safe prime number.
     2 ^ 2047 < dh_prime < 2 ^ 2048. (dh_prime - 1) / 2  is prime.
     """
-    gen = dh_prime_generator.get()
 
     return await gen.asend(None)
 

@@ -9,8 +9,8 @@ from aiohttp import web
 from tgcrypto import ige256_encrypt  # type: ignore
 
 from mtpylon import Schema, long, int128, int256
+from mtpylon.crypto.rsa_manager import RsaManagerProtocol
 from mtpylon.contextvars import (
-    rsa_manager,
     server_nonce_var,
     new_nonce_var,
     p_var,
@@ -58,15 +58,14 @@ def dump_dh_inner_data(data: Server_DH_inner_data):
 
 
 def decrypt_inner_data(
+        rsa_manager: RsaManagerProtocol,
         encrypted_data: bytes,
         fingerprint: long
 ) -> P_Q_inner_data:
-    manager = rsa_manager.get()
-
-    if fingerprint not in manager:
+    if fingerprint not in rsa_manager:
         raise ValueError(f'Fingerprint {fingerprint} not found in manager')
 
-    key_pair = manager[fingerprint]
+    key_pair = rsa_manager[fingerprint]
 
     try:
         unencrypted_data = rsa_decrypt(encrypted_data, key_pair.private)
@@ -134,7 +133,11 @@ async def req_DH_params(
     """
     logger.info('Handle req DH params')
 
-    inner_data = decrypt_inner_data(encrypted_data, public_key_fingerprint)
+    inner_data = decrypt_inner_data(
+        request.app['rsa_manager'],
+        encrypted_data,
+        public_key_fingerprint
+    )
     new_nonce_var.set(inner_data.new_nonce)
     logger.debug(f'New nonce: {inner_data.new_nonce}')
     new_nonce_hash = build_new_nonce_hash(inner_data.new_nonce)
@@ -157,7 +160,7 @@ async def req_DH_params(
             new_nonce_hash=new_nonce_hash
         )
 
-    dh_prime = await generate_dh_prime()
+    dh_prime = await generate_dh_prime(request.app['dh_prime_generator'])
     dh_prime_var.set(dh_prime)
 
     g = await generate_g()

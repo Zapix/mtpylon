@@ -14,7 +14,6 @@ from mtpylon.transports import (
 )
 from mtpylon.message_sender import MessageSender
 from mtpylon.message_handler import MessageHandler
-from mtpylon.contextvars import ws_request
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +31,21 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
 
     ws = WebSocketResponse()
     await ws.prepare(request)
+
+    if 'rsa_manager' not in request.app:
+        logger.error('Rsa manager should be set')
+        await ws.close()
+        return ws
+
+    if 'auth_key_manager' not in request.app:
+        logger.error('Auth key manager should be set')
+        await ws.close()
+        return ws
+
+    if 'dh_prime_generator' not in request.app:
+        logger.error('DH prime generator should be set')
+        await ws.close()
+        return ws
 
     transport_tag: Optional[int] = None
     message_handler: Optional[MessageHandler] = None
@@ -62,7 +76,6 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
                     transport_wrapper=transport_wrapper,
                     message_sender=message_sender,
                 )
-                ws_request.set(request)
             except ValueError as e:
                 logger.error(str(e))
                 break

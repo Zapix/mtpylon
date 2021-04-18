@@ -9,17 +9,13 @@ from tgcrypto import ige256_decrypt  # type: ignore
 import pytest
 
 from mtpylon import int128, long, int256
+from mtpylon.crypto.rsa_manager import RsaManagerProtocol
 from mtpylon.contextvars import (
-    rsa_manager,
-    dh_prime_generator,
     server_nonce_var,
     new_nonce_var,
     p_var,
     q_var,
     pq_var,
-
-    g_var,
-    a_var,
 )
 from mtpylon.dh_prime_generators.single_prime import (
     generate as generate_dh,
@@ -49,33 +45,52 @@ pq_value = 3546135343735228723
 
 
 def setup_function(function):
-    rsa_manager.set(manager)
     server_nonce_var.set(server_nonce_value)
     p_var.set(p_value)
     q_var.set(q_value)
     pq_var.set(pq_value)
 
-    dh_prime_generator.set(generate_dh())
+
+@pytest.fixture
+def aiohttp_request():
+    """
+    Returns mocked aiohttp request
+    """
+    request = MagicMock()
+    request.app = {
+        'rsa_manager': manager,
+        'dh_prime_generator': generate_dh(),
+    }
+
+    return request
 
 
-def encrypt_client_data(serialized_data: bytes, fingerprint: long) -> bytes:
+def encrypt_client_data(
+    rsa_manager: RsaManagerProtocol,
+    serialized_data: bytes,
+    fingerprint: long
+) -> bytes:
     data_hash = sha1(serialized_data).digest()
     postfix_size = 255 - 20 - len(serialized_data)
 
     data_with_hash = data_hash + serialized_data + randbytes(postfix_size)
 
-    key_pair = rsa_manager.get()[fingerprint]
+    key_pair = rsa_manager[fingerprint]
 
     return rsa_encrypt(data_with_hash, key_pair.public)
 
 
-def wrong_encrypted_data(serialized_data: bytes, fingerprint: long) -> bytes:
+def wrong_encrypted_data(
+    rsa_manager: RsaManagerProtocol,
+    serialized_data: bytes,
+    fingerprint: long
+) -> bytes:
     data_hash = b'\x00' * 20
     postfix_size = 255 - 20 - len(serialized_data)
 
     data_with_hash = data_hash + serialized_data + randbytes(postfix_size)
 
-    key_pair = rsa_manager.get()[fingerprint]
+    key_pair = rsa_manager[fingerprint]
 
     return rsa_encrypt(data_with_hash, key_pair.public)
 
@@ -99,9 +114,13 @@ def test_decrypt_success():
     )
 
     p_q_inner_data_bytes = dump(p_q_inner_data)
-    encrypted_data = encrypt_client_data(p_q_inner_data_bytes, fingerprint)
+    encrypted_data = encrypt_client_data(
+        manager,
+        p_q_inner_data_bytes,
+        fingerprint
+    )
 
-    raw_data = decrypt_inner_data(encrypted_data, fingerprint)
+    raw_data = decrypt_inner_data(manager, encrypted_data, fingerprint)
 
     assert p_q_inner_data == raw_data
 
@@ -125,10 +144,14 @@ def test_decrypt_fingerprint_doesnot_exist():
     )
 
     p_q_inner_data_bytes = dump(p_q_inner_data)
-    encrypted_data = encrypt_client_data(p_q_inner_data_bytes, fingerprint)
+    encrypted_data = encrypt_client_data(
+        manager,
+        p_q_inner_data_bytes,
+        fingerprint
+    )
 
     with pytest.raises(ValueError):
-        decrypt_inner_data(encrypted_data, long(123123))
+        decrypt_inner_data(manager, encrypted_data, long(123123))
 
 
 def test_decrypt_wrong_fingerprint():
@@ -150,28 +173,34 @@ def test_decrypt_wrong_fingerprint():
     )
 
     p_q_inner_data_bytes = dump(p_q_inner_data)
-    encrypted_data = encrypt_client_data(p_q_inner_data_bytes, fingerprint)
+    encrypted_data = encrypt_client_data(
+        manager,
+        p_q_inner_data_bytes,
+        fingerprint
+    )
 
     wrong_fingerprint = manager.fingerprint_list[1]
 
     with pytest.raises(ValueError):
-        decrypt_inner_data(encrypted_data, wrong_fingerprint)
+        decrypt_inner_data(
+            manager,
+            encrypted_data,
+            wrong_fingerprint
+        )
 
 
 def test_decrypt_wrong_value_encoded():
     fingerprint = manager.fingerprint_list[0]
 
     wrong_data = b'it is not encrypted data'
-    encrypted_data = encrypt_client_data(wrong_data, fingerprint)
+    encrypted_data = encrypt_client_data(manager, wrong_data, fingerprint)
 
     with pytest.raises(ValueError):
-        decrypt_inner_data(encrypted_data, fingerprint)
+        decrypt_inner_data(manager, encrypted_data, fingerprint)
 
 
 @pytest.mark.asyncio
-async def test_req_DH_params_ok():
-    request = MagicMock()
-
+async def test_req_DH_params_ok(aiohttp_request):
     fingerprint = manager.fingerprint_list[0]
 
     new_nonce_value = int256(getrandbits(256))
@@ -190,10 +219,14 @@ async def test_req_DH_params_ok():
     )
 
     p_q_inner_data_bytes = dump(p_q_inner_data)
-    encrypted_data = encrypt_client_data(p_q_inner_data_bytes, fingerprint)
+    encrypted_data = encrypt_client_data(
+        manager,
+        p_q_inner_data_bytes,
+        fingerprint
+    )
 
     result = await req_DH_params(
-        request,
+        aiohttp_request,
         nonce_value,
         server_nonce_value,
         p_bytes,
@@ -223,15 +256,10 @@ async def test_req_DH_params_ok():
     assert int.from_bytes(value.dh_prime, 'big') == DH_PRIME
 
     assert new_nonce_value == new_nonce_var.get()
-    print(new_nonce_value)
-    print(g_var.get())
-    print(a_var.get())
 
 
 @pytest.mark.asyncio
-async def test_req_DH_wront_encrypted_hash():
-    request = MagicMock()
-
+async def test_req_DH_wront_encrypted_hash(aiohttp_request):
     fingerprint = manager.fingerprint_list[0]
 
     new_nonce_value = int256(getrandbits(256))
@@ -250,11 +278,15 @@ async def test_req_DH_wront_encrypted_hash():
     )
 
     p_q_inner_data_bytes = dump(p_q_inner_data)
-    encrypted_data = wrong_encrypted_data(p_q_inner_data_bytes, fingerprint)
+    encrypted_data = wrong_encrypted_data(
+        manager,
+        p_q_inner_data_bytes,
+        fingerprint
+    )
 
     with pytest.raises(ValueError):
         await req_DH_params(
-            request,
+            aiohttp_request,
             nonce_value,
             server_nonce_value,
             p_bytes,
@@ -265,9 +297,7 @@ async def test_req_DH_wront_encrypted_hash():
 
 
 @pytest.mark.asyncio
-async def test_req_DH_fail_p_bytes():
-    request = MagicMock()
-
+async def test_req_DH_fail_p_bytes(aiohttp_request):
     fingerprint = manager.fingerprint_list[0]
 
     new_nonce_value = int256(getrandbits(256))
@@ -290,10 +320,14 @@ async def test_req_DH_fail_p_bytes():
     )
 
     p_q_inner_data_bytes = dump(p_q_inner_data)
-    encrypted_data = encrypt_client_data(p_q_inner_data_bytes, fingerprint)
+    encrypted_data = encrypt_client_data(
+        manager,
+        p_q_inner_data_bytes,
+        fingerprint
+    )
 
     result = await req_DH_params(
-        request,
+        aiohttp_request,
         nonce_value,
         server_nonce_value,
         p_bytes,
@@ -309,9 +343,7 @@ async def test_req_DH_fail_p_bytes():
 
 
 @pytest.mark.asyncio
-async def test_req_DH_fail_wrong_server_nonce():
-    request = MagicMock()
-
+async def test_req_DH_fail_wrong_server_nonce(aiohttp_request):
     fingerprint = manager.fingerprint_list[0]
 
     new_nonce_value = int256(getrandbits(256))
@@ -330,11 +362,15 @@ async def test_req_DH_fail_wrong_server_nonce():
     )
 
     p_q_inner_data_bytes = dump(p_q_inner_data)
-    encrypted_data = encrypt_client_data(p_q_inner_data_bytes, fingerprint)
+    encrypted_data = encrypt_client_data(
+        manager,
+        p_q_inner_data_bytes,
+        fingerprint
+    )
 
     with pytest.raises(ValueError):
         await req_DH_params(
-            request,
+            aiohttp_request,
             nonce_value,
             server_nonce_value,
             p_bytes,
