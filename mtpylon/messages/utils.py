@@ -2,7 +2,7 @@
 import datetime
 from typing import Generator, Optional
 
-from mtpylon import long
+from mtpylon.types import long
 from mtpylon.serialization.long import load as load_long
 
 
