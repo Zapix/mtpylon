@@ -72,6 +72,8 @@ class MessageHandler:
     ) -> UnencryptedMessage:
         transport_message = self.obfuscator.decrypt(obfuscated_data)
         message_bytes = self.transport_wrapper.unwrap(transport_message)
+
+        logger.debug(message_bytes)
         return await unpack_message(message_bytes)
 
     def validate_message(self, msg: UnencryptedMessage) -> UnencryptedMessage:

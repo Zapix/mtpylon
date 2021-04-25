@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from mtpylon import long
-from mtpylon.messages import (
+from mtpylon.types import long
+from mtpylon.messages.utils import (
     is_encrypted_message,
     is_unencrypted_message,
     message_ids
 )
-
 
 unencrypted_message = (
     b'\x00\x00\x00\x00\x00\x00\x00\x00' +

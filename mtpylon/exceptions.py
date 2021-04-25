@@ -54,3 +54,15 @@ class InvalidServerSalt(Exception):
     """
     error_code: int
     new_server_salt: long
+
+
+class AuthKeyNotFound(Exception):
+    """
+    Raises when auth key not found in manager by auth key id
+    """
+
+
+class AuthKeyChangedException(Exception):
+    """
+    Raises when messages with different auth keys in same connection
+    """
