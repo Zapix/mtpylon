@@ -34,7 +34,7 @@ dh_prime_var: ContextVar[int] = ContextVar('dh_prime')
 
 
 "Stores auth key for current context"
-auth_key_var: ContextVar[Optional[AuthKey]] = ContextVar('auth_key')
+auth_key_var: ContextVar[AuthKey] = ContextVar('auth_key')
 
 
 """

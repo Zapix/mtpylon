@@ -2,9 +2,10 @@
 import asyncio
 import logging
 from typing import Any
+from random import randbytes
 from dataclasses import dataclass
 
-from tgcrypto import ige256_decrypt  # type: ignore
+from tgcrypto import ige256_decrypt, ige256_encrypt  # type: ignore
 
 from mtpylon.types import long
 from mtpylon.schema import Schema
@@ -12,26 +13,37 @@ from mtpylon.crypto import (
     AuthKey,
     AuthKeyManager,
     AuthKeyDoesNotExist,
-    generate_key_iv
+    generate_key_iv,
+    get_msg_key,
 )
 from mtpylon.serialization.int import (
-    load as load_int
+    load as load_int,
+    dump as dump_int,
 )
 from mtpylon.serialization.long import (
     load as load_long,
+    dump as dump_long,
 )
 from mtpylon.serialization.int128 import (
-    load as load_int128
+    load as load_int128,
+    dump as dump_int128,
 )
 from mtpylon.serialization.schema import (
-    load as load_by_schema
+    load as load_by_schema,
+    dump as dump_by_schema
 )
 from mtpylon.exceptions import AuthKeyNotFound, AuthKeyChangedException
 from mtpylon.contextvars import auth_key_var
-from mtpylon.service_schema import load as load_by_service_schema
+from mtpylon.service_schema import (
+    load as load_by_service_schema,
+    dump as dump_by_service_schema
+)
 
 
 logger = logging.getLogger(__name__)
+
+
+MIN_PAD = 12
 
 
 @dataclass
@@ -43,7 +55,7 @@ class Message:
     message_data: Any
 
 
-def load_message(schema: Schema, message_bytes: bytes) -> Any:
+def load_data(schema: Schema, message_bytes: bytes) -> Any:
     """
     Tries to load with services, clients schema.
 
@@ -56,6 +68,70 @@ def load_message(schema: Schema, message_bytes: bytes) -> Any:
         value = load_by_service_schema(message_bytes).value
 
     return value
+
+
+def dump_data(schema: Schema, data: Any) -> bytes:
+    """
+    Tries to dumps data as clients data.
+    If it failed tries dump as server data
+
+    Raises:
+        ValueError - if data couldn't been dumped
+    """
+
+    try:
+        dumped_data = dump_by_schema(schema, data, custom_dumpers=None)
+    except ValueError:
+        dumped_data = dump_by_service_schema(data)
+
+    return dumped_data
+
+
+async def load_message(schema: Schema, message_bytes: bytes) -> Message:
+    """
+    Loads message with extra header data
+    """
+    salt = load_long(message_bytes).value
+    session_id = load_long(message_bytes[8:]).value
+    message_id = load_long(message_bytes[16:]).value
+    seq_no = load_int(message_bytes[24:]).value
+    message_value = await asyncio.to_thread(
+        load_data,
+        schema,
+        message_bytes[32:]
+    )
+
+    return Message(
+        salt=salt,
+        session_id=session_id,
+        message_id=message_id,
+        seq_no=seq_no,
+        message_data=message_value
+    )
+
+
+async def dump_message(schema: Schema, message: Message) -> bytes:
+    data_bytes = await asyncio.to_thread(
+        dump_data,
+        schema,
+        message.message_data
+    )
+    return (
+        dump_long(message.salt) +
+        dump_long(message.session_id) +
+        dump_long(message.message_id) +
+        dump_int(message.seq_no) +
+        dump_int(len(data_bytes)) +
+        data_bytes
+    )
+
+
+def pad_bytes(raw_data):
+    length_with_min_pad = len(raw_data) + MIN_PAD
+    round_pad = (16 - (length_with_min_pad % 16)) % 16
+    total_pad = round_pad + MIN_PAD
+
+    return randbytes(total_pad)
 
 
 async def get_auth_key(
@@ -76,40 +152,20 @@ async def get_auth_key(
     except AuthKeyDoesNotExist:
         raise AuthKeyNotFound
 
-    expected_auth_key = auth_key_var.get(None)
-
-    if expected_auth_key is None:
+    try:
+        expected_auth_key = auth_key_var.get()
+    except LookupError:
+        expected_auth_key = auth_key
         auth_key_var.set(auth_key)
-    elif expected_auth_key != auth_key:
+
+    if expected_auth_key != auth_key:
         logger.error(
             f'Receive auth_key with id {auth_key.id}. ' +
             f'Expected {expected_auth_key.id}'
         )
         raise AuthKeyChangedException
+
     return auth_key
-
-
-async def parse_message(schema: Schema, message_bytes: bytes) -> Message:
-    """
-    Loads message with extra header data
-    """
-    salt = load_long(message_bytes).value
-    session_id = load_long(message_bytes[8:]).value
-    message_id = load_long(message_bytes[16:]).value
-    seq_no = load_int(message_bytes[24:]).value
-    message_value = await asyncio.to_thread(
-        load_message,
-        schema,
-        message_bytes[32:]
-    )
-
-    return Message(
-        salt=salt,
-        session_id=session_id,
-        message_id=message_id,
-        seq_no=seq_no,
-        message_data=message_value
-    )
 
 
 async def unpack_message(
@@ -136,12 +192,34 @@ async def unpack_message(
         key_pair.iv
     )
 
-    return await parse_message(schema, message_bytes)
+    return await load_message(schema, message_bytes)
 
 
 async def pack_message(
-    auth_manager: AuthKeyManager,
     schema: Schema,
     message: Message,
 ) -> bytes:
-    pass
+    dumped_message = await dump_message(schema, message)
+    padded_message = dumped_message + pad_bytes(dumped_message)
+
+    try:
+        auth_key = auth_key_var.get()
+    except LookupError:
+        logger.error('Auth key should be set before response')
+        raise ValueError('Auth key should be set before')
+
+    msg_key = get_msg_key(auth_key, padded_message)
+
+    key_iv_pair = generate_key_iv(auth_key, msg_key)
+
+    encrypted_message = ige256_encrypt(
+        padded_message,
+        key_iv_pair.key,
+        key_iv_pair.iv
+    )
+
+    return (
+        auth_key.id.to_bytes(8, 'big') +
+        dump_int128(msg_key) +
+        encrypted_message
+    )
