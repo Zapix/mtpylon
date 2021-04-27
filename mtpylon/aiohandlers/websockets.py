@@ -47,6 +47,11 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
         await ws.close()
         return ws
 
+    if 'server_salt_manager' not in request.app:
+        logger.error('Server salt manager should be set')
+        await ws.close()
+        return ws
+
     transport_tag: Optional[int] = None
     message_handler: Optional[MessageHandler] = None
     message_sender: Optional[MessageSender] = None

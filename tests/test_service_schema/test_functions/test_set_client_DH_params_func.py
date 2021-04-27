@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, AsyncMock
 
 import pytest
 from tgcrypto import ige256_encrypt  # type: ignore
@@ -9,7 +9,8 @@ from mtpylon.service_schema.functions import set_client_DH_params
 from mtpylon.service_schema.functions.set_client_DH_params_func import (
     failed_auth_key,
     build_new_nonce_hash,
-    decrypt_inner_data
+    decrypt_inner_data,
+    build_salt,
 )
 from mtpylon.contextvars import (
     server_nonce_var,
@@ -73,8 +74,12 @@ def aiohttp_request():
     Returns mocked aiohttp request
     """
     request = MagicMock()
+    server_salt_manager = MagicMock()
+    server_salt_manager.set_salt = AsyncMock()
+
     request.app = {
-        'rsa_manager': manager
+        'rsa_manager': manager,
+        'server_salt_manager': server_salt_manager
     }
 
     return request
@@ -206,6 +211,8 @@ async def test_set_client_dh_gen_ok(aiohttp_request):
     assert result.new_nonce_hash1 == new_nonce_hash1
     assert await auth_key_manager.has_key(auth_key)
 
+    aiohttp_request.app['server_salt_manager'].set_salt.assert_awaited()
+
 
 @pytest.mark.asyncio
 async def test_set_client_dh_gen_retry(aiohttp_request):
@@ -329,6 +336,8 @@ async def test_set_cliend_dh_gen_ok_second_attempt(aiohttp_request):
         1
     )
 
+    aiohttp_request.app['server_salt_manager'].set_salt.assert_awaited()
+
 
 @pytest.mark.asyncio
 async def test_set_client_dh_wrong_server_nonce(aiohttp_request):
@@ -361,3 +370,14 @@ async def test_set_client_dh_wrong_server_nonce(aiohttp_request):
             int128(0),
             encrypted_data
         )
+
+
+def test_build_server_salt():
+    server_nonce1 = int128(249614136491309141700663873799696366784)
+    new_nonce1 = int256(88757849913661402246725644620299906980168231292277558494010613000920485514672)  # noqa
+
+    expected_salt = long(15255682115388961136)
+
+    salt = build_salt(server_nonce1, new_nonce1)
+
+    assert salt.salt == expected_salt

@@ -18,8 +18,14 @@ from mtpylon.contextvars import (
 )
 from mtpylon.serialization import LoadedValue
 from mtpylon.serialization.schema import load
-from mtpylon.serialization.int256 import dump as dump_int256
-from mtpylon.serialization.int128 import load as load_int128
+from mtpylon.serialization.int256 import (
+    dump as dump_int256
+)
+from mtpylon.serialization.int128 import (
+    load as load_int128,
+    dump as dump_int128
+)
+from mtpylon.salts import Salt
 from ..utils import generate_tmp_key_iv
 from ..constructors import (
     Set_client_DH_params_answer,
@@ -62,6 +68,21 @@ def build_new_nonce_hash(
     )
 
     return load_int128(sha1(data).digest()[-16:]).value
+
+
+def build_salt(server_nonce: int128, new_nonce: int256) -> Salt:
+    """
+    Builds new salt from server_nonce and new_nonces
+    """
+    server_nonce_bytes = dump_int128(server_nonce)
+    new_nonce_bytes = dump_int256(new_nonce)
+
+    salt_value = (
+        int.from_bytes(server_nonce_bytes[:8], 'little') ^
+        int.from_bytes(new_nonce_bytes[:8], 'little')
+    )
+
+    return Salt(salt=long(salt_value))
 
 
 def load_client_dh_inner_data(
@@ -180,11 +201,15 @@ async def set_client_DH_params(
 
     await auth_manager.set_key(auth_key)
 
+    salt = build_salt(server_nonce, new_nonce_value)
+    await request.app['server_salt_manager'].set_salt(salt)
+
     logger.info('Auth key has been created:')
     logger.info(f'Auth key: {auth_key.value}')
     logger.info(f'Autk key hash: {auth_key.hash}')
     logger.info(f'Auth key id: {auth_key.id}')
     logger.info(f'Auth key aux hash: {auth_key.aux_hash}')
+    logger.info(f'Server salt: {salt.salt}')
 
     return DHGenOk(
         nonce=nonce,
