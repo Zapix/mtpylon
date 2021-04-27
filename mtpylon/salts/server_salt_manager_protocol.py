@@ -18,7 +18,7 @@ class ServerSaltManagerProtocol(Protocol):
             self,
             auth_key: AuthKey,
             salt: Salt
-    ):
+    ):  # pragma: nocover
         """
         Sets server salt for auth key
         """
@@ -28,7 +28,7 @@ class ServerSaltManagerProtocol(Protocol):
         self,
         auth_key: AuthKey,
         count: int = 1
-    ) -> List[Salt]:
+    ) -> List[Salt]:  # pragma: nocover
         """
         Get or generate future salts for current authorization key .
         Maximum future salts that could be return is 64
@@ -38,7 +38,10 @@ class ServerSaltManagerProtocol(Protocol):
         """
         ...
 
-    async def clear(self, auth_key: Optional[AuthKey] = None):
+    async def clear(
+        self,
+        auth_key: Optional[AuthKey] = None
+    ):  # pragma: nocover
         """
         Clear all outdated server salts
         :param auth_key:
