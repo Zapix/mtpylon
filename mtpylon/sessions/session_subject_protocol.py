@@ -11,8 +11,11 @@ class SessionSubjectProtocol(SessionStorageProtocol):
 
     observers: List[SessionObserverProtocol]
 
-    def subscribe(self, observer: SessionObserverProtocol):
+    def subscribe(self, observer: SessionObserverProtocol):  # pragma: nocover
         ...
 
-    def unsubscribe(self, observer: SessionObserverProtocol):
+    def unsubscribe(
+        self,
+        observer: SessionObserverProtocol
+    ):  # pragma: nocover
         ...
