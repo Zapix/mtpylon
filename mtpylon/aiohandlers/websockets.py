@@ -2,9 +2,10 @@
 import logging
 from functools import partial
 from typing import cast, Optional
+from dataclasses import dataclass
 
 from aiohttp import WSMsgType
-from aiohttp.web import Request, WebSocketResponse
+from aiohttp.web import Request, WebSocketResponse, Application
 
 from mtpylon.aiohandlers.types import WebSocketHandler
 from mtpylon.schema import Schema
@@ -16,6 +17,48 @@ from mtpylon.message_sender import MessageSender
 from mtpylon.message_handler import MessageHandler
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class SharedResourceCheck:
+    resource_name: str
+    error: str
+
+
+SHARED_RESOURCE_CHECK_LIST = [
+    SharedResourceCheck(
+        resource_name='rsa_manager',
+        error='Rsa manager should be set',
+    ),
+    SharedResourceCheck(
+        resource_name='auth_key_manager',
+        error='Auth key manager should be set',
+    ),
+    SharedResourceCheck(
+        resource_name='dh_prime_generator',
+        error='DH prime generator should be set',
+    ),
+    SharedResourceCheck(
+        resource_name='server_salt_manager',
+        error='Server salt manager should be set'
+    ),
+    SharedResourceCheck(
+        resource_name='session_subject',
+        error='Session subject should be set',
+    )
+]
+
+
+def validate_shared_resources(app: Application):
+    """
+    Validates that all shared resources properly configures
+
+    Raises:
+        ValueError - if some of resources hasn't been configured
+    """
+    for check in SHARED_RESOURCE_CHECK_LIST:
+        if check.resource_name not in app:
+            raise ValueError(check.error)
 
 
 async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
@@ -32,23 +75,10 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
     ws = WebSocketResponse()
     await ws.prepare(request)
 
-    if 'rsa_manager' not in request.app:
-        logger.error('Rsa manager should be set')
-        await ws.close()
-        return ws
-
-    if 'auth_key_manager' not in request.app:
-        logger.error('Auth key manager should be set')
-        await ws.close()
-        return ws
-
-    if 'dh_prime_generator' not in request.app:
-        logger.error('DH prime generator should be set')
-        await ws.close()
-        return ws
-
-    if 'server_salt_manager' not in request.app:
-        logger.error('Server salt manager should be set')
+    try:
+        validate_shared_resources(request.app)
+    except ValueError as e:
+        logger.error(e)
         await ws.close()
         return ws
 
