@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import logging
-from typing import cast, Any
-from dataclasses import dataclass
+from typing import cast, Any, List
+from dataclasses import dataclass, field
+from functools import partial
 
 from aiohttp import web
 
@@ -16,7 +17,7 @@ from .service_schema.constructors import (
     BadServerSalt
 )
 from .utils import get_function_name
-
+from .middlewares import MiddleWareFunc
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ class MessageHandler:
     obfuscator: Obfuscator
     transport_wrapper: TransportWrapper
     message_sender: MessageSender
+    middlewares: List[MiddleWareFunc] = field(default_factory=list)
 
     async def handle(self, request: web.Request, obfuscated_data: bytes):
         message = await self.decrypt_message(obfuscated_data)
@@ -61,7 +63,13 @@ class MessageHandler:
             logger.info(
                 f'Msg {message.msg_id}: call rpc function: {func_name}'
             )
-            result = await value.func(request, **value.params)
+
+            handler = value.func
+
+            for middleware in self.middlewares[::-1]:
+                handler = partial(middleware, handler)
+
+            result = await handler(request, **value.params)
 
         logger.info(f'Response to message {message.msg_id}')
         await self.message_sender.send_message(result, response=True)
@@ -73,7 +81,6 @@ class MessageHandler:
         transport_message = self.obfuscator.decrypt(obfuscated_data)
         message_bytes = self.transport_wrapper.unwrap(transport_message)
 
-        logger.debug(message_bytes)
         return await unpack_message(message_bytes)
 
     def validate_message(self, msg: UnencryptedMessage) -> UnencryptedMessage:
