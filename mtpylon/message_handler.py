@@ -18,6 +18,7 @@ from .service_schema.constructors import (
 )
 from .utils import get_function_name
 from .middlewares import MiddleWareFunc
+from .contextvars import message_id_var
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,7 @@ class MessageHandler:
     async def handle(self, request: web.Request, obfuscated_data: bytes):
         message = await self.decrypt_message(obfuscated_data)
         logger.debug(f'Received message: {message.msg_id}')
+        self.set_message_context_vars(message)
 
         result: Any = None
 
@@ -94,3 +96,9 @@ class MessageHandler:
         :return:
         """
         ...
+
+    def set_message_context_vars(self, message: UnencryptedMessage):
+        """
+        Sets message_id, server_salt, session_id into context vars
+        """
+        message_id_var.set(message.msg_id)

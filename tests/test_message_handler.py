@@ -14,6 +14,7 @@ from mtpylon.service_schema.constructors import (
     BadMessageNotification,
     BadServerSalt
 )
+from mtpylon.contextvars import message_id_var
 
 
 @pytest.mark.asyncio
@@ -58,6 +59,7 @@ async def test_unpack_message_correct():
         assert isinstance(task, Task)
         assert task.id == 1
         assert task.content == 'hello world'
+        assert message_id_var.get() == msg_id
 
 
 @pytest.mark.asyncio

@@ -2,7 +2,6 @@
 """
 Declared contextvars that will be used in mtpylon
 """
-from typing import Optional
 from contextvars import ContextVar
 
 from .types import int128, int256, long
@@ -40,10 +39,16 @@ auth_key_var: ContextVar[AuthKey] = ContextVar('auth_key')
 """
 Stores server salt
 """
-server_salt_var: ContextVar[Optional[long]] = ContextVar('server_salt')
+server_salt_var: ContextVar[long] = ContextVar('server_salt')
 
 
 """
 Stores session id
 """
-session_id_var: ContextVar[Optional[long]] = ContextVar('session_id')
+session_id_var: ContextVar[long] = ContextVar('session_id')
+
+
+"""
+Stores message id
+"""
+message_id_var: ContextVar[long] = ContextVar('message_id')
