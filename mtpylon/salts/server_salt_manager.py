@@ -53,7 +53,11 @@ class ServerSaltManager(ServerSaltManagerProtocol):
 
         extra_salts_count = max(0, count - len(future_salts))
 
-        max_valid = max(now, *[salt.until for salt in future_salts])
+        max_valid = max(
+            now - timedelta(hours=1),
+            now,
+            *[salt.until for salt in future_salts]
+        )
 
         extra_salts = [
             Salt(
