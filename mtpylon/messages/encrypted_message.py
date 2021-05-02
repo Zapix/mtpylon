@@ -3,11 +3,9 @@ import asyncio
 import logging
 from typing import Any
 from random import randbytes
-from dataclasses import dataclass
 
 from tgcrypto import ige256_decrypt, ige256_encrypt  # type: ignore
 
-from mtpylon.types import long
 from mtpylon.schema import Schema
 from mtpylon.crypto import (
     AuthKey,
@@ -38,21 +36,13 @@ from mtpylon.service_schema import (
     load as load_by_service_schema,
     dump as dump_by_service_schema
 )
+from .types import Message
 
 
 logger = logging.getLogger(__name__)
 
 
 MIN_PAD = 12
-
-
-@dataclass
-class Message:
-    salt: long
-    session_id: long
-    message_id: long
-    seq_no: int
-    message_data: Any
 
 
 def load_data(schema: Schema, message_bytes: bytes) -> Any:

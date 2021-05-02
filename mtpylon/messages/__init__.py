@@ -5,11 +5,10 @@ from .utils import (
     message_ids,
 )
 from .unencrypted_message import (
-    UnencryptedMessage,
     unpack_message,
     pack_message
 )
-from .encrypted_message import Message
+from .types import Message, UnencryptedMessage
 
 __all__ = [
     'is_unencrypted_message',

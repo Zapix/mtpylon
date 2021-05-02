@@ -2,10 +2,10 @@
 import pytest
 
 from mtpylon.messages.unencrypted_message import (
-    UnencryptedMessage,
     unpack_message,
     pack_message,
 )
+from mtpylon.messages import UnencryptedMessage
 from mtpylon import long, int128
 from mtpylon.service_schema.functions import req_pq
 from mtpylon.service_schema.constructors import ResPQ

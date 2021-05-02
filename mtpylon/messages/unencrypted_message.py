@@ -1,19 +1,12 @@
 # -*- coding: utf-8 -*-
 import asyncio
-from dataclasses import dataclass
-from typing import Any
 
 from mtpylon import long
 from mtpylon.service_schema import load as load_schema, dump as dump_schema
 from mtpylon.serialization.int import load as load_int, dump as dump_int
 from mtpylon.serialization.long import load as load_long, dump as dump_long
 from mtpylon.serialization import CallableFunc
-
-
-@dataclass
-class UnencryptedMessage:
-    message_id: long
-    message_data: Any
+from .types import UnencryptedMessage
 
 
 def unpack(input: bytes) -> UnencryptedMessage:
