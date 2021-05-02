@@ -32,8 +32,8 @@ async def test_unpack_message_correct():
 
     unpack_message = AsyncMock(
         return_value=UnencryptedMessage(
-            msg_id=msg_id,
-            value=CallableFunc(
+            message_id=msg_id,
+            message_data=CallableFunc(
                 func=set_task,
                 params={'content': 'hello world'}
             )
@@ -77,8 +77,8 @@ async def test_invalid_message_id():
 
     unpack_message = AsyncMock(
         return_value=UnencryptedMessage(
-            msg_id=msg_id,
-            value=CallableFunc(
+            message_id=msg_id,
+            message_data=CallableFunc(
                 func=set_task,
                 params={'content': 'hello world'}
             )
@@ -128,8 +128,8 @@ async def test_invalid_server_salt():
 
     unpack_message = AsyncMock(
         return_value=UnencryptedMessage(
-            msg_id=msg_id,
-            value=CallableFunc(
+            message_id=msg_id,
+            message_data=CallableFunc(
                 func=set_task,
                 params={'content': 'hello world'}
             )
@@ -187,8 +187,8 @@ async def test_pass_middlewares():
 
     unpack_message = AsyncMock(
         return_value=UnencryptedMessage(
-            msg_id=msg_id,
-            value=CallableFunc(
+            message_id=msg_id,
+            message_data=CallableFunc(
                 func=set_task,
                 params={'content': 'hello world'}
             )

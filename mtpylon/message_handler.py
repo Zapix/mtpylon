@@ -33,7 +33,7 @@ class MessageHandler:
 
     async def handle(self, request: web.Request, obfuscated_data: bytes):
         message = await self.decrypt_message(obfuscated_data)
-        logger.debug(f'Received message: {message.msg_id}')
+        logger.debug(f'Received message: {message.message_id}')
         self.set_message_context_vars(message)
 
         result: Any = None
@@ -41,7 +41,7 @@ class MessageHandler:
         try:
             self.validate_message(message)
         except InvalidMessageError as e:
-            msg_id = message.msg_id
+            msg_id = message.message_id
             e_code = e.error_code
             logger.error(f'Msg {msg_id}: is invalid message. code: {e_code}')
             result = BadMessageNotification(
@@ -50,7 +50,7 @@ class MessageHandler:
                 error_code=e.error_code
             )
         except InvalidServerSalt as e:
-            msg_id = message.msg_id
+            msg_id = message.message_id
             logger.error(f'Msg {msg_id}: has bad server salt.')
             logger.info(f'Msg {msg_id}: new server salt: {e.new_server_salt}')
             result = BadServerSalt(
@@ -60,10 +60,10 @@ class MessageHandler:
                 new_server_salt=e.new_server_salt
             )
         else:
-            value = cast(CallableFunc, message.value)
+            value = cast(CallableFunc, message.message_data)
             func_name = get_function_name(value.func)
             logger.info(
-                f'Msg {message.msg_id}: call rpc function: {func_name}'
+                f'Msg {message.message_id}: call rpc function: {func_name}'
             )
 
             handler = value.func
@@ -73,7 +73,7 @@ class MessageHandler:
 
             result = await handler(request, **value.params)
 
-        logger.info(f'Response to message {message.msg_id}')
+        logger.info(f'Response to message {message.message_data}')
         await self.message_sender.send_message(result, response=True)
 
     async def decrypt_message(
@@ -101,4 +101,4 @@ class MessageHandler:
         """
         Sets message_id, server_salt, session_id into context vars
         """
-        message_id_var.set(message.msg_id)
+        message_id_var.set(message.message_id)
