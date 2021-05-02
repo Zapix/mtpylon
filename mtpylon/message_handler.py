@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-from typing import cast, Any, List, Union
+from typing import cast, Any, List
 from dataclasses import dataclass, field
 from functools import partial
 
@@ -11,18 +11,14 @@ from .schema import Schema
 from .serialization import CallableFunc
 from .transports import Obfuscator, TransportWrapper
 from .message_sender import MessageSender
-from .messages import UnencryptedMessage, Message, unpack_message
+from .messages import MtprotoMessage, unpack_message
 from .service_schema.constructors import (
     BadMessageNotification,
     BadServerSalt
 )
 from .utils import get_function_name
 from .middlewares import MiddleWareFunc
-from .contextvars import (
-    message_id_var,
-    session_id_var,
-    server_salt_var,
-)
+from .contextvars import income_message_var
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +34,7 @@ class MessageHandler:
     async def handle(self, request: web.Request, obfuscated_data: bytes):
         message = await self.decrypt_message(obfuscated_data)
         logger.debug(f'Received message: {message.message_id}')
-        self.set_message_context_vars(message)
+        income_message_var.set(message)
 
         result: Any = None
 
@@ -83,13 +79,13 @@ class MessageHandler:
     async def decrypt_message(
             self,
             obfuscated_data: bytes
-    ) -> UnencryptedMessage:
+    ) -> MtprotoMessage:
         transport_message = self.obfuscator.decrypt(obfuscated_data)
         message_bytes = self.transport_wrapper.unwrap(transport_message)
 
         return await unpack_message(message_bytes)
 
-    def validate_message(self, msg: UnencryptedMessage) -> UnencryptedMessage:
+    def validate_message(self, msg: MtprotoMessage) -> MtprotoMessage:
         """
         Validate message and returns it.
 
@@ -100,16 +96,3 @@ class MessageHandler:
         :return:
         """
         ...
-
-    def set_message_context_vars(
-        self,
-        message: Union[UnencryptedMessage, Message]
-    ):
-        """
-        Sets message_id, server_salt, session_id into context vars
-        """
-        message_id_var.set(message.message_id)
-
-        if isinstance(message, Message):
-            server_salt_var.set(message.salt)
-            session_id_var.set(message.session_id)

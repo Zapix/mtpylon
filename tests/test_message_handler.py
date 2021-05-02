@@ -15,9 +15,7 @@ from mtpylon.service_schema.constructors import (
     BadServerSalt
 )
 from mtpylon.contextvars import (
-    message_id_var,
-    session_id_var,
-    server_salt_var,
+    income_message_var
 )
 
 
@@ -34,15 +32,16 @@ async def test_unpack_unencyprted_message_correct():
 
     msg_id = long(0x51e57ac42770964a)
 
-    unpack_message = AsyncMock(
-        return_value=UnencryptedMessage(
-            message_id=msg_id,
-            message_data=CallableFunc(
-                func=set_task,
-                params={'content': 'hello world'}
-            )
+    message = UnencryptedMessage(
+        message_id=msg_id,
+        message_data=CallableFunc(
+            func=set_task,
+            params={'content': 'hello world'}
         )
+
     )
+
+    unpack_message = AsyncMock(return_value=message)
 
     with patch('mtpylon.message_handler.unpack_message', unpack_message):
         handler = MessageHandler(
@@ -63,7 +62,7 @@ async def test_unpack_unencyprted_message_correct():
         assert isinstance(task, Task)
         assert task.id == 1
         assert task.content == 'hello world'
-        assert message_id_var.get() == msg_id
+        assert income_message_var.get() == message
 
 
 @pytest.mark.asyncio
@@ -81,18 +80,18 @@ async def test_unpack_encrypted_message_correct():
     session_id = long(123123)
     salt = long(234234)
 
-    unpack_message = AsyncMock(
-        return_value=Message(
-            salt=salt,
-            session_id=session_id,
-            message_id=msg_id,
-            seq_no=1,
-            message_data=CallableFunc(
-                func=set_task,
-                params={'content': 'hello world'}
-            )
+    message = Message(
+        salt=salt,
+        session_id=session_id,
+        message_id=msg_id,
+        seq_no=1,
+        message_data=CallableFunc(
+            func=set_task,
+            params={'content': 'hello world'}
         )
     )
+
+    unpack_message = AsyncMock(return_value=message)
 
     with patch('mtpylon.message_handler.unpack_message', unpack_message):
         handler = MessageHandler(
@@ -113,9 +112,7 @@ async def test_unpack_encrypted_message_correct():
         assert isinstance(task, Task)
         assert task.id == 1
         assert task.content == 'hello world'
-        assert message_id_var.get() == msg_id
-        assert session_id_var.get() == session_id
-        assert server_salt_var.get() == salt
+        assert income_message_var.get() == message
 
 
 @pytest.mark.asyncio
@@ -154,7 +151,6 @@ async def test_invalid_message_id():
         )
 
         with patch.object(handler, 'validate_message', validate_message):
-
             await handler.handle(request, b'obfuscated message')
 
             assert obfuscator.decrypt.called

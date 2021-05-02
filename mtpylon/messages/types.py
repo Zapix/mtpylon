@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Union
 
 from mtpylon import long
 
@@ -18,3 +18,6 @@ class Message:
 class UnencryptedMessage:
     message_id: long
     message_data: Any
+
+
+MtprotoMessage = Union[UnencryptedMessage, Message]
