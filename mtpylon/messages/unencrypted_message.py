@@ -1,19 +1,12 @@
 # -*- coding: utf-8 -*-
 import asyncio
-from dataclasses import dataclass
-from typing import Any
 
 from mtpylon import long
 from mtpylon.service_schema import load as load_schema, dump as dump_schema
 from mtpylon.serialization.int import load as load_int, dump as dump_int
 from mtpylon.serialization.long import load as load_long, dump as dump_long
 from mtpylon.serialization import CallableFunc
-
-
-@dataclass
-class UnencryptedMessage:
-    msg_id: long
-    value: Any
+from .types import UnencryptedMessage
 
 
 def unpack(input: bytes) -> UnencryptedMessage:
@@ -23,23 +16,23 @@ def unpack(input: bytes) -> UnencryptedMessage:
     loaded_value = load_schema(input[20:20 + size])
 
     return UnencryptedMessage(
-        msg_id=loaded_msg_id.value,
-        value=loaded_value.value
+        message_id=loaded_msg_id.value,
+        message_data=loaded_value.value
     )
 
 
 def pack(message: UnencryptedMessage):
     auth_id = dump_long(long(0))
 
-    msg_id = dump_long(message.msg_id)
+    msg_id = dump_long(message.message_id)
 
     value: bytes = b''
-    if isinstance(message.value, CallableFunc):
-        func = message.value.func
-        params = message.value.params
+    if isinstance(message.message_data, CallableFunc):
+        func = message.message_data.func
+        params = message.message_data.params
         value = dump_schema(func, **params)
     else:
-        value = dump_schema(message.value)
+        value = dump_schema(message.message_data)
 
     size = dump_int(len(value))
 

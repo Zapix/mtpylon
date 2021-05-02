@@ -13,6 +13,7 @@ from mtpylon.transports import (
     parse_header,
     get_wrapper,
 )
+from mtpylon.middlewares import BASIC_MIDDLEWARES
 from mtpylon.message_sender import MessageSender
 from mtpylon.message_handler import MessageHandler
 
@@ -110,6 +111,7 @@ async def ws_handler(request: Request, schema: Schema) -> WebSocketResponse:
                     obfuscator=obfuscator,
                     transport_wrapper=transport_wrapper,
                     message_sender=message_sender,
+                    middlewares=BASIC_MIDDLEWARES
                 )
             except ValueError as e:
                 logger.error(str(e))

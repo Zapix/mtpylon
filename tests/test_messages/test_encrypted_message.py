@@ -16,9 +16,9 @@ from mtpylon.exceptions import (
 from mtpylon.messages.encrypted_message import (
     unpack_message,
     pack_message,
-    load_message,
-    Message
+    load_message
 )
+from mtpylon.messages import Message
 from mtpylon.serialization import CallableFunc
 from mtpylon.serialization.int128 import load as load_int128
 from mtpylon.utils import get_function_name

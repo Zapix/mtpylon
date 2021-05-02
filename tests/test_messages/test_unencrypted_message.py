@@ -2,10 +2,10 @@
 import pytest
 
 from mtpylon.messages.unencrypted_message import (
-    UnencryptedMessage,
     unpack_message,
     pack_message,
 )
+from mtpylon.messages import UnencryptedMessage
 from mtpylon import long, int128
 from mtpylon.service_schema.functions import req_pq
 from mtpylon.service_schema.constructors import ResPQ
@@ -21,8 +21,8 @@ encoded_req_pq_message = (
 )
 
 req_pq_message = UnencryptedMessage(
-    msg_id=long(0x51e57ac42770964a),
-    value=CallableFunc(
+    message_id=long(0x51e57ac42770964a),
+    message_data=CallableFunc(
         func=req_pq,
         params={
             'nonce': int128(0xfce2ec8fa401b366e927ca8c8249053e),
@@ -44,8 +44,8 @@ encoded_res_pq = (
 )
 
 res_pq_message = UnencryptedMessage(
-    msg_id=long(0x60421df4b9678401),
-    value=ResPQ(
+    message_id=long(0x60421df4b9678401),
+    message_data=ResPQ(
         nonce=int128(0x88ced777164e1404164f98d25f9dbdb4),
         server_nonce=int128(0x863d23c1bfc0c47e3e59cc4059ea5b35),
         pq=b'\x13\x54\x65\x62\x4e\x61\x25\xfd',

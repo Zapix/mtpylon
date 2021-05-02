@@ -33,8 +33,8 @@ class MessageSender:
             return
 
         message = UnencryptedMessage(
-            msg_id=self._msg_ids.send(response),
-            value=data
+            message_id=self._msg_ids.send(response),
+            message_data=data
         )
 
         try:
@@ -47,5 +47,5 @@ class MessageSender:
             wrapped_message = self.transport_wrapper.wrap(message_bytes)
             encrypted_data = self.obfuscator.encrypt(wrapped_message)
             msg_type = 'response' if response else 'notification'
-            logger.info(f'Send {msg_type} with id {message.msg_id}')
+            logger.info(f'Send {msg_type} with id {message.message_id}')
             await self.ws.send_bytes(encrypted_data)
