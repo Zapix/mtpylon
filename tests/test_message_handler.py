@@ -9,16 +9,20 @@ from mtpylon import long
 from mtpylon.serialization import CallableFunc
 from mtpylon.message_handler import MessageHandler
 from mtpylon.exceptions import InvalidMessageError, InvalidServerSalt
-from mtpylon.messages import UnencryptedMessage
+from mtpylon.messages import UnencryptedMessage, Message
 from mtpylon.service_schema.constructors import (
     BadMessageNotification,
     BadServerSalt
 )
-from mtpylon.contextvars import message_id_var
+from mtpylon.contextvars import (
+    message_id_var,
+    session_id_var,
+    server_salt_var,
+)
 
 
 @pytest.mark.asyncio
-async def test_unpack_message_correct():
+async def test_unpack_unencyprted_message_correct():
     obfuscator = MagicMock()
     obfuscator.decrypt__return_value = b'decrypted data'
     transport_wrapper = MagicMock()
@@ -60,6 +64,58 @@ async def test_unpack_message_correct():
         assert task.id == 1
         assert task.content == 'hello world'
         assert message_id_var.get() == msg_id
+
+
+@pytest.mark.asyncio
+async def test_unpack_encrypted_message_correct():
+    obfuscator = MagicMock()
+    obfuscator.decrypt__return_value = b'decrypted data'
+    transport_wrapper = MagicMock()
+    transport_wrapper.unwrap__return_value = b'unwrapped data'
+    message_sender = MagicMock(
+        send_message=AsyncMock()
+    )
+    request = MagicMock()
+
+    msg_id = long(0x51e57ac42770964a)
+    session_id = long(123123)
+    salt = long(234234)
+
+    unpack_message = AsyncMock(
+        return_value=Message(
+            salt=salt,
+            session_id=session_id,
+            message_id=msg_id,
+            seq_no=1,
+            message_data=CallableFunc(
+                func=set_task,
+                params={'content': 'hello world'}
+            )
+        )
+    )
+
+    with patch('mtpylon.message_handler.unpack_message', unpack_message):
+        handler = MessageHandler(
+            schema=schema,
+            obfuscator=obfuscator,
+            transport_wrapper=transport_wrapper,
+            message_sender=message_sender
+        )
+
+        await handler.handle(request, b'obfuscated message')
+
+        assert obfuscator.decrypt.called
+        assert transport_wrapper.unwrap.called
+        unpack_message.assert_awaited()
+
+        message_sender.send_message.assert_awaited()
+        task = message_sender.send_message.await_args[0][0]
+        assert isinstance(task, Task)
+        assert task.id == 1
+        assert task.content == 'hello world'
+        assert message_id_var.get() == msg_id
+        assert session_id_var.get() == session_id
+        assert server_salt_var.get() == salt
 
 
 @pytest.mark.asyncio

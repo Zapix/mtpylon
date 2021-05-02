@@ -9,7 +9,7 @@ from .unencrypted_message import (
     unpack_message,
     pack_message
 )
-
+from .encrypted_message import Message
 
 __all__ = [
     'is_unencrypted_message',
@@ -18,4 +18,5 @@ __all__ = [
     'unpack_message',
     'pack_message',
     'UnencryptedMessage',
+    'Message',
 ]

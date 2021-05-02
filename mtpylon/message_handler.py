@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-from typing import cast, Any, List
+from typing import cast, Any, List, Union
 from dataclasses import dataclass, field
 from functools import partial
 
@@ -11,14 +11,18 @@ from .schema import Schema
 from .serialization import CallableFunc
 from .transports import Obfuscator, TransportWrapper
 from .message_sender import MessageSender
-from .messages import UnencryptedMessage, unpack_message
+from .messages import UnencryptedMessage, Message, unpack_message
 from .service_schema.constructors import (
     BadMessageNotification,
     BadServerSalt
 )
 from .utils import get_function_name
 from .middlewares import MiddleWareFunc
-from .contextvars import message_id_var
+from .contextvars import (
+    message_id_var,
+    session_id_var,
+    server_salt_var,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +77,7 @@ class MessageHandler:
 
             result = await handler(request, **value.params)
 
-        logger.info(f'Response to message {message.message_data}')
+        logger.info(f'Response to message {message.message_id}')
         await self.message_sender.send_message(result, response=True)
 
     async def decrypt_message(
@@ -97,8 +101,15 @@ class MessageHandler:
         """
         ...
 
-    def set_message_context_vars(self, message: UnencryptedMessage):
+    def set_message_context_vars(
+        self,
+        message: Union[UnencryptedMessage, Message]
+    ):
         """
         Sets message_id, server_salt, session_id into context vars
         """
         message_id_var.set(message.message_id)
+
+        if isinstance(message, Message):
+            server_salt_var.set(message.salt)
+            session_id_var.set(message.session_id)
