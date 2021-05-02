@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Callable, Awaitable, Any, cast
+from typing import Any, cast
 
 from aiohttp.web import Request
 
@@ -7,12 +7,13 @@ from mtpylon.messages import Message
 from mtpylon.salts import ServerSaltManagerProtocol, Salt
 from mtpylon.service_schema.constructors import BadServerSalt
 from mtpylon.contextvars import auth_key_var, income_message_var
+from .types import Handler
 
 
 async def set_server_salt(
-    handler: Callable[..., Awaitable[Any]],
+    handler: Handler,
     request: Request,
-    **params
+    **params: Any,
 ) -> Any:
     message = income_message_var.get()
 
