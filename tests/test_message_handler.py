@@ -58,7 +58,7 @@ async def test_unpack_unencyprted_message_correct():
         unpack_message.assert_awaited()
 
         message_sender.send_message.assert_awaited()
-        task = message_sender.send_message.await_args[0][0]
+        task = message_sender.send_message.await_args[0][1]
         assert isinstance(task, Task)
         assert task.id == 1
         assert task.content == 'hello world'
@@ -108,7 +108,7 @@ async def test_unpack_encrypted_message_correct():
         unpack_message.assert_awaited()
 
         message_sender.send_message.assert_awaited()
-        task = message_sender.send_message.await_args[0][0]
+        task = message_sender.send_message.await_args[0][1]
         assert isinstance(task, Task)
         assert task.id == 1
         assert task.content == 'hello world'
@@ -158,7 +158,7 @@ async def test_invalid_message_id():
             unpack_message.assert_awaited()
 
             message_sender.send_message.assert_awaited()
-            error = message_sender.send_message.await_args[0][0]
+            error = message_sender.send_message.await_args[0][1]
             assert isinstance(error, BadMessageNotification)
             assert error.bad_msg_id == msg_id
             assert error.bad_msg_seqno == 0
@@ -209,7 +209,7 @@ async def test_invalid_server_salt():
             unpack_message.assert_awaited()
 
             message_sender.send_message.assert_awaited()
-            error = message_sender.send_message.await_args[0][0]
+            error = message_sender.send_message.await_args[0][1]
             assert isinstance(error, BadServerSalt)
             assert error.bad_msg_id == msg_id
             assert error.bad_msg_seqno == 0

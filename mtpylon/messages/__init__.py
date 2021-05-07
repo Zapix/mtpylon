@@ -4,9 +4,9 @@ from .utils import (
     is_unencrypted_message,
     message_ids,
 )
-from .unencrypted_message import (
+from .mtproto_message import (
+    pack_message,
     unpack_message,
-    pack_message
 )
 from .types import Message, UnencryptedMessage, MtprotoMessage
 

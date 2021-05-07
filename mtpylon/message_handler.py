@@ -32,7 +32,7 @@ class MessageHandler:
     middlewares: List[MiddleWareFunc] = field(default_factory=list)
 
     async def handle(self, request: web.Request, obfuscated_data: bytes):
-        message = await self.decrypt_message(obfuscated_data)
+        message = await self.decrypt_message(request, obfuscated_data)
         logger.debug(f'Received message: {message.message_id}')
         income_message_var.set(message)
 
@@ -74,16 +74,21 @@ class MessageHandler:
             result = await handler(request, **value.params)
 
         logger.info(f'Response to message {message.message_id}')
-        await self.message_sender.send_message(result, response=True)
+        await self.message_sender.send_message(request, result, response=True)
 
     async def decrypt_message(
             self,
+            request: web.Request,
             obfuscated_data: bytes
     ) -> MtprotoMessage:
         transport_message = self.obfuscator.decrypt(obfuscated_data)
         message_bytes = self.transport_wrapper.unwrap(transport_message)
 
-        return await unpack_message(message_bytes)
+        return await unpack_message(
+            request.app['auth_key_manager'],
+            self.schema,
+            message_bytes
+        )
 
     def validate_message(self, msg: MtprotoMessage) -> MtprotoMessage:
         """

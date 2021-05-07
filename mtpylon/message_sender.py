@@ -3,7 +3,7 @@ from typing import Any, Generator
 from dataclasses import dataclass, field
 import logging
 
-from aiohttp.web import WebSocketResponse
+from aiohttp.web import WebSocketResponse, Request
 
 from .types import long
 from .messages import message_ids, pack_message, UnencryptedMessage
@@ -27,7 +27,12 @@ class MessageSender:
         self._msg_ids = message_ids()
         self._msg_ids.send(None)
 
-    async def send_message(self, data: Any, response: bool = False) -> None:
+    async def send_message(
+        self,
+        request: Request,
+        data: Any,
+        response: bool = False
+    ) -> None:
         if self.ws.closed:
             logger.warning('Ws connection has been closed before')
             return
@@ -38,7 +43,11 @@ class MessageSender:
         )
 
         try:
-            message_bytes = await pack_message(message)
+            message_bytes = await pack_message(
+                request.app['auth_key_manager'],
+                self.schema,
+                message
+            )
         except ValueError as e:
             logger.error(f'Can`t dump message {message} close ws connection')
             logger.error(e)
