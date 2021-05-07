@@ -3,12 +3,23 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from mtpylon.message_sender import MessageSender
+from mtpylon.crypto import AuthKeyManager
 
 from tests.simpleschema import schema
 
 
+@pytest.fixture
+def aiohttp_request():
+    request = MagicMock()
+    request.app = {
+        'auth_key_manager': AuthKeyManager(),
+    }
+
+    return request
+
+
 @pytest.mark.asyncio
-async def test_send_message_ok():
+async def test_send_message_ok(aiohttp_request):
     pack_message = AsyncMock(return_value=b'packed value')
 
     with patch('mtpylon.message_sender.pack_message', pack_message):
@@ -29,7 +40,7 @@ async def test_send_message_ok():
             ws=ws
         )
 
-        await sender.send_message('response_data', True)
+        await sender.send_message(aiohttp_request, 'response_data', True)
 
         pack_message.assert_awaited()
 
@@ -40,7 +51,7 @@ async def test_send_message_ok():
 
 
 @pytest.mark.asyncio
-async def test_send_message_value_error():
+async def test_send_message_value_error(aiohttp_request):
     pack_message = AsyncMock(side_effect=ValueError('error durig pack'))
 
     with patch('mtpylon.message_sender.pack_message', pack_message):
@@ -61,7 +72,7 @@ async def test_send_message_value_error():
             ws=ws
         )
 
-        await sender.send_message('response_data', True)
+        await sender.send_message(aiohttp_request, 'response_data', True)
 
         pack_message.assert_awaited()
 
@@ -69,7 +80,7 @@ async def test_send_message_value_error():
 
 
 @pytest.mark.asyncio
-async def test_send_message_ws_closed():
+async def test_send_message_ws_closed(aiohttp_request):
     pack_message = AsyncMock(return_value=b'packed value')
 
     with patch('mtpylon.message_sender.pack_message', pack_message):
@@ -91,7 +102,7 @@ async def test_send_message_ws_closed():
             ws=ws
         )
 
-        await sender.send_message('response_data', True)
+        await sender.send_message(aiohttp_request, 'response_data', True)
 
         ws.close.assert_not_awaited()
         ws.send_bytes.assert_not_awaited()
