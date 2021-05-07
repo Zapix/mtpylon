@@ -9,6 +9,8 @@ from tgcrypto import ige256_decrypt  # type: ignore
 
 from mtpylon import Schema, long, int128, int256
 from mtpylon.crypto import AuthKey, KeyIvPair
+from mtpylon.crypto.auth_key_manager import AuthKeyManagerProtocol
+from mtpylon.salts import ServerSaltManagerProtocol
 from mtpylon.contextvars import (
     new_nonce_var,
     server_nonce_var,
@@ -187,6 +189,7 @@ async def set_client_DH_params(
         )
 
     auth_manager = request.app['auth_key_manager']
+    auth_manager = cast(AuthKeyManagerProtocol, auth_manager)
 
     if await auth_manager.has_key(auth_key):
         return DHGenRetry(
@@ -202,7 +205,11 @@ async def set_client_DH_params(
     await auth_manager.set_key(auth_key)
 
     salt = build_salt(server_nonce, new_nonce_value)
-    await request.app['server_salt_manager'].set_salt(salt)
+
+    server_salt_manager = request.app['server_salt_manager']
+    server_salt_manager = cast(ServerSaltManagerProtocol, server_salt_manager)
+
+    await server_salt_manager.set_salt(auth_key, salt)
 
     logger.info('Auth key has been created:')
     logger.info(f'Auth key: {auth_key.value}')
