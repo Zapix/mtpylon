@@ -43,7 +43,10 @@ async def test_unpack_unencyprted_message_correct():
 
     unpack_message = AsyncMock(return_value=message)
 
-    with patch('mtpylon.message_handler.unpack_message', unpack_message):
+    with patch(
+        'mtpylon.message_handler.message_handler.unpack_message',
+        unpack_message
+    ):
         handler = MessageHandler(
             schema=schema,
             obfuscator=obfuscator,
@@ -93,7 +96,10 @@ async def test_unpack_encrypted_message_correct():
 
     unpack_message = AsyncMock(return_value=message)
 
-    with patch('mtpylon.message_handler.unpack_message', unpack_message):
+    with patch(
+        'mtpylon.message_handler.message_handler.unpack_message',
+        unpack_message
+    ):
         handler = MessageHandler(
             schema=schema,
             obfuscator=obfuscator,
@@ -142,7 +148,10 @@ async def test_invalid_message_id():
         error_code=64
     ))
 
-    with patch('mtpylon.message_handler.unpack_message', unpack_message):
+    with patch(
+        'mtpylon.message_handler.message_handler.unpack_message',
+        unpack_message
+    ):
         handler = MessageHandler(
             schema=schema,
             obfuscator=obfuscator,
@@ -193,7 +202,10 @@ async def test_invalid_server_salt():
         new_server_salt=long(0xacab1312)
     ))
 
-    with patch('mtpylon.message_handler.unpack_message', unpack_message):
+    with patch(
+        'mtpylon.message_handler.message_handler.unpack_message',
+        unpack_message
+    ):
         handler = MessageHandler(
             schema=schema,
             obfuscator=obfuscator,
@@ -247,7 +259,10 @@ async def test_pass_middlewares():
         )
     )
 
-    with patch('mtpylon.message_handler.unpack_message', unpack_message):
+    with patch(
+        'mtpylon.message_handler.message_handler.unpack_message',
+        unpack_message
+    ):
         handler = MessageHandler(
             schema=schema,
             obfuscator=obfuscator,

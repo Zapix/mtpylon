@@ -6,19 +6,19 @@ from functools import partial
 
 from aiohttp import web
 
-from .exceptions import InvalidMessageError, InvalidServerSalt
-from .schema import Schema
-from .serialization import CallableFunc
-from .transports import Obfuscator, TransportWrapper
-from .message_sender import MessageSender
-from .messages import MtprotoMessage, unpack_message
-from .service_schema.constructors import (
+from mtpylon.exceptions import InvalidMessageError, InvalidServerSalt
+from mtpylon.schema import Schema
+from mtpylon.serialization import CallableFunc
+from mtpylon.transports import Obfuscator, TransportWrapper
+from mtpylon.message_sender import MessageSender
+from mtpylon.messages import MtprotoMessage, unpack_message
+from mtpylon.service_schema.constructors import (
     BadMessageNotification,
     BadServerSalt
 )
-from .utils import get_function_name
-from .middlewares import MiddleWareFunc
-from .contextvars import income_message_var
+from mtpylon.utils import get_function_name
+from mtpylon.middlewares import MiddleWareFunc
+from mtpylon.contextvars import income_message_var
 
 logger = logging.getLogger(__name__)
 
