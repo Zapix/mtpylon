@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import logging
-from functools import partial
 from typing import cast, List
 
 from aiohttp.web import Request
@@ -11,6 +10,7 @@ from mtpylon.middlewares import MiddleWareFunc
 from mtpylon.message_sender import MessageSender
 from mtpylon.contextvars import income_message_var
 from mtpylon.utils import get_function_name
+from mtpylon.middlewares import apply_middleware
 
 logger = logging.getLogger(__name__)
 
@@ -36,10 +36,7 @@ async def handle_unencrypted_message(
         f'Msg {message.message_id}: call rpc function: {func_name}'
     )
 
-    handler = value.func
-
-    for middleware in middlewares[::-1]:
-        handler = partial(middleware, handler)
+    handler = apply_middleware(middlewares, value.func)
 
     result = await handler(request, **value.params)
 
