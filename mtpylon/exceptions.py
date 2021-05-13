@@ -66,3 +66,12 @@ class AuthKeyChangedException(Exception):
     """
     Raises when messages with different auth keys in same connection
     """
+
+
+@dataclass
+class RpcCallError(Exception):
+    """
+    Raises on user rpc call
+    """
+    error_code: int
+    error_message: str

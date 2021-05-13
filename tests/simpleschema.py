@@ -5,6 +5,7 @@ from typing import Annotated, Union, List, Optional
 from aiohttp import web
 
 from mtpylon import Schema
+from mtpylon.exceptions import RpcCallError
 
 
 @dataclass
@@ -121,6 +122,21 @@ async def get_task_list(request: web.Request) -> TaskList:
     ])
 
 
+async def get_task(request: web.Request, task_id: int) -> Task:
+    if task_id != 1:
+        raise RpcCallError(
+            error_code=404,
+            error_message=f'Task with id {task_id} not found'
+        )
+
+    return Task(
+        id=1,
+        content='Init mtpylon project',
+        completed=BoolTrue(),
+        tags=None,
+    )
+
+
 schema = Schema(
     constructors=[
         Bool,
@@ -133,5 +149,6 @@ schema = Schema(
         login,
         set_task,
         get_task_list,
+        get_task
     ]
 )
