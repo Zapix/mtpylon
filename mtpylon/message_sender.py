@@ -6,7 +6,13 @@ import logging
 from aiohttp.web import WebSocketResponse, Request
 
 from .types import long
-from .messages import message_ids, pack_message, UnencryptedMessage
+from .messages import (
+    message_ids,
+    pack_message,
+    UnencryptedMessage,
+    Message,
+    MtprotoMessage
+)
 from .transports import Obfuscator, TransportWrapper
 from .schema import Schema
 
@@ -27,20 +33,10 @@ class MessageSender:
         self._msg_ids = message_ids()
         self._msg_ids.send(None)
 
-    async def send_message(
-        self,
-        request: Request,
-        data: Any,
-        response: bool = False
-    ) -> None:
+    async def _send_message(self, request: Request, message: MtprotoMessage):
         if self.ws.closed:
             logger.warning('Ws connection has been closed before')
             return
-
-        message = UnencryptedMessage(
-            message_id=self._msg_ids.send(response),
-            message_data=data
-        )
 
         try:
             message_bytes = await pack_message(
@@ -55,6 +51,40 @@ class MessageSender:
         else:
             wrapped_message = self.transport_wrapper.wrap(message_bytes)
             encrypted_data = self.obfuscator.encrypt(wrapped_message)
-            msg_type = 'response' if response else 'notification'
-            logger.info(f'Send {msg_type} with id {message.message_id}')
+            logger.info(f'Send message with id {message.message_id}')
             await self.ws.send_bytes(encrypted_data)
+
+    def get_msg_id(self, response: bool):
+        return self._msg_ids.send(response)
+
+    async def send_unencrypted_message(
+        self,
+        request: Request,
+        data: Any,
+        response: bool = False
+    ):
+        message = UnencryptedMessage(
+            message_id=self.get_msg_id(response),
+            message_data=data
+        )
+
+        await self._send_message(request, message)
+
+    async def send_encrypted_message(
+        self,
+        request: Request,
+        server_salt: long,
+        session_id: long,
+        data: Any,
+        response: bool = False
+    ):
+        logger.debug(f'Send message: {str(data)}')
+        message = Message(
+            salt=server_salt,
+            session_id=session_id,
+            message_id=self.get_msg_id(response),
+            seq_no=0,
+            message_data=data
+        )
+
+        await self._send_message(request, message)

@@ -30,7 +30,11 @@ from mtpylon.serialization.schema import (
     load as load_by_schema,
     dump as dump_by_schema
 )
-from mtpylon.exceptions import AuthKeyNotFound, AuthKeyChangedException
+from mtpylon.exceptions import (
+    AuthKeyNotFound,
+    AuthKeyChangedException,
+    DumpError
+)
 from mtpylon.contextvars import auth_key_var
 from mtpylon.service_schema import (
     load as load_by_service_schema,
@@ -55,7 +59,7 @@ def load_data(schema: Schema, message_bytes: bytes) -> Any:
     try:
         value = load_by_schema(schema, message_bytes).value
     except ValueError:
-        value = load_by_service_schema(message_bytes).value
+        value = load_by_service_schema(message_bytes, schema).value
 
     return value
 
@@ -66,13 +70,13 @@ def dump_data(schema: Schema, data: Any) -> bytes:
     If it failed tries dump as server data
 
     Raises:
-        ValueError - if data couldn't been dumped
+        DumpError - if data couldn't been dumped
     """
 
     try:
         dumped_data = dump_by_schema(schema, data, custom_dumpers=None)
-    except ValueError:
-        dumped_data = dump_by_service_schema(data)
+    except DumpError:
+        dumped_data = dump_by_service_schema(data, schema)
 
     return dumped_data
 

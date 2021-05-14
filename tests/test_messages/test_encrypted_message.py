@@ -8,6 +8,7 @@ from mtpylon.crypto import (
     AuthKeyManager,
     generate_key_iv
 )
+from mtpylon.exceptions import DumpError
 from mtpylon.contextvars import auth_key_var
 from mtpylon.exceptions import (
     AuthKeyNotFound,
@@ -15,6 +16,8 @@ from mtpylon.exceptions import (
 )
 from mtpylon.messages.encrypted_message import (
     unpack_message,
+    load_data,
+    dump_data,
     pack_message,
     load_message
 )
@@ -33,6 +36,39 @@ server_salt = long(16009147158398906513)
 session_id = long(11520911270507767959)
 
 encrypted_message_bytes = b"\x13\xedo\x9c\xb76'\xd7\xeaU\x0b\xba\xc0\xc4P\xad\x11\xdb\xcaB\x87\xff\xd4\xce\x83\x16\xbfbA\xbf1\xa7\x931\xe8.\x80\xe5\x1d\xb7$=\xc0\x98\x99O\x11\x8a\xb3\xb9P~\x1fb\x007\xab\xa7\x90\xa6\x0f\xa3\xa4\x9c<\xe2\x11u\xb4\xfc\xb6\x8b\x1cR\x96\xb7\xcf&\x01y:\xbf\xc3@\xc2\x9b\xe3E" # noqa
+
+
+def test_dump_data_success():
+    reply = Reply(
+        content='hello world',
+        rand_id=44,
+    )
+
+    reply_bytes = (
+        b'>\x00j\r,\x00\x00\x00\x0bhello world'
+    )
+
+    assert dump_data(schema, reply) == reply_bytes
+
+
+def test_dump_data_error():
+    with pytest.raises(DumpError):
+        dump_data(schema, 'fake data')
+
+
+def test_load_success():
+    reply_bytes = (
+        b'>\x00j\r,\x00\x00\x00\x0bhello world'
+    )
+
+    value = load_data(schema, reply_bytes)
+
+    assert isinstance(value, Reply)
+
+
+def test_load_data_error():
+    with pytest.raises(ValueError):
+        load_data(schema, b'fakedata')
 
 
 @pytest.mark.asyncio

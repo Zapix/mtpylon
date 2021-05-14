@@ -30,7 +30,7 @@ async def test_handle_unencrypted_message():
 
     request = MagicMock()
 
-    sender = MagicMock(send_message=AsyncMock())
+    sender = MagicMock(send_unencrypted_message=AsyncMock())
 
     await handle_unencrypted_message(
         middlewares,
@@ -39,9 +39,9 @@ async def test_handle_unencrypted_message():
         message
     )
 
-    sender.send_message.assert_awaited()
+    sender.send_unencrypted_message.assert_awaited()
 
-    task = sender.send_message.await_args[0][1]
+    task = sender.send_unencrypted_message.await_args[0][1]
     assert isinstance(task, Task)
     assert task.id == 1
     assert task.content == 'hello world!'

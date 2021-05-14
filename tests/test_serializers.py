@@ -34,6 +34,7 @@ method_names = [
     'register',
     'login',
     'set_task',
+    'get_task',
     'get_task_list',
 ]
 
@@ -170,7 +171,18 @@ json_schema = {
             "method": "get_task_list",
             "type": "TaskList",
             "params": []
-        }
+        },
+        {
+            "id": 3370625417,
+            "method": "get_task",
+            "type": "Task",
+            "params": [
+                {
+                    "name": "task_id",
+                    "type": "int",
+                },
+            ],
+        },
     ]
 }
 
@@ -188,6 +200,7 @@ tl_methods = [
     'login#1c5d7e43 username:string password:string = User;',
     'set_task#0d77615b content:string = Task;',
     'get_task_list#ca222953 = TaskList;',
+    'get_task#c8e7a989 task_id:int = Task;',
 ]
 
 tl_program = tl_combinators + [FUNCTIONS_SEPARATOR] + tl_methods

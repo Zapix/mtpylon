@@ -3,15 +3,16 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from mtpylon import long
+from mtpylon import long, int128
 from mtpylon.serialization import CallableFunc
 from mtpylon.message_handler import MessageHandler
 from mtpylon.messages import UnencryptedMessage, Message
+from mtpylon.service_schema.functions import req_pq
 from mtpylon.contextvars import (
     income_message_var
 )
 
-from tests.simpleschema import schema, set_task, Task
+from tests.simpleschema import schema, set_task
 
 
 @pytest.mark.asyncio
@@ -21,7 +22,7 @@ async def test_unpack_unencyprted_message_correct():
     transport_wrapper = MagicMock()
     transport_wrapper.unwrap__return_value = b'unwrapped data'
     message_sender = MagicMock(
-        send_message=AsyncMock()
+        send_unencrypted_message=AsyncMock()
     )
     request = MagicMock()
 
@@ -30,8 +31,8 @@ async def test_unpack_unencyprted_message_correct():
     message = UnencryptedMessage(
         message_id=msg_id,
         message_data=CallableFunc(
-            func=set_task,
-            params={'content': 'hello world'}
+            func=req_pq,
+            params={'nonce': int128(234)},
         )
     )
 
@@ -54,11 +55,8 @@ async def test_unpack_unencyprted_message_correct():
         assert transport_wrapper.unwrap.called
         unpack_message.assert_awaited()
 
-        message_sender.send_message.assert_awaited()
-        task = message_sender.send_message.await_args[0][1]
-        assert isinstance(task, Task)
-        assert task.id == 1
-        assert task.content == 'hello world'
+        message_sender.send_unencrypted_message.assert_awaited()
+
         assert income_message_var.get() == message
 
 
@@ -69,7 +67,7 @@ async def test_unpack_encrypted_message_correct():
     transport_wrapper = MagicMock()
     transport_wrapper.unwrap__return_value = b'unwrapped data'
     message_sender = MagicMock(
-        send_message=AsyncMock()
+        send_unencrypted_message=AsyncMock()
     )
     request = MagicMock()
 
@@ -122,7 +120,7 @@ async def test_pass_middlewares():
     transport_wrapper = MagicMock()
     transport_wrapper.unwrap__return_value = b'unwrapped data'
     message_sender = MagicMock(
-        send_message=AsyncMock()
+        send_unencrypted_message=AsyncMock()
     )
     request = MagicMock()
 
@@ -132,8 +130,8 @@ async def test_pass_middlewares():
         return_value=UnencryptedMessage(
             message_id=msg_id,
             message_data=CallableFunc(
-                func=set_task,
-                params={'content': 'hello world'}
+                func=req_pq,
+                params={'nonce': int128(234)},
             )
         )
     )
