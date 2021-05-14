@@ -22,7 +22,7 @@ session_id = long(11520911270507767959)
 @pytest.mark.asyncio
 async def test_handle_rpc_query_create_task():
     request = MagicMock()
-    sender = MagicMock(send_message=AsyncMock())
+    sender = MagicMock(send_encrypted_message=AsyncMock())
 
     message = Message(
         message_id=msg_id,
@@ -49,7 +49,7 @@ async def test_handle_rpc_query_create_task():
 @pytest.mark.asyncio
 async def test_run_rpc_query_success():
     request = MagicMock()
-    sender = MagicMock(send_message=AsyncMock())
+    sender = MagicMock(send_encrypted_message=AsyncMock())
 
     message = Message(
         message_id=msg_id,
@@ -64,10 +64,10 @@ async def test_run_rpc_query_success():
 
     await run_rpc_query([], sender, request, message)
 
-    sender.send_message.assert_awaited()
+    sender.send_encrypted_message.assert_awaited()
 
-    args = sender.send_message.await_args[0]
-    rpc_result = args[1]
+    args = sender.send_encrypted_message.await_args[0]
+    rpc_result = args[3]
 
     assert isinstance(rpc_result, RpcResult)
     assert rpc_result.req_msg_id == msg_id
@@ -81,7 +81,7 @@ async def test_run_rpc_query_success():
 @pytest.mark.asyncio
 async def test_run_rpc_query_error():
     request = MagicMock()
-    sender = MagicMock(send_message=AsyncMock())
+    sender = MagicMock(send_encrypted_message=AsyncMock())
 
     message = Message(
         message_id=msg_id,
@@ -96,10 +96,10 @@ async def test_run_rpc_query_error():
 
     await run_rpc_query([], sender, request, message)
 
-    sender.send_message.assert_awaited()
+    sender.send_encrypted_message.assert_awaited()
 
-    args = sender.send_message.await_args[0]
-    rpc_result = args[1]
+    args = sender.send_encrypted_message.await_args[0]
+    rpc_result = args[3]
 
     assert isinstance(rpc_result, RpcResult)
     assert rpc_result.req_msg_id == msg_id

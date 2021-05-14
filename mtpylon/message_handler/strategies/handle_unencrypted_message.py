@@ -42,4 +42,4 @@ async def handle_unencrypted_message(
 
     logger.info(f'Response to message {message.message_id}')
 
-    await sender.send_message(request, result, response=True)
+    await sender.send_unencrypted_message(request, result, response=True)

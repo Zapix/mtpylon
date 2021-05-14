@@ -2,6 +2,7 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
+from mtpylon import long
 from mtpylon.message_sender import MessageSender
 from mtpylon.crypto import AuthKeyManager
 
@@ -19,7 +20,7 @@ def aiohttp_request():
 
 
 @pytest.mark.asyncio
-async def test_send_message_ok(aiohttp_request):
+async def test_send_unencrypted_message_ok(aiohttp_request):
     pack_message = AsyncMock(return_value=b'packed value')
 
     with patch('mtpylon.message_sender.pack_message', pack_message):
@@ -40,7 +41,49 @@ async def test_send_message_ok(aiohttp_request):
             ws=ws
         )
 
-        await sender.send_message(aiohttp_request, 'response_data', True)
+        await sender.send_unencrypted_message(
+            aiohttp_request,
+            'response_data',
+            True
+        )
+
+        pack_message.assert_awaited()
+
+        transport_wrapper.wrap.assert_called_with(b'packed value')
+        obfuscator.encrypt.assert_called_with(b'wrapped value')
+
+        ws.send_bytes.assert_awaited_with(b'encrypted value')
+
+
+@pytest.mark.asyncio
+async def test_send_encrypted_message_ok(aiohttp_request):
+    pack_message = AsyncMock(return_value=b'packed value')
+
+    with patch('mtpylon.message_sender.pack_message', pack_message):
+        obfuscator = MagicMock()
+        obfuscator.encrypt.return_value = b'encrypted value'
+
+        transport_wrapper = MagicMock()
+        transport_wrapper.wrap.return_value = b'wrapped value'
+
+        ws = MagicMock()
+        ws.closed = False
+        ws.send_bytes = AsyncMock()
+
+        sender = MessageSender(
+            schema=schema,
+            obfuscator=obfuscator,
+            transport_wrapper=transport_wrapper,
+            ws=ws
+        )
+
+        await sender.send_encrypted_message(
+            aiohttp_request,
+            long(234234),
+            long(423422),
+            'response_data',
+            True
+        )
 
         pack_message.assert_awaited()
 
@@ -72,7 +115,11 @@ async def test_send_message_value_error(aiohttp_request):
             ws=ws
         )
 
-        await sender.send_message(aiohttp_request, 'response_data', True)
+        await sender.send_unencrypted_message(
+            aiohttp_request,
+            'response_data',
+            True
+        )
 
         pack_message.assert_awaited()
 
@@ -102,7 +149,11 @@ async def test_send_message_ws_closed(aiohttp_request):
             ws=ws
         )
 
-        await sender.send_message(aiohttp_request, 'response_data', True)
+        await sender.send_unencrypted_message(
+            aiohttp_request,
+            'response_data',
+            True
+        )
 
         ws.close.assert_not_awaited()
         ws.send_bytes.assert_not_awaited()

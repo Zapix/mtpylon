@@ -22,7 +22,7 @@ async def test_unpack_unencyprted_message_correct():
     transport_wrapper = MagicMock()
     transport_wrapper.unwrap__return_value = b'unwrapped data'
     message_sender = MagicMock(
-        send_message=AsyncMock()
+        send_unencrypted_message=AsyncMock()
     )
     request = MagicMock()
 
@@ -55,7 +55,7 @@ async def test_unpack_unencyprted_message_correct():
         assert transport_wrapper.unwrap.called
         unpack_message.assert_awaited()
 
-        message_sender.send_message.assert_awaited()
+        message_sender.send_unencrypted_message.assert_awaited()
 
         assert income_message_var.get() == message
 
@@ -67,7 +67,7 @@ async def test_unpack_encrypted_message_correct():
     transport_wrapper = MagicMock()
     transport_wrapper.unwrap__return_value = b'unwrapped data'
     message_sender = MagicMock(
-        send_message=AsyncMock()
+        send_unencrypted_message=AsyncMock()
     )
     request = MagicMock()
 
@@ -120,7 +120,7 @@ async def test_pass_middlewares():
     transport_wrapper = MagicMock()
     transport_wrapper.unwrap__return_value = b'unwrapped data'
     message_sender = MagicMock(
-        send_message=AsyncMock()
+        send_unencrypted_message=AsyncMock()
     )
     request = MagicMock()
 
