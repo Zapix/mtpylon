@@ -38,8 +38,8 @@ from ..exceptions import DumpError
 DumpFunction = Callable[[Any], bytes]
 LoadFunction = Callable[[bytes], LoadedValue[Any]]
 
-CustomDumpersMap = Dict[Type, DumpFunction]
-CustomLoadersMap = Dict[Type, LoadFunction]
+CustomDumpersMap = Dict[Any, DumpFunction]
+CustomLoadersMap = Dict[Any, LoadFunction]
 
 
 @dataclass
@@ -120,6 +120,7 @@ def dump(schema, value, custom_dumpers=None, **kwargs):
             str: dump_string,
             Any: dump_object,
         }
+        dump_map.update(custom_dumpers)
 
         try:
             if is_list_type(origin):
@@ -236,6 +237,7 @@ def load(
         Any: load_object,
         type(None): load_empty,
     }
+    load_map.update(custom_loaders)
 
     def get_load_func(x) -> LoadFunction:
         return load_map.get(

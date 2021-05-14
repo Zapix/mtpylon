@@ -14,7 +14,6 @@ from mtpylon.serializers import (
 
 from .simpleschema import schema
 
-
 combinator_names = [
     'boolTrue',
     'boolFalse',
@@ -24,7 +23,6 @@ combinator_names = [
     'taskList',
 ]
 
-
 type_names = [
     'Bool',
     'User',
@@ -32,152 +30,149 @@ type_names = [
     'TaskList',
 ]
 
-
 method_names = [
-  'register',
-  'login',
-  'set_task',
-  'get_task_list',
+    'register',
+    'login',
+    'set_task',
+    'get_task_list',
 ]
 
-
 json_schema = {
-  "constructors": [
-    {
-      "id": 2574415285,
-      "predicate": "boolTrue",
-      "type": "Bool",
-      "params": []
-    },
-    {
-      "id": 3162085175,
-      "predicate": "boolFalse",
-      "type": "Bool",
-      "params": []
-    },
-    {
-      "id": 0x5d8fe2e9,
-      "predicate": "authorizedUser",
-      "type": "User",
-      "params": [
+    "constructors": [
         {
-            "name": "flags",
-            "type": "#"
+            "id": 2574415285,
+            "predicate": "boolTrue",
+            "type": "Bool",
+            "params": []
         },
         {
-          "name": "id",
-          "type": "int"
+            "id": 3162085175,
+            "predicate": "boolFalse",
+            "type": "Bool",
+            "params": []
         },
         {
-          "name": "username",
-          "type": "string"
+            "id": 0x5d8fe2e9,
+            "predicate": "authorizedUser",
+            "type": "User",
+            "params": [
+                {
+                    "name": "flags",
+                    "type": "#"
+                },
+                {
+                    "name": "id",
+                    "type": "int"
+                },
+                {
+                    "name": "username",
+                    "type": "string"
+                },
+                {
+                    "name": "password",
+                    "type": "string"
+                },
+                {
+                    'name': 'avatar_url',
+                    'type': 'flags.0?string'
+                }
+            ]
         },
         {
-          "name": "password",
-          "type": "string"
+            "id": 1563593667,
+            "predicate": "anonymousUser",
+            "type": "User",
+            "params": []
         },
         {
-            'name': 'avatar_url',
-            'type': 'flags.0?string'
+            "id": 0xb801a563,
+            "predicate": "task",
+            "type": "Task",
+            "params": [
+                {
+                    'name': 'flags',
+                    'type': '#'
+                },
+                {
+                    "name": "id",
+                    "type": "int"
+                },
+                {
+                    "name": "content",
+                    "type": "string"
+                },
+                {
+                    "name": "completed",
+                    "type": "Bool"
+                },
+                {
+                    "name": "tags",
+                    "type": "flags.1?Vector<string>"
+                }
+            ]
+        },
+        {
+            "id": 1721237574,
+            "predicate": "taskList",
+            "type": "TaskList",
+            "params": [
+                {
+                    "name": "tasks",
+                    "type": "Vector<Task>"
+                }
+            ]
         }
-      ]
-    },
-    {
-      "id": 1563593667,
-      "predicate": "anonymousUser",
-      "type": "User",
-      "params": []
-    },
-    {
-      "id": 0xb801a563,
-      "predicate": "task",
-      "type": "Task",
-      "params": [
+    ],
+    "methods": [
         {
-          'name': 'flags',
-          'type': '#'
+            "id": 2043668814,
+            "method": "register",
+            "type": "User",
+            "params": [
+                {
+                    "name": "username",
+                    "type": "string"
+                },
+                {
+                    "name": "password",
+                    "type": "string"
+                }
+            ]
         },
         {
-          "name": "id",
-          "type": "int"
+            "id": 475889219,
+            "method": "login",
+            "type": "User",
+            "params": [
+                {
+                    "name": "username",
+                    "type": "string"
+                },
+                {
+                    "name": "password",
+                    "type": "string"
+                }
+            ]
         },
         {
-          "name": "content",
-          "type": "string"
+            "id": 225927515,
+            "method": "set_task",
+            "type": "Task",
+            "params": [
+                {
+                    "name": "content",
+                    "type": "string"
+                }
+            ]
         },
         {
-          "name": "completed",
-          "type": "Bool"
-        },
-        {
-            "name": "tags",
-            "type": "flags.1?Vector<string>"
+            "id": 3391236435,
+            "method": "get_task_list",
+            "type": "TaskList",
+            "params": []
         }
-      ]
-    },
-    {
-      "id": 1721237574,
-      "predicate": "taskList",
-      "type": "TaskList",
-      "params": [
-        {
-          "name": "tasks",
-          "type": "Vector<Task>"
-        }
-      ]
-    }
-  ],
-  "methods": [
-    {
-      "id": 2043668814,
-      "method": "register",
-      "type": "User",
-      "params": [
-        {
-          "name": "username",
-          "type": "string"
-        },
-        {
-          "name": "password",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "id": 475889219,
-      "method": "login",
-      "type": "User",
-      "params": [
-        {
-          "name": "username",
-          "type": "string"
-        },
-        {
-          "name": "password",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "id": 225927515,
-      "method": "set_task",
-      "type": "Task",
-      "params": [
-        {
-          "name": "content",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "id": 3391236435,
-      "method": "get_task_list",
-      "type": "TaskList",
-      "params": []
-    }
-  ]
+    ]
 }
-
 
 tl_combinators = [
     'boolTrue#997275b5 = Bool;',
@@ -188,7 +183,6 @@ tl_combinators = [
     'taskList#66980046 tasks:Vector<Task> = TaskList;',
 ]
 
-
 tl_methods = [
     'register#79cfe94e username:string password:string = User;',
     'login#1c5d7e43 username:string password:string = User;',
@@ -196,9 +190,7 @@ tl_methods = [
     'get_task_list#ca222953 = TaskList;',
 ]
 
-
 tl_program = tl_combinators + [FUNCTIONS_SEPARATOR] + tl_methods
-
 
 schema_structure = schema.get_schema_structure()
 
