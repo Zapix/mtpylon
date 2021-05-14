@@ -51,7 +51,7 @@ async def run_rpc_query_middleware(
             error_message=str(e)
         )
     else:
-        logger.info('Rpc call has been successfully finished')
+        adapter.info('Rpc call has been successfully finished')
 
     return RpcResult(
         req_msg_id=message.message_id,

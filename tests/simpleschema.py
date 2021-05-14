@@ -123,11 +123,14 @@ async def get_task_list(request: web.Request) -> TaskList:
 
 
 async def get_task(request: web.Request, task_id: int) -> Task:
-    if task_id != 1:
+    if task_id == 4:
         raise RpcCallError(
             error_code=404,
             error_message=f'Task with id {task_id} not found'
         )
+
+    if task_id == 3:
+        raise ValueError('Value Error')
 
     return Task(
         id=1,
