@@ -19,6 +19,10 @@ from tests.simpleschema import (
     get_task_list,
     schema
 )
+from tests.echoschema import (
+    Reply,
+    echo
+)
 
 
 class WrongCombinator:
@@ -27,6 +31,24 @@ class WrongCombinator:
 
 def wrong_funcion():
     pass
+
+
+@pytest.fixture
+def one_schema():
+    new_schema = Schema(
+        constructors=[User, Bool],
+        functions=[login, register],
+    )
+    return new_schema
+
+
+@pytest.fixture
+def another_schema():
+    another_schema = Schema(
+        constructors=[Reply],
+        functions=[echo]
+    )
+    return another_schema
 
 
 def test_schema():
@@ -210,3 +232,42 @@ def test_schema_set_error():
 def test_schema_delete_error():
     with pytest.raises(SchemaChangeError):
         del schema[BoolTrue]
+
+
+def test_schema_update_schema(one_schema, another_schema):
+    one_schema.update(another_schema)
+
+    assert Reply in one_schema
+    assert echo in one_schema
+
+
+def test_ior_update_schema(one_schema, another_schema):
+    one_schema |= another_schema
+
+    assert Reply in one_schema
+    assert echo in one_schema
+
+
+def test_or_create_schema(one_schema, another_schema):
+    new_schema = one_schema | another_schema
+
+    assert Bool in new_schema
+    assert User in new_schema
+    assert login in new_schema
+
+    assert Reply in new_schema
+    assert echo in new_schema
+
+
+def test_duplicate_combinator(one_schema):
+    simple_schema = Schema(constructors=[Bool], functions=[])
+
+    with pytest.raises(ValueError):
+        one_schema.update(simple_schema)
+
+
+def test_duplicate_method(one_schema):
+    simple_schema = Schema(constructors=[Bool, User], functions=[login])
+
+    with pytest.raises(ValueError):
+        one_schema.update(simple_schema)

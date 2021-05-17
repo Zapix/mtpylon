@@ -71,22 +71,7 @@ class Schema:
         self.constructors = constructors
         self.functions = functions
 
-        self._constructors_set: Set[Type] = set([
-            constructor
-            for constructor in constructors
-            if is_annotated_union(constructor)
-        ])
-        self._number_map: Dict[int, Union[CombinatorData, FunctionData]] = {}
-        self._combinator_map: Dict[Type, CombinatorData] = {}
-        self._function_map: Dict[Callable, FunctionData] = {}
-
-        for combinator_data in self._get_constructors():
-            self._number_map[combinator_data.id] = combinator_data
-            self._combinator_map[combinator_data.origin] = combinator_data
-
-        for func_data in self._get_methods():
-            self._number_map[func_data.id] = func_data
-            self._function_map[func_data.origin] = func_data
+        self._build_schema_data()
 
     def __contains__(self, item: Union[Callable, Type, int]) -> bool:
         """
@@ -139,6 +124,16 @@ class Schema:
             'Can`t remove combinator or function from schema'
         )
 
+    def __or__(self, other: 'Schema') -> 'Schema':
+        return Schema(
+            constructors=self.constructors + other.constructors,
+            functions=self.functions + other.functions
+        )
+
+    def __ior__(self, other: 'Schema'):
+        self._update(other)
+        return self
+
     def get_schema_structure(self) -> SchemaStructure:
         """
         Structure of schema that could be dumped
@@ -151,6 +146,24 @@ class Schema:
         )
 
         return SchemaStructure(constructors=constructors, methods=methods)
+
+    def _build_schema_data(self):
+        self._constructors_set: Set[Type] = set([
+            constructor
+            for constructor in self.constructors
+            if is_annotated_union(constructor)
+        ])
+        self._number_map: Dict[int, Union[CombinatorData, FunctionData]] = {}
+        self._combinator_map: Dict[Type, CombinatorData] = {}
+        self._function_map: Dict[Callable, FunctionData] = {}
+
+        for combinator_data in self._get_combinators():
+            self._number_map[combinator_data.id] = combinator_data
+            self._combinator_map[combinator_data.origin] = combinator_data
+
+        for func_data in self._get_methods():
+            self._number_map[func_data.id] = func_data
+            self._function_map[func_data.origin] = func_data
 
     def _describe_constructor(self, constructor) -> List[CombinatorData]:
         if is_annotated_union(constructor):
@@ -184,7 +197,7 @@ class Schema:
             origin=func
         )
 
-    def _get_constructors(self) -> List[CombinatorData]:
+    def _get_combinators(self) -> List[CombinatorData]:
         return [
             combinator_data
             for constructor in self.constructors
@@ -196,3 +209,37 @@ class Schema:
             self._describe_function(func)
             for func in self.functions
         ]
+
+    def _update(self, schema: 'Schema'):
+        """
+        Updates current schema with constructors, functions from another schema
+
+        Raises:
+            ValueError if some of combinator number will be duplicated
+        """
+        for method in schema._get_methods():
+            if method.id in self:
+                raise ValueError(
+                    f"Duplicate method id for {method.method} id: {method.id}"
+                )
+
+        for combinator in schema._get_combinators():
+            if combinator.id in self:
+                raise ValueError(
+                    f"Duplicate combinator id for {combinator.predicate} " +
+                    f"id: {combinator.id}"
+                )
+
+        self.constructors += schema.constructors
+        self.functions += schema.functions
+
+        self._build_schema_data()
+
+    def update(self, schema: 'Schema'):
+        """
+        Updates current schema with constructors, functions from another schema
+
+        Raises:
+            ValueError if some of combinator number will be duplicated
+        """
+        self._update(schema)
