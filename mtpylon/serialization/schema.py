@@ -23,7 +23,6 @@ from .int256 import dump as dump_int256, load as load_int256
 from .double import dump as dump_double, load as load_double
 from .string import dump as dump_string, load as load_string
 from .vector import dump as dump_vector, load as load_vector
-from .object import dump as dump_object, load as load_object
 from .loaded import LoadedValue
 from ..utils import (
     is_list_type,
@@ -118,7 +117,7 @@ def dump(schema, value, custom_dumpers=None, **kwargs):
             float: dump_double,
             bytes: dump_bytes,
             str: dump_string,
-            Any: dump_object,
+            Any: lambda x: dump(schema, x, custom_dumpers=custom_dumpers),
         }
         dump_map.update(custom_dumpers)
 
@@ -234,7 +233,7 @@ def load(
         int256: load_int256,
         float: load_double,
         str: load_string,
-        Any: load_object,
+        Any: lambda x: load(schema, x, custom_loaders=custom_loaders),
         type(None): load_empty,
     }
     load_map.update(custom_loaders)
