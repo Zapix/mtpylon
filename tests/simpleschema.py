@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass
-from typing import Annotated, Union, List, Optional
+from typing import Annotated, Union, List, Optional, Any
 
 from aiohttp import web
 
@@ -75,6 +75,16 @@ class TaskList:
         order = ('tasks', )
 
 
+@dataclass
+class EntityComment:
+    entity: Any
+    comment: str
+
+    class Meta:
+        name = 'entity_comment'
+        order = ('entity', 'comment')
+
+
 async def register(request: web.Request, username: str, password: str) -> User:
     return AuthorizedUser(
         id=1,
@@ -146,6 +156,7 @@ schema = Schema(
         User,
         Task,
         TaskList,
+        EntityComment,
     ],
     functions=[
         register,

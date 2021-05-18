@@ -21,6 +21,7 @@ combinator_names = [
     'anonymousUser',
     'task',
     'taskList',
+    'entity_comment',
 ]
 
 type_names = [
@@ -28,6 +29,7 @@ type_names = [
     'User',
     'Task',
     'TaskList',
+    'EntityComment',
 ]
 
 method_names = [
@@ -122,6 +124,21 @@ json_schema = {
                     "type": "Vector<Task>"
                 }
             ]
+        },
+        {
+            "id": 3098825498,
+            "predicate": "entity_comment",
+            "type": "EntityComment",
+            "params": [
+                {
+                    "name": "entity",
+                    "type": "Object",
+                },
+                {
+                    "name": "comment",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "methods": [
@@ -193,6 +210,7 @@ tl_combinators = [
     'anonymousUser#5d328bc3 = User;',
     'task#b801a563 flags:# id:int content:string completed:Bool tags:flags.1?Vector<string> = Task;',  # noqa: E501
     'taskList#66980046 tasks:Vector<Task> = TaskList;',
+    'entity_comment#b8b4531a entity:Object comment:string = EntityComment;',
 ]
 
 tl_methods = [
