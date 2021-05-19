@@ -15,6 +15,7 @@ from .messages import (
 )
 from .transports import Obfuscator, TransportWrapper
 from .schema import Schema
+from .service_schema import service_schema
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,7 @@ class MessageSender:
     def __post_init__(self):
         self._msg_ids = message_ids()
         self._msg_ids.send(None)
+        self._common_schema = self.schema | service_schema
 
     async def _send_message(self, request: Request, message: MtprotoMessage):
         if self.ws.closed:
@@ -41,7 +43,7 @@ class MessageSender:
         try:
             message_bytes = await pack_message(
                 request.app['auth_key_manager'],
-                self.schema,
+                self._common_schema,
                 message
             )
         except ValueError as e:

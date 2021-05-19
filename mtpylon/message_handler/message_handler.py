@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from aiohttp import web
 
 from mtpylon.schema import Schema
+from mtpylon.service_schema import service_schema
 from mtpylon.transports import Obfuscator, TransportWrapper
 from mtpylon.message_sender import MessageSender
 from mtpylon.messages import MtprotoMessage, unpack_message
@@ -23,6 +24,9 @@ class MessageHandler:
     transport_wrapper: TransportWrapper
     message_sender: MessageSender
     middlewares: List[MiddleWareFunc] = field(default_factory=list)
+
+    def __post_init__(self):
+        self._common_schema = self.schema | service_schema
 
     async def handle(self, request: web.Request, obfuscated_data: bytes):
         message = await self.decrypt_message(request, obfuscated_data)
@@ -43,6 +47,6 @@ class MessageHandler:
 
         return await unpack_message(
             request.app['auth_key_manager'],
-            self.schema,
+            self._common_schema,
             message_bytes
         )
