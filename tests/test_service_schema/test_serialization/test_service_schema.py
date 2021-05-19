@@ -2,7 +2,7 @@
 import pytest
 
 from mtpylon import long
-from mtpylon.service_schema import load, dump
+from mtpylon.service_schema import load, dump, service_schema
 from mtpylon.service_schema.constructors import (
     MsgsAck,
     Message,
@@ -12,6 +12,11 @@ from mtpylon.service_schema.constructors import (
 )
 
 from tests.echoschema import schema, Reply
+
+
+@pytest.fixture
+def common_schema():
+    return schema | service_schema
 
 
 test_params = [
@@ -111,6 +116,36 @@ test_params = [
         ),
         id='rpc response with users schema'
     ),
+    pytest.param(
+        RpcResult(
+            req_msg_id=long(0x5e0b700a00000000),
+            result=RpcError(
+                error_code=404,
+                error_message='Not Found',
+            ),
+        ),
+        (
+            b'\x01m\\\xf3' +
+            b'\x00\x00\x00\x00\np\x0b^' +
+            b'\x19\xcaD!\x94\x01\x00\x00\tNot Found\x00\x00'
+        ),
+        id='rpc response rpc error'
+    ),
+    pytest.param(
+        RpcResult(
+            req_msg_id=long(0x5e0b700a00000000),
+            result=Reply(
+                content='hello world',
+                rand_id=44,
+            ),
+        ),
+        (
+            b'\x01m\\\xf3' +
+            b'\x00\x00\x00\x00\np\x0b^' +
+            b'>\x00j\r,\x00\x00\x00\x0bhello world'
+        ),
+        id='rpc response reply'
+    )
 ]
 
 
@@ -118,16 +153,16 @@ test_params = [
     'value,dumped_value',
     test_params
 )
-def test_dump(value, dumped_value):
-    assert dump(value, schema) == dumped_value
+def test_dump(common_schema, value, dumped_value):
+    assert dump(value, common_schema) == dumped_value
 
 
 @pytest.mark.parametrize(
     'value,dumped_value',
     test_params
 )
-def test_load(value, dumped_value):
-    loaded = load(dumped_value, schema)
+def test_load(common_schema, value, dumped_value):
+    loaded = load(dumped_value, common_schema)
 
     assert loaded.value == value
     assert loaded.offset == len(dumped_value)
