@@ -8,7 +8,11 @@ from .salt import Salt
 
 class ServerSaltManagerProtocol(Protocol):
 
-    async def has_salt(self, auth_key: AuthKey, salt_value: long) -> bool:
+    async def has_salt(
+        self,
+        auth_key: AuthKey,
+        salt_value: long
+    ) -> bool:  # pragma: nocover
         """
         Checks can be current salt been used now or not.
         """

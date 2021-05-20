@@ -158,7 +158,7 @@ def dump(
     schema: Schema,
     value: Any,
     custom_dumpers: Optional[CustomDumpersMap],
-) -> bytes:
+) -> bytes:  # pragma: nocover
     ...
 
 
@@ -168,7 +168,7 @@ def dump(
         value: Callable,
         custom_dumpers: Optional[CustomDumpersMap],
         **kwargs: Any,
-) -> bytes:
+) -> bytes:  # pragma: nocover
     ...
 
 
