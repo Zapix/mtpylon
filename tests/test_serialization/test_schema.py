@@ -15,9 +15,46 @@ from ..simpleschema import (
     Task,
     TaskList,
     AuthorizedUser,
+    EntityComment,
     get_task_list,
     login
 )
+
+entity_comment_test_data = [
+    pytest.param(
+        EntityComment(
+            entity=BoolTrue(),
+            comment='bool',
+        ),
+        (
+            b'\x1a\x53\xb4\xb8' +  # constructor number
+            b'\xb5\x75\x72\x99' +  # boolTrue
+            b'\x04bool\x00\x00\x00'  # comment
+        ),
+        id='bool with comment'
+    ),
+    pytest.param(
+        EntityComment(
+            Task(
+                id=12,
+                content='dump by schema',
+                completed=BoolTrue(),
+                tags=None
+            ),
+            comment='task'
+        ),
+        (
+            b'\x1a\x53\xb4\xb8' +  # constructor number
+            b'\x63\xa5\x01\xb8' +  # task combinator number
+            b'\x00\x00\x00\x00' +  # flags
+            b'\x0c\x00\x00\x00' +  # id number - int
+            b'\x0edump by schema\x00' +  # content - str
+            b'\xb5\x75\x72\x99' +  # completed - Bool
+            b'\x04task\x00\x00\x00'  # comment,
+        ),
+        id='task with comment'
+    ),
+]
 
 
 class WrongObject:
@@ -172,6 +209,14 @@ def test_dump_custom_bool():
     assert dumped_false == b'\x37\x97\x79\xbc' + b'custom'
 
 
+@pytest.mark.parametrize(
+    'value,dumped_data',
+    entity_comment_test_data
+)
+def test_dump_entity_comment(value, dumped_data):
+    assert dump(schema, value) == dumped_data
+
+
 def test_dump_wrong_object():
     obj = WrongObject()
     with pytest.raises(DumpError):
@@ -181,6 +226,11 @@ def test_dump_wrong_object():
 def test_dump_wrong_function():
     with pytest.raises(DumpError):
         dump(schema, wrong_function)
+
+
+def test_dump_wrong_function_callable():
+    with pytest.raises(DumpError):
+        dump(schema, CallableFunc(func=wrong_function, params={}))
 
 
 def test_wrong_function_params():
@@ -365,6 +415,14 @@ def test_custom_loaders():
 
     assert loaded.value == BoolFalse()
     assert loaded.offset == 10
+
+
+@pytest.mark.parametrize(
+    'value,dumped_data',
+    entity_comment_test_data
+)
+def test_load_entity_comment(value, dumped_data):
+    assert load(schema, dumped_data).value == value
 
 
 def test_no_value():

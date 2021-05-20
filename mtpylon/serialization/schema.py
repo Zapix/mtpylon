@@ -13,7 +13,8 @@ from typing import (
     NamedTuple,
 )
 from functools import partial
-from inspect import isfunction
+from inspect import isfunction, signature
+from mypy_extensions import Arg
 
 from .bytes import dump as dump_bytes, load as load_bytes
 from .int import dump as dump_int, load as load_int
@@ -23,7 +24,6 @@ from .int256 import dump as dump_int256, load as load_int256
 from .double import dump as dump_double, load as load_double
 from .string import dump as dump_string, load as load_string
 from .vector import dump as dump_vector, load as load_vector
-from .object import dump as dump_object, load as load_object
 from .loaded import LoadedValue
 from ..utils import (
     is_list_type,
@@ -36,10 +36,23 @@ from ..exceptions import DumpError
 
 
 DumpFunction = Callable[[Any], bytes]
+DumpFunctionWithDumpObject = Callable[
+    [Any, Arg(DumpFunction, 'dump_object')],  # noqa: F821
+    Any
+]
 LoadFunction = Callable[[bytes], LoadedValue[Any]]
+LoadFunctionWithLoadObject = Callable[
+    [Any, Arg(LoadFunction, 'load_object')],  # noqa: F821
+    LoadedValue[Any]
+]
 
-CustomDumpersMap = Dict[Any, DumpFunction]
-CustomLoadersMap = Dict[Any, LoadFunction]
+CustomDumpFunction = Union[DumpFunction, DumpFunctionWithDumpObject]
+CustomLoadFunction = Union[LoadFunction, LoadFunctionWithLoadObject]
+
+DumpersMap = Dict[Any, DumpFunction]
+LoadersMap = Dict[Any, LoadFunction]
+CustomDumpersMap = Dict[Any, CustomDumpFunction]
+CustomLoadersMap = Dict[Any, CustomLoadFunction]
 
 
 @dataclass
@@ -79,12 +92,73 @@ def set_flag_value(flag_number: int, param_name: str, origin: Type) -> int:
     return flag_number | (1 << get_flag_ids(origin, param_name))
 
 
+def build_custom_dumper_func(
+    func: CustomDumpFunction,
+    dump_object: DumpFunction
+) -> DumpFunction:
+    """
+    Pass object dump function if it required
+    """
+    sig = signature(func)
+
+    if 'dump_object' in sig.parameters:
+        func = cast(DumpFunctionWithDumpObject, func)
+        return partial(func, dump_object=dump_object)
+    func = cast(DumpFunction, func)
+    return func
+
+
+def build_custom_dump_map(
+    dump_object: DumpFunction,
+    custom_dumpers: CustomDumpersMap
+) -> DumpersMap:
+    """
+    Builds dump map with custom dumpers
+    """
+    dump_map = {}
+    dump_map.update({
+        tp: build_custom_dumper_func(func, dump_object)
+        for tp, func in custom_dumpers.items()
+    })
+
+    return dump_map
+
+
+def build_custom_loader_func(
+    func: CustomLoadFunction,
+    load_object: LoadFunction
+) -> LoadFunction:
+    """
+    Pass load object function if it required
+    """
+    sig = signature(func)
+
+    if 'load_object' in sig.parameters:
+        func = cast(LoadFunctionWithLoadObject, func)
+        return partial(func, load_object=load_object)
+    func = cast(LoadFunction, func)
+    return func
+
+
+def build_custom_load_map(
+    load_object: LoadFunction,
+    custom_loaders: CustomLoadersMap
+) -> LoadersMap:
+    load_map = {}
+    load_map.update({
+        tp: build_custom_loader_func(func, load_object)
+        for tp, func in custom_loaders.items()
+    })
+
+    return load_map
+
+
 @overload
 def dump(
-        schema: Schema,
-        value: Any,
-        custom_dumpers: Optional[CustomDumpersMap],
-) -> bytes:
+    schema: Schema,
+    value: Any,
+    custom_dumpers: Optional[CustomDumpersMap],
+) -> bytes:  # pragma: nocover
     ...
 
 
@@ -94,7 +168,7 @@ def dump(
         value: Callable,
         custom_dumpers: Optional[CustomDumpersMap],
         **kwargs: Any,
-) -> bytes:
+) -> bytes:  # pragma: nocover
     ...
 
 
@@ -105,12 +179,17 @@ def dump(schema, value, custom_dumpers=None, **kwargs):
     if custom_dumpers is None:
         custom_dumpers = {}
 
+    dumpers: DumpersMap = build_custom_dump_map(
+        lambda x: dump(schema, x, custom_dumpers=custom_dumpers),
+        custom_dumpers=custom_dumpers
+    )
+
     def dump_by_type(
             dump_value: Any,
             origin: Type,
             type_name: str,
     ) -> bytes:
-        dump_map: Dict[Any, DumpFunction] = {
+        dump_map: DumpersMap = {
             int: dump_int,
             long: dump_long,
             int128: dump_int128,
@@ -118,9 +197,9 @@ def dump(schema, value, custom_dumpers=None, **kwargs):
             float: dump_double,
             bytes: dump_bytes,
             str: dump_string,
-            Any: dump_object,
+            Any: lambda x: dump(schema, x, custom_dumpers=custom_dumpers),
         }
-        dump_map.update(custom_dumpers)
+        dump_map.update(dumpers)
 
         try:
             if is_list_type(origin):
@@ -139,8 +218,8 @@ def dump(schema, value, custom_dumpers=None, **kwargs):
         except Exception:
             raise DumpError(f'Can`t dump {value} as {type_name}')
 
-    if type(value) in custom_dumpers:
-        dump_function = custom_dumpers[type(value)]
+    if type(value) in dumpers:
+        dump_function = dumpers[type(value)]
         return dump_function(value)
 
     data: Optional[Union[CombinatorData, FunctionData]] = None
@@ -158,6 +237,15 @@ def dump(schema, value, custom_dumpers=None, **kwargs):
 
         values_2_dump = [
             Value2Dump(kwargs.get(param.name), param)
+            for param in data.params
+        ]
+    elif isinstance(value, CallableFunc):
+        try:
+            data = schema[value.func]
+        except KeyError:
+            raise DumpError('Can`t dump function that not in schema')
+        values_2_dump = [
+            Value2Dump(value.params.get(param.name), param)
             for param in data.params
         ]
     else:
@@ -223,10 +311,15 @@ def load(
     if custom_loaders is None:
         custom_loaders = {}
 
+    loaders: LoadersMap = build_custom_load_map(
+        lambda x: load(schema, x, custom_loaders=custom_loaders),
+        custom_loaders
+    )
+
     def load_empty(x: bytes) -> LoadedValue[None]:
         return LoadedValue(None, 0)
 
-    load_map = {
+    load_map: LoadersMap = {
         bytes: load_bytes,
         int: load_int,
         long: load_long,
@@ -234,10 +327,10 @@ def load(
         int256: load_int256,
         float: load_double,
         str: load_string,
-        Any: load_object,
+        Any: lambda x: load(schema, x, custom_loaders=custom_loaders),
         type(None): load_empty,
     }
-    load_map.update(custom_loaders)
+    load_map.update(loaders)
 
     def get_load_func(x) -> LoadFunction:
         return load_map.get(
@@ -256,7 +349,7 @@ def load(
     data = schema[combinator]
 
     if isinstance(data.origin, type) and data.origin in custom_loaders:
-        loader = custom_loaders[data.origin]
+        loader = loaders[data.origin]
         return loader(input)
 
     flag_number: Optional[int] = None

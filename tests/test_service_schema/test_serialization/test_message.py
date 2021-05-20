@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from mtpylon import long
+from mtpylon.serialization import LoadedValue
 from mtpylon.service_schema.constructors import Message
 from mtpylon.service_schema.serialization.message import load, dump
 
@@ -20,11 +21,14 @@ dumped_message = (
 
 
 def test_dump_message():
-    assert dump(message) == dumped_message
+    assert dump(message, dump_object=lambda x: x) == dumped_message
 
 
 def test_load_message():
-    loaded = load(dumped_message + b'prefix that should be skipped')
+    loaded = load(
+        dumped_message + b'prefix that should be skipped',
+        load_object=lambda x: LoadedValue(value=x, offset=len(x))
+    )
 
     assert loaded.offset == len(dumped_message)
     assert loaded.value == message
