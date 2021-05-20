@@ -228,6 +228,11 @@ def test_dump_wrong_function():
         dump(schema, wrong_function)
 
 
+def test_dump_wrong_function_callable():
+    with pytest.raises(DumpError):
+        dump(schema, CallableFunc(func=wrong_function, params={}))
+
+
 def test_wrong_function_params():
     with pytest.raises(DumpError):
         dump(schema, login, username='root', password=123)
