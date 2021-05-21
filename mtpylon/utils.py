@@ -12,8 +12,9 @@ from typing import (
     Callable,
     get_origin,
     get_args,
+    Mapping
 )
-from dataclasses import is_dataclass, fields
+from dataclasses import is_dataclass, fields, Field
 from inspect import signature, iscoroutinefunction, Parameter
 from math import log
 
@@ -27,6 +28,17 @@ from .exceptions import (
 from .types import BASIC_TYPES
 
 PossibleConstructors = Optional[List[Any]]
+
+
+def get_fields_map(class_or_instance: Any) -> Mapping[str, Field]:
+    """
+    Takes dataclass fields, returns fields map
+    """
+    try:
+        fields = getattr(class_or_instance, '__dataclass_fields__')
+    except AttributeError:
+        raise TypeError('must be called with a dataclass type or instance')
+    return fields
 
 
 def is_union(tp: Any) -> bool:
@@ -133,8 +145,8 @@ def is_valid_combinator(
     constructors: Optional[List[Any]] = None
 ) -> None:
     """
-    Checks is passed value correct combinator or not. Combinator is NamedTuple
-    with Meta class. Named tuple attribute types could be one of bare types:
+    Checks is passed value correct combinator or not. Combinator is dataclass
+    with Meta class. Named tuple attribute types could be one of base types:
     `str`, 'bytes', `int`, 'long', 'int128', 'int256', 'double' or other
     combinator/constructor. All attributes in combinator should be described
     in order attribute of
@@ -172,8 +184,9 @@ def is_valid_combinator(
     order = getattr(combinator.Meta, 'order', [])
     flags = getattr(combinator.Meta, 'flags', [])
 
+    dataclass_fields = get_fields_map(combinator)
     for attr_name in order:
-        if attr_name not in combinator.__dataclass_fields__:
+        if attr_name not in dataclass_fields:
             raise InvalidCombinator(
                 f"Missed attribute {attr_name} for combinator {c_name}"
             )
@@ -240,9 +253,17 @@ def is_string_type_name(type_name: str, for_type_number) -> bool:
     return type_name == 'str' or (type_name == 'bytes' and for_type_number)
 
 
+def to_bare_type_name(type_name: str, bare: str) -> str:
+    if bare == '%':
+        return bare + type_name
+
+    return type_name[0].lower() + type_name[1:]
+
+
 def get_type_name(
     attr_type: Any,
     attr_name: Optional[str] = None,
+    attr_meta: Optional[Mapping[str, Any]] = None,
     combinator: Optional[Any] = None,
     for_type_number: bool = False
 ) -> str:
@@ -251,9 +272,13 @@ def get_type_name(
     Args:
         attr_type: basic type, forward ref of constructor
         attr_name: name to get order for optional type
+        attr_meta: metadata about current attribute
         combinator: base combinator to detect order for optional field
         for_type_number: dump description for combinator number
     """
+    if attr_meta is None:
+        attr_meta = {}
+
     if attr_type in BASIC_TYPES:
         if attr_type == Any:
             return 'Object'
@@ -263,23 +288,28 @@ def get_type_name(
         return type_name
 
     if isinstance(attr_type, ForwardRef):
-        return attr_type.__forward_arg__
-
-    if is_list_type(attr_type):
-        list_item_type = get_type_name(attr_type.__args__[0],
-                                       for_type_number=for_type_number)
-        if for_type_number:
-            return f'Vector {list_item_type}'
-        return f'Vector<{list_item_type}>'
-
-    if is_optional_type(attr_type) and combinator is not None:
+        type_name = attr_type.__forward_arg__
+    elif is_optional_type(attr_type) and combinator is not None:
         optional_type_name = get_type_name(attr_type.__args__[0],
                                            for_type_number=for_type_number)
         order = combinator.Meta.flags[attr_name]
 
-        return f'flags.{order}?{optional_type_name}'
+        type_name = f'flags.{order}?{optional_type_name}'
+    elif is_list_type(attr_type):
+        list_item_type = get_type_name(attr_type.__args__[0],
+                                       attr_meta=attr_meta.get('item_meta'),
+                                       for_type_number=for_type_number)
+        if for_type_number:
+            type_name = f'Vector {list_item_type}'
+        else:
+            type_name = f'Vector<{list_item_type}>'
+    else:
+        type_name = get_constructor_name(attr_type)
 
-    return get_constructor_name(attr_type)
+    if 'bare' in attr_meta:
+        type_name = to_bare_type_name(type_name, attr_meta['bare'])
+
+    return type_name
 
 
 class AttrDescription(NamedTuple):
@@ -292,8 +322,7 @@ class AttrDescription(NamedTuple):
 
 
 def build_attr_description(
-    attr_name: str,
-    attr_type: Any,
+    field: Field,
     combinator: Any,
     for_type_number: bool = False
 ) -> AttrDescription:
@@ -306,9 +335,15 @@ def build_attr_description(
         combinator: combinator for whom we build description
         for_type_number: dump description for combinator number
     """
-    attr_type_str = get_type_name(attr_type, attr_name=attr_name,
-                                  combinator=combinator,
-                                  for_type_number=for_type_number)
+    attr_name = field.name
+    attr_type = field.type
+    attr_type_str = get_type_name(
+        attr_type,
+        attr_name=attr_name,
+        attr_meta=field.metadata,
+        combinator=combinator,
+        for_type_number=for_type_number
+    )
 
     return AttrDescription(attr_name, attr_type_str, attr_type)
 
@@ -332,10 +367,10 @@ def build_attr_description_list(
     if hasattr(combinator.Meta, 'flags'):
         flags_attr_list.append(AttrDescription('flags', '#', int))
 
+    dataclass_map = get_fields_map(combinator)
     return flags_attr_list + [
         build_attr_description(
-            attr_name,
-            combinator.__dataclass_fields__[attr_name].type,
+            dataclass_map[attr_name],
             combinator=combinator,
             for_type_number=for_type_number
         )

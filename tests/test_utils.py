@@ -2,7 +2,7 @@
 from aiohttp.web import Request
 
 from typing import Union, ForwardRef, List, Optional, Annotated, Any
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pytest
 
@@ -433,6 +433,61 @@ class IncorrectNoMetaCombinator:
     pass
 
 
+@dataclass
+class Content:
+    content: str
+
+
+@dataclass
+class ContentWrapper:
+    content: Content = field(metadata={
+        'bare': '%',
+    })
+
+    class Meta:
+        name = 'contentWrapper'
+        order = ('content', )
+
+
+@dataclass
+class ContentWrapperLower:
+    content: Content = field(metadata={
+        'bare': 'lower'
+    })
+
+    class Meta:
+        name = 'contentWrapperLower'
+        order = ('content', )
+
+
+@dataclass
+class ContentList:
+    content_list: List[Content] = field(metadata={
+        'bare': 'lower',
+        'item_meta': {
+            'bare': '%'
+        }
+    })
+
+    class Meta:
+        name = 'contentList'
+        order = ('content_list', )
+
+
+@dataclass
+class ContentLowerList:
+    content_list: List[Content] = field(metadata={
+        'bare': 'lower',
+        'item_meta': {
+            'bare': 'lower'
+        }
+    })
+
+    class Meta:
+        name = 'contentLowerList'
+        order = ('content_list', )
+
+
 async def equals(request: Request, a: int, b: int) -> Bool:
     if a == b:
         return BoolTrue()
@@ -537,6 +592,15 @@ class TestIsGoodForCombinator:
     def test_any_combinator(self):
         assert is_good_for_combinator(Any)
 
+    def test_combinator_with_bare_type(self):
+        assert is_good_for_combinator(
+            ContentWrapper,
+            [
+                ContentWrapper,
+                Content
+            ]
+        )
+
 
 class TestIsValidCombinator:
 
@@ -613,6 +677,7 @@ class TestIsValidConstructor:
         is_valid_constructor(Tree, [Bool, Tree])
         is_valid_constructor(ExtendedTree, [ExtendedTree])
         is_valid_constructor(RpcResult, [RpcResult])
+        is_valid_constructor(ContentWrapper, [Content])
 
     def test_wrong_value(self):
         with pytest.raises(InvalidConstructor):
@@ -756,6 +821,30 @@ class TestBuildCombinatorDescription:
         assert build_combinator_description(
             RpcResult, RpcResult
         ) == 'rpc_result req_msg_id:long result:Object = RpcResult'
+
+    def test_bare_constructor_type_content_wrapper(self):
+        assert build_combinator_description(
+            ContentWrapper,
+            ContentWrapper
+        ) == 'contentWrapper content:%Content = ContentWrapper'
+
+    def test_bare_constructor_type_content_lower_wrapper(self):
+        assert build_combinator_description(
+            ContentWrapperLower,
+            ContentWrapperLower
+        ) == 'contentWrapperLower content:content = ContentWrapperLower'
+
+    def test_bare_constructor_type_content_list(self):
+        assert build_combinator_description(
+            ContentList,
+            ContentList
+        ) == 'contentList content_list:vector<%Content> = ContentList'
+
+    def test_bare_constructor_type_content_list_lower(self):
+        assert build_combinator_description(
+            ContentLowerList,
+            ContentLowerList
+        ) == 'contentLowerList content_list:vector<content> = ContentLowerList'
 
 
 class TestCombinatorNumber:
