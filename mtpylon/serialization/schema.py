@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass
+from dataclasses import dataclass, Field
 from typing import (
     cast,
-    overload,
     Any,
     Callable,
     Union,
@@ -14,7 +13,7 @@ from typing import (
 )
 from functools import partial
 from inspect import isfunction, signature
-from mypy_extensions import Arg
+from mypy_extensions import Arg, NamedArg
 
 from .bytes import dump as dump_bytes, load as load_bytes
 from .int import dump as dump_int, load as load_int
@@ -35,22 +34,49 @@ from ..schema import Schema, FunctionData, CombinatorData
 from ..exceptions import DumpError
 
 
-DumpFunction = Callable[[Any], bytes]
+DumpBasicTypeFunction = Callable[[Any], bytes]
+DumpFunction = Callable[
+    [
+        Any,
+        Arg(bool, 'bare')  # noqa: F821
+    ],
+    bytes
+]
 DumpFunctionWithDumpObject = Callable[
-    [Any, Arg(DumpFunction, 'dump_object')],  # noqa: F821
+    [
+        Any,
+        NamedArg(bool, 'bare'),  # noqa: F821
+        NamedArg(DumpFunction, 'dump_object')  # noqa: F821
+    ],
     Any
 ]
-LoadFunction = Callable[[bytes], LoadedValue[Any]]
+
+LoadBasicTypeFunction = Callable[[bytes], LoadedValue[Any]]
+LoadFunction = Callable[
+    [
+        bytes,
+        NamedArg(bool, 'bare')  # noqa: F821
+    ],
+    LoadedValue[Any]
+]
 LoadFunctionWithLoadObject = Callable[
-    [Any, Arg(LoadFunction, 'load_object')],  # noqa: F821
+    [
+        Any,
+        NamedArg(bool, 'bare'),  # noqa: F821
+        NamedArg(LoadFunction, 'load_object')  # noqa: F821
+    ],
     LoadedValue[Any]
 ]
 
 CustomDumpFunction = Union[DumpFunction, DumpFunctionWithDumpObject]
 CustomLoadFunction = Union[LoadFunction, LoadFunctionWithLoadObject]
 
+BasicTypeDumpers = Dict[Any, DumpBasicTypeFunction]
+BasicTypeLoaders = Dict[Any, LoadBasicTypeFunction]
+
 DumpersMap = Dict[Any, DumpFunction]
 LoadersMap = Dict[Any, LoadFunction]
+
 CustomDumpersMap = Dict[Any, CustomDumpFunction]
 CustomLoadersMap = Dict[Any, CustomLoadFunction]
 
@@ -90,6 +116,23 @@ def set_flag_value(flag_number: int, param_name: str, origin: Type) -> int:
     Updates flag value and returns it
     """
     return flag_number | (1 << get_flag_ids(origin, param_name))
+
+
+def is_bare_field(field: Optional[Field]):
+    """
+    Checks should we dump param as bare type or not
+    """
+    if field is None:
+        return False
+
+    return 'bare' in field.metadata
+
+
+def is_bare_item_field(field: Optional[Field]):
+    if field is None:
+        return False
+
+    return 'bare' in field.metadata.get('item_meta', {})
 
 
 def build_custom_dumper_func(
@@ -153,74 +196,89 @@ def build_custom_load_map(
     return load_map
 
 
-@overload
-def dump(
-    schema: Schema,
+basic_type_dumpers: BasicTypeDumpers = {
+    int: dump_int,
+    long: dump_long,
+    int128: dump_int128,
+    int256: dump_int256,
+    float: dump_double,
+    bytes: dump_bytes,
+    str: dump_string,
+}
+
+
+def load_empty(x: bytes) -> LoadedValue[None]:
+    return LoadedValue(None, 0)
+
+
+basic_type_loaders: BasicTypeLoaders = {
+    bytes: load_bytes,
+    int: load_int,
+    long: load_long,
+    int128: load_int128,
+    int256: load_int256,
+    float: load_double,
+    str: load_string,
+    type(None): load_empty,
+}
+
+
+def dump_param(
+    param: Value2Dump,
+    dumpers: CustomDumpersMap,
+    dump_object: DumpFunction
+) -> bytes:
+    origin = param.param.origin
+    field = param.param.field
+
+    if is_optional_type(origin):
+        origin = origin.__args__[0]
+
+    if is_list_type(origin):
+        item_origin = origin.__args__[0]
+
+        if item_origin in basic_type_dumpers:
+            dump_item = basic_type_dumpers[item_origin]
+        elif item_origin in dumpers:
+            func = dumpers[item_origin]
+            dump_item = partial(
+                build_custom_dumper_func(func, dump_object=dump_object),
+                bare=is_bare_item_field(field)
+            )
+        else:
+            dump_item = partial(dump_object, bare=is_bare_item_field(field))
+
+        return dump_vector(
+            dump_item,
+            param.value,
+            is_bare_field(field)
+        )
+
+    if origin in basic_type_dumpers:
+        return basic_type_dumpers[origin](param.value)
+
+    if origin in dumpers:
+        func = build_custom_dumper_func(
+            dumpers[origin],
+            dump_object=dump_object
+        )
+    else:
+        func = dump_object
+
+    return func(param.value, bare=is_bare_field(field))
+
+
+def _dump(
     value: Any,
-    custom_dumpers: Optional[CustomDumpersMap],
-) -> bytes:  # pragma: nocover
-    ...
-
-
-@overload
-def dump(
-        schema: Schema,
-        value: Callable,
-        custom_dumpers: Optional[CustomDumpersMap],
-        **kwargs: Any,
-) -> bytes:  # pragma: nocover
-    ...
-
-
-def dump(schema, value, custom_dumpers=None, **kwargs):
+    schema: Schema,
+    bare: bool = False,
+    custom_dumpers: Optional[CustomDumpersMap] = None
+):
     """
     Dumps basic or boxed types by schema
     """
     if custom_dumpers is None:
         custom_dumpers = {}
-
-    dumpers: DumpersMap = build_custom_dump_map(
-        lambda x: dump(schema, x, custom_dumpers=custom_dumpers),
-        custom_dumpers=custom_dumpers
-    )
-
-    def dump_by_type(
-            dump_value: Any,
-            origin: Type,
-            type_name: str,
-    ) -> bytes:
-        dump_map: DumpersMap = {
-            int: dump_int,
-            long: dump_long,
-            int128: dump_int128,
-            int256: dump_int256,
-            float: dump_double,
-            bytes: dump_bytes,
-            str: dump_string,
-            Any: lambda x: dump(schema, x, custom_dumpers=custom_dumpers),
-        }
-        dump_map.update(dumpers)
-
-        try:
-            if is_list_type(origin):
-                item_origin = origin.__args__[0]
-                dump_item: DumpFunction = dump_map.get(
-                    item_origin,
-                    partial(dump, schema, custom_dumpers=custom_dumpers)
-                )
-                return dump_vector(dump_item, dump_value)
-            else:
-                dump_func: DumpFunction = dump_map.get(
-                    origin,
-                    partial(dump, schema)
-                )
-                return dump_func(dump_value)
-        except Exception:
-            raise DumpError(f'Can`t dump {value} as {type_name}')
-
-    if type(value) in dumpers:
-        dump_function = dumpers[type(value)]
-        return dump_function(value)
 
     data: Optional[Union[CombinatorData, FunctionData]] = None
     values_2_dump: List[Value2Dump] = []
@@ -229,17 +287,19 @@ def dump(schema, value, custom_dumpers=None, **kwargs):
     flags: Dict[str, int] = {}
     flags_value: Optional[int] = None
 
-    if isfunction(value):
-        try:
-            data = schema[value]
-        except KeyError:
-            raise DumpError('Can`t dump function that not in schema')
+    if type(value) in custom_dumpers:
+        origin = type(value)
+        func = build_custom_dumper_func(
+            custom_dumpers[origin],
+            dump_object=partial(
+                _dump,
+                schema=schema,
+                custom_dumpers=custom_dumpers
+            )
+        )
+        return func(value, bare=bare)
 
-        values_2_dump = [
-            Value2Dump(kwargs.get(param.name), param)
-            for param in data.params
-        ]
-    elif isinstance(value, CallableFunc):
+    if isinstance(value, CallableFunc):
         try:
             data = schema[value.func]
         except KeyError:
@@ -254,7 +314,8 @@ def dump(schema, value, custom_dumpers=None, **kwargs):
         except KeyError:
             raise DumpError('Can`t dump combinator that not in schema')
 
-        flags = getattr(data.origin.Meta, 'flags', {})
+        meta = getattr(data.origin, 'Meta', None)
+        flags = getattr(meta, 'flags', {})
 
         values_2_dump = [
             Value2Dump(getattr(value, param.name, None), param)
@@ -272,20 +333,42 @@ def dump(schema, value, custom_dumpers=None, **kwargs):
         if param.name in flags:
             if attr_value is None:
                 continue
-            origin = param.origin.__args__[0]
+
             type_name = param.type
-            flags_value = set_flag_value(flags_value, param.name, data.origin)
+            flags_value = cast(int, flags_value)
+            param_origin = cast(Type, data.origin)
+            param_name = param.name
+
+            flags_value = set_flag_value(
+                flags_value,
+                param_name,
+                param_origin
+            )
         else:
-            origin = param.origin
             type_name = param.type
 
-        dumped_values.append(dump_by_type(attr_value, origin, type_name))
+        try:
+            dumped_values.append(
+                dump_param(
+                    item,
+                    dumpers=custom_dumpers,
+                    dump_object=partial(
+                        _dump,
+                        schema=schema,
+                        custom_dumpers=custom_dumpers
+                    )
+                )
+            )
+        except Exception:
+            raise DumpError(f'Can`t dump value {type_name}.')
 
     dumped_flag = dump_int(flags_value) if flags_value is not None else b''
 
+    constructor = dump_int(data.id) if not bare else b''
+
     dumped = b''.join(
         [
-            dump_int(data.id),
+            constructor,
             dumped_flag
         ] +
         dumped_values
@@ -293,17 +376,30 @@ def dump(schema, value, custom_dumpers=None, **kwargs):
     return dumped
 
 
-def load(
-        schema: Schema,
+def dump(
+    value: Any,
+    schema: Schema,
+    custom_dumpers: Optional[CustomDumpersMap] = None
+):
+    return _dump(value, schema=schema, custom_dumpers=custom_dumpers)
+
+
+def _load(
         input: bytes,
+        schema: Schema,
+        bare: bool = False,
+        tp: Optional[Any] = None,
         custom_loaders: Optional[CustomLoadersMap] = None
 ) -> LoadedValue[Union[CallableFunc, Any]]:
     """
     Loads object or function with params from bytes input
 
     Args:
-        schema - schema that will be used to load
         input - serialized value
+        schema - schema that will be used to load
+        bare - checks is loaded bytes are bare type or not
+        tp - select how type should be loaded
+        custom_loaders - custom loaders to load value
 
     Raises:
         ValueError - when can't load data
@@ -311,46 +407,49 @@ def load(
     if custom_loaders is None:
         custom_loaders = {}
 
-    loaders: LoadersMap = build_custom_load_map(
-        lambda x: load(schema, x, custom_loaders=custom_loaders),
-        custom_loaders
-    )
+    if tp in basic_type_loaders:
+        basic_loader = basic_type_loaders[tp]
+        return basic_loader(input)
 
-    def load_empty(x: bytes) -> LoadedValue[None]:
-        return LoadedValue(None, 0)
-
-    load_map: LoadersMap = {
-        bytes: load_bytes,
-        int: load_int,
-        long: load_long,
-        int128: load_int128,
-        int256: load_int256,
-        float: load_double,
-        str: load_string,
-        Any: lambda x: load(schema, x, custom_loaders=custom_loaders),
-        type(None): load_empty,
-    }
-    load_map.update(loaders)
-
-    def get_load_func(x) -> LoadFunction:
-        return load_map.get(
-            x,
-            partial(load, schema, custom_loaders=custom_loaders)
+    if tp in custom_loaders:
+        custom_loader = build_custom_loader_func(
+            custom_loaders[tp],
+            load_object=partial(
+                _load,
+                schema=schema,
+                custom_loaders=custom_loaders
+            )
         )
+        return custom_loader(input, bare=bare)
+
+    if tp is None and bare:
+        raise ValueError('We should load not bare type or pass combinator')
 
     offset = 0
-    loaded_combinator = load_int(input)
-    offset += loaded_combinator.offset
-    combinator = loaded_combinator.value
+    if not bare:
+        loaded_combinator = load_int(input)
+        offset += loaded_combinator.offset
+        combinator = loaded_combinator.value
 
-    if combinator not in schema:
-        raise ValueError(f'Can`t find combinator {combinator} in schema')
+        if combinator not in schema:
+            raise ValueError(f'Can`t find combinator {combinator} in schema')
 
-    data = schema[combinator]
-
-    if isinstance(data.origin, type) and data.origin in custom_loaders:
-        loader = loaders[data.origin]
-        return loader(input)
+        data = schema[combinator]
+        if data.origin in custom_loaders:
+            custom_loader = build_custom_loader_func(
+                custom_loaders[data.origin],
+                load_object=partial(
+                    _load,
+                    schema=schema,
+                    custom_loaders=custom_loaders
+                )
+            )
+            return custom_loader(input, bare=False)
+    else:
+        tp = cast(Type, tp)
+        if tp not in schema:
+            raise ValueError(f'Can`t find info about {tp}')
+        data = schema[tp]
 
     flag_number: Optional[int] = None
     params: Dict[str, Any] = {}
@@ -374,14 +473,27 @@ def load(
                 origin = type(None)
 
         if is_list_type(origin):
-            load_item_func: Callable[[bytes], LoadedValue[Any]] = (
-                get_load_func(origin.__args__[0])
+            item_origin = origin.__args__[0]
+            load_item = partial(
+                _load,
+                bare=is_bare_item_field(param.field),
+                schema=schema,
+                tp=item_origin,
+                custom_loaders=custom_loaders,
             )
-            load_func: Callable[[bytes], LoadedValue[Any]] = (
-                partial(load_vector, load_item_func)
+            load_func: Callable[[bytes], LoadedValue[Any]] = partial(
+                load_vector,
+                load_item,
+                bare=is_bare_field(param.field)
             )
         else:
-            load_func = get_load_func(origin)
+            load_func = partial(
+                _load,
+                bare=is_bare_field(param.field),
+                tp=origin,
+                schema=schema,
+                custom_loaders=custom_loaders,
+            )
 
         loaded = load_func(input[offset:])
         params[param.name] = loaded.value
@@ -393,3 +505,11 @@ def load(
         value = data.origin(**params)
 
     return LoadedValue(value=value, offset=offset)
+
+
+def load(
+    input: bytes,
+    schema: Schema,
+    custom_loaders: Optional[CustomLoadersMap] = None
+) -> LoadedValue[Any]:
+    return _load(input, schema=schema, custom_loaders=custom_loaders)

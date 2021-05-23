@@ -8,12 +8,18 @@ from ..service_schema import service_schema
 from ..constructors.message import Message
 
 
-def dump(value: Message, dump_object: DumpFunction) -> bytes:
+def dump(
+    value: Message,
+    dump_object: DumpFunction,
+    bare: bool = False
+) -> bytes:
     data = service_schema[Message]
-    dumped_body = dump_object(value.body)
+    dumped_body = dump_object(value.body, bare=False)
+
+    constructor = dump_int(data.id) if not bare else b''
 
     return (
-        dump_int(data.id) +
+        constructor +
         dump_long(value.msg_id) +
         dump_int(value.seqno) +
         dump_int(len(dumped_body)) +
@@ -21,11 +27,19 @@ def dump(value: Message, dump_object: DumpFunction) -> bytes:
     )
 
 
-def load(input: bytes, load_object: LoadFunction) -> LoadedValue[Message]:
-    msg_id = load_long(input[4:]).value
-    seqno = load_int(input[12:]).value
-    bytes_count = load_int(input[16:]).value
-    body = load_object(input[20:20 + bytes_count]).value
+def load(
+    input: bytes,
+    load_object: LoadFunction,
+    bare: bool = False
+) -> LoadedValue[Message]:
+    offset = 4 if not bare else 0
+    msg_id = load_long(input[offset:]).value
+    seqno = load_int(input[offset + 8:]).value
+    bytes_count = load_int(input[offset + 12:]).value
+    body = load_object(
+        input[offset + 16:offset + 16 + bytes_count],
+        bare=False
+    ).value
 
     return LoadedValue(
         value=Message(
@@ -34,5 +48,5 @@ def load(input: bytes, load_object: LoadFunction) -> LoadedValue[Message]:
             bytes=bytes_count,
             body=body
         ),
-        offset=20 + bytes_count
+        offset=offset + 16 + bytes_count
     )

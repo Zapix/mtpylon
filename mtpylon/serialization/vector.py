@@ -14,6 +14,7 @@ T = TypeVar('T')
 def dump(
         dump_item: Callable[[T], bytes],
         vector: List[T],
+        bare: bool = False
 ) -> bytes:
     """
     Dumps telegram vector. telegram vector starts with constructor id
@@ -26,7 +27,7 @@ def dump(
     """
     dumped_items: bytes = b''.join([dump_item(item) for item in vector])
     dumped_size: bytes = dump_int(len(vector))
-    dumped_constructor: bytes = dump_int(VECTOR_ID)
+    dumped_constructor: bytes = dump_int(VECTOR_ID) if not bare else b''
 
     return dumped_constructor + dumped_size + dumped_items
 
@@ -34,6 +35,7 @@ def dump(
 def load(
         load_item: Callable[[bytes], LoadedValue[T]],
         input: bytes,
+        bare: bool = False
 ) -> LoadedValue[List[T]]:
     """
     Loads telegram vector. with load_item function.
@@ -44,13 +46,15 @@ def load(
         load_item - function to load item from bytes
         input - bytes to load them
     """
-    if load_int(input[:4]).value != VECTOR_ID:
+    bare_offset = 0 if bare else 4
+    if not bare and load_int(input[:4]).value != VECTOR_ID:
         raise ValueError('Wrong vector constructor')
 
-    loaded_size = load_int(input[4:8])
-    size = loaded_size.value
+    offset = bare_offset + 4
 
-    offset = 8
+    loaded_size = load_int(input[bare_offset:offset])
+
+    size = loaded_size.value
 
     results = []
 

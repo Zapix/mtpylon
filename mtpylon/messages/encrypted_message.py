@@ -57,9 +57,15 @@ def load_data(schema: Schema, message_bytes: bytes) -> Any:
         ValueError - if couldn't parse message bytes
     """
     try:
-        value = load_by_schema(schema, message_bytes).value
+        value = load_by_schema(
+            message_bytes,
+            schema=schema
+        ).value
     except ValueError:
-        value = load_by_service_schema(message_bytes, schema).value
+        value = load_by_service_schema(
+            message_bytes,
+            schema=schema
+        ).value
 
     return value
 
@@ -74,7 +80,7 @@ def dump_data(schema: Schema, data: Any) -> bytes:
     """
 
     try:
-        dumped_data = dump_by_schema(schema, data, custom_dumpers=None)
+        dumped_data = dump_by_schema(data, schema=schema, custom_dumpers=None)
     except DumpError:
         dumped_data = dump_by_service_schema(data, schema)
 

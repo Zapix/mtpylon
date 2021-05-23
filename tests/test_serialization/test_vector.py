@@ -60,11 +60,11 @@ def test_load_string():
         'telegram'
     ]
     dumped = (
-            b'\x15\xc4\xb5\x1c' +  # vector id
-            b'\x03\x00\x00\x00' +  # size of vector
-            b'\x05' + b'hello' + b'\x00\x00' +
-            b'\x05' + b'world' + b'\x00\x00' +
-            b'\x08' + b'telegram' + b'\x00\x00\x00'
+        b'\x15\xc4\xb5\x1c' +  # vector id
+        b'\x03\x00\x00\x00' +  # size of vector
+        b'\x05' + b'hello' + b'\x00\x00' +
+        b'\x05' + b'world' + b'\x00\x00' +
+        b'\x08' + b'telegram' + b'\x00\x00\x00'
     )
 
     loaded = load(load_string, dumped)
@@ -75,10 +75,10 @@ def test_load_string():
 
 def test_wrong_vector_id():
     dumped = (
-            b'\x03\x00\x00\x00' +  # size of vector
-            b'\x05' + b'hello' +
-            b'\x05' + b'world' +
-            b'\x08' + b'telegram'
+        b'\x03\x00\x00\x00' +  # size of vector
+        b'\x05' + b'hello' +
+        b'\x05' + b'world' +
+        b'\x08' + b'telegram'
     )
 
     with pytest.raises(ValueError):
@@ -87,8 +87,45 @@ def test_wrong_vector_id():
 
 def test_no_length():
     dumped = (
-            b'\x15\xc4\xb5\x1c'  # vector id
+        b'\x15\xc4\xb5\x1c'  # vector id
     )
 
     with pytest.raises(ValueError):
         load(load_int, dumped)
+
+
+def test_dump_bare_vector():
+    value = [
+        'hello',
+        'world',
+        'telegram'
+    ]
+
+    dumped = (
+        b'\x03\x00\x00\x00' +  # size of vector
+        b'\x05hello\x00\x00' +
+        b'\x05world\x00\x00' +
+        b'\x08telegram\x00\x00\x00'
+    )
+
+    assert dump(dump_string, value, bare=True) == dumped
+
+
+def test_load_bare_vector():
+    value = [
+        'hello',
+        'world',
+        'telegram'
+    ]
+
+    dumped = (
+        b'\x03\x00\x00\x00' +  # size of vector
+        b'\x05hello\x00\x00' +
+        b'\x05world\x00\x00' +
+        b'\x08telegram\x00\x00\x00'
+    )
+
+    loaded = load(load_string, dumped, bare=True)
+
+    assert loaded.value == value
+    assert loaded.offset == 32

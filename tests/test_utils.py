@@ -488,6 +488,39 @@ class ContentLowerList:
         order = ('content_list', )
 
 
+@dataclass
+class Message:
+    msg_id: long
+    seqno: int
+    bytes: int
+    body: Any
+
+    class Meta:
+        name = 'message'
+        order = (
+            'msg_id',
+            'seqno',
+            'bytes',
+            'body',
+        )
+
+
+@dataclass
+class MessageContainer:
+    messages: List[Message] = field(
+        metadata={
+            'bare': 'lower',
+            'item_meta': {
+                'bare': '%'
+            }
+        }
+    )
+
+    class Meta:
+        name = 'msg_container'
+        order = ('messages',)
+
+
 async def equals(request: Request, a: int, b: int) -> Bool:
     if a == b:
         return BoolTrue()
@@ -846,6 +879,12 @@ class TestBuildCombinatorDescription:
             ContentLowerList
         ) == 'contentLowerList content_list:vector<content> = ContentLowerList'
 
+    def test_message_container(self):
+        assert build_combinator_description(
+            MessageContainer,
+            MessageContainer
+        ) == 'msg_container messages:vector<%Message> = MessageContainer'
+
 
 class TestCombinatorNumber:
 
@@ -893,6 +932,12 @@ class TestCombinatorNumber:
 
     def test_rpc_result(self):
         assert get_combinator_number(RpcResult, RpcResult) == 0xf35c6d01
+
+    def test_msg_container(self):
+        assert get_combinator_number(
+            MessageContainer,
+            MessageContainer
+        ) == 1945237724
 
 
 class TestBuildFunctionDescription:

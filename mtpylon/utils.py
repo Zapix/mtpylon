@@ -253,8 +253,12 @@ def is_string_type_name(type_name: str, for_type_number) -> bool:
     return type_name == 'str' or (type_name == 'bytes' and for_type_number)
 
 
-def to_bare_type_name(type_name: str, bare: str) -> str:
-    if bare == '%':
+def to_bare_type_name(
+    type_name: str,
+    bare: str,
+    for_type_number: bool = False
+) -> str:
+    if bare == '%' and not for_type_number:
         return bare + type_name
 
     return type_name[0].lower() + type_name[1:]
@@ -307,7 +311,11 @@ def get_type_name(
         type_name = get_constructor_name(attr_type)
 
     if 'bare' in attr_meta:
-        type_name = to_bare_type_name(type_name, attr_meta['bare'])
+        type_name = to_bare_type_name(
+            type_name,
+            attr_meta['bare'],
+            for_type_number=for_type_number
+        )
 
     return type_name
 
@@ -319,6 +327,7 @@ class AttrDescription(NamedTuple):
     name: str  # name of parameter
     type: str  # name of type
     origin: Type  # origin type
+    field: Optional[Field]  # field info of attribute
 
 
 def build_attr_description(
@@ -345,7 +354,7 @@ def build_attr_description(
         for_type_number=for_type_number
     )
 
-    return AttrDescription(attr_name, attr_type_str, attr_type)
+    return AttrDescription(attr_name, attr_type_str, attr_type, field)
 
 
 def build_attr_description_list(
@@ -365,7 +374,7 @@ def build_attr_description_list(
     flags_attr_list = []
 
     if hasattr(combinator.Meta, 'flags'):
-        flags_attr_list.append(AttrDescription('flags', '#', int))
+        flags_attr_list.append(AttrDescription('flags', '#', int, None))
 
     dataclass_map = get_fields_map(combinator)
     return flags_attr_list + [
@@ -509,7 +518,8 @@ def get_funciton_parameters_list(
         AttrDescription(
             name=p.name,
             type=get_type_name(p.annotation, for_type_number=for_type_number),
-            origin=p.annotation
+            origin=p.annotation,
+            field=None
         )
         for p in list(sig.parameters.values())[1:]
     ]

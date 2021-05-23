@@ -45,7 +45,7 @@ def get_servertime():
 
 def load_pq_inner_data(raw_data: bytes) -> LoadedValue[P_Q_inner_data]:
     tmp_schema = Schema(constructors=[P_Q_inner_data], functions=[])
-    loaded_data = load(tmp_schema, raw_data)
+    loaded_data = load(raw_data, schema=tmp_schema)
     value = loaded_data.value
 
     value = cast(P_Q_inner_data, value)
@@ -54,7 +54,7 @@ def load_pq_inner_data(raw_data: bytes) -> LoadedValue[P_Q_inner_data]:
 
 def dump_dh_inner_data(data: Server_DH_inner_data):
     tmp_schema = Schema(constructors=[Server_DH_inner_data], functions=[])
-    return dump(tmp_schema, data, custom_dumpers=None)
+    return dump(data, schema=tmp_schema, custom_dumpers=None)
 
 
 def decrypt_inner_data(

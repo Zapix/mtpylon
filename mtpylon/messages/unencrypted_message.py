@@ -5,7 +5,7 @@ from mtpylon import long
 from mtpylon.service_schema import load as load_schema, dump as dump_schema
 from mtpylon.serialization.int import load as load_int, dump as dump_int
 from mtpylon.serialization.long import load as load_long, dump as dump_long
-from mtpylon.serialization import CallableFunc
+
 from .types import UnencryptedMessage
 
 
@@ -26,13 +26,7 @@ def pack(message: UnencryptedMessage):
 
     msg_id = dump_long(message.message_id)
 
-    value: bytes = b''
-    if isinstance(message.message_data, CallableFunc):
-        func = message.message_data.func
-        params = message.message_data.params
-        value = dump_schema(func, **params)
-    else:
-        value = dump_schema(message.message_data)
+    value = dump_schema(message.message_data)
 
     size = dump_int(len(value))
 

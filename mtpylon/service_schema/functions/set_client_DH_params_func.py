@@ -94,7 +94,7 @@ def load_client_dh_inner_data(
         constructors=[Client_DH_Inner_Data],
         functions=[]
     )
-    loaded_value = load(tmp_schema, raw_data)
+    loaded_value = load(raw_data, schema=tmp_schema)
     value = loaded_value.value
 
     value = cast(Client_DH_Inner_Data, loaded_value.value)
