@@ -21,6 +21,7 @@ from mtpylon.utils import (
     is_optional_type,
     build_function_description,
     get_function_number,
+    get_fields_map,
 )
 from mtpylon import long, int128
 
@@ -521,29 +522,43 @@ class MessageContainer:
         order = ('messages',)
 
 
-async def equals(request: Request, a: int, b: int) -> Bool:
+async def equals(request: Request, a: int, b: int) -> Bool:  # pragma: nocover
     if a == b:
         return BoolTrue()
     return BoolFalse()
 
 
-async def get_task_content(request: Request, task: Task) -> str:
+async def get_task_content(
+    request: Request,
+    task: Task
+) -> str:  # pragma: nocover
     return task.content
 
 
-async def has_tasks(request: Request, tasks: List[Task]) -> Bool:
+async def has_tasks(
+    request: Request,
+    tasks: List[Task]
+) -> Bool:  # pragma: nocover
     if len(tasks) > 0:
         return BoolTrue()
     return BoolFalse()
 
 
-def not_async_func(request: Request, a: int, b: int) -> Bool:
+def not_async_func(
+    request: Request,
+    a: int,
+    b: int
+) -> Bool:  # pragma: nocover
     if a == b:
         return BoolTrue()
     return BoolFalse()
 
 
-async def invalid_param(request: Request, a: AnotherClass, b: int) -> Bool:
+async def invalid_param(
+    request: Request,
+    a: AnotherClass,
+    b: int
+) -> Bool:  # pragma: nocover
     if str(a) == str(b):
         return BoolTrue()
     return BoolFalse()
@@ -553,29 +568,39 @@ async def invalid_return_type(
     request: Request,
     a: int,
     b: int
-) -> AnotherClass:
+) -> AnotherClass:  # pragma: nocover
     return AnotherClass(a, b)
 
 
-async def invalid_not_annotated_params(request: Request, a, b) -> Bool:
+async def invalid_not_annotated_params(
+    request: Request,
+    a,
+    b
+) -> Bool:  # pragma: nocover
     if a == b:
         return BoolTrue()
     return BoolFalse()
 
 
-async def invalid_args(request: Request, *args: List[Task]) -> Bool:
+async def invalid_args(
+    request: Request,
+    *args: List[Task]
+) -> Bool:  # pragma: nocover
     if len(args) > 0:
         return BoolTrue()
     return BoolFalse()
 
 
-async def invalid_kwargs(request: Request, **kwargs) -> Bool:
+async def invalid_kwargs(
+    request: Request,
+    **kwargs
+) -> Bool:  # pragma: nocover
     if 'value' in kwargs:
         return BoolTrue()
     return BoolFalse()
 
 
-async def func_no_request(task: Task) -> Bool:
+async def func_no_request(task: Task) -> Bool:  # pragma: nocover
     return BoolTrue()
 
 
@@ -972,3 +997,16 @@ class TestGetFunctionNumber:
 
     def test_has_tasks(self):
         assert get_function_number(has_tasks) == 0x20e13fab
+
+
+class TestGetFieldsMap:
+
+    def test_fields_map(self):
+        fields_map = get_fields_map(User)
+
+        assert 'id' in fields_map
+        assert 'name' in fields_map
+
+    def test_fields_map_typeerror(self):
+        with pytest.raises(TypeError):
+            get_fields_map(44)
