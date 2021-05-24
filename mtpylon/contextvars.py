@@ -4,7 +4,7 @@ Declared contextvars that will be used in mtpylon
 """
 from contextvars import ContextVar
 
-from .types import int128, int256
+from .types import int128, int256, long
 from .crypto import AuthKey
 from .messages.types import MtprotoMessage
 
@@ -33,8 +33,12 @@ a_var: ContextVar[int] = ContextVar('a')
 dh_prime_var: ContextVar[int] = ContextVar('dh_prime')
 
 
-"Stores auth key for current context"
+"""Stores auth key for current context"""
 auth_key_var: ContextVar[AuthKey] = ContextVar('auth_key')
+
+
+"""Stores server salt for current context"""
+server_salt_var: ContextVar[long] = ContextVar('server_salt_var')
 
 
 """

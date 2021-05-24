@@ -11,6 +11,7 @@ from mtpylon.message_handler.strategies.handle_rpc_query_message import (
     run_rpc_query
 )
 from mtpylon.service_schema.constructors import RpcResult, RpcError
+from mtpylon.contextvars import server_salt_var
 
 from tests.simpleschema import get_task, set_task, Task
 
@@ -62,11 +63,17 @@ async def test_run_rpc_query_success():
         )
     )
 
+    server_salt_var.set(server_salt)
+
     await run_rpc_query([], sender, request, message)
 
     sender.send_encrypted_message.assert_awaited()
 
     args = sender.send_encrypted_message.await_args[0]
+
+    server_salt_encrypt = args[1]
+    assert server_salt_encrypt == server_salt
+
     rpc_result = args[3]
 
     assert isinstance(rpc_result, RpcResult)
@@ -93,6 +100,8 @@ async def test_run_rpc_query_error():
             params={'task_id': 4},
         )
     )
+
+    server_salt_var.set(server_salt)
 
     await run_rpc_query([], sender, request, message)
 
@@ -125,6 +134,8 @@ async def test_run_rpc_unexpected_error():
             params={'task_id': 3},
         )
     )
+
+    server_salt_var.set(server_salt)
 
     await run_rpc_query([], sender, request, message)
 

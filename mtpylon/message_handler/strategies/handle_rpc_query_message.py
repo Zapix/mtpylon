@@ -7,7 +7,10 @@ from aiohttp.web import Request
 
 from mtpylon.exceptions import RpcCallError
 from mtpylon.messages import MtprotoMessage, Message
-from mtpylon.contextvars import income_message_var
+from mtpylon.contextvars import (
+    income_message_var,
+    server_salt_var,
+)
 from mtpylon.serialization import CallableFunc
 from mtpylon.middlewares import apply_middleware, MiddleWareFunc, Handler
 from mtpylon.message_sender import MessageSender
@@ -76,9 +79,11 @@ async def run_rpc_query(
 
     result = await handler(request, **value.params)
 
+    server_salt = server_salt_var.get()
+
     await sender.send_encrypted_message(
         request,
-        message.salt,
+        server_salt,
         message.session_id,
         result,
         True

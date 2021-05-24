@@ -10,7 +10,11 @@ from mtpylon.serialization import CallableFunc
 from mtpylon.middlewares.set_server_salt import set_server_salt
 from mtpylon.crypto import AuthKey
 from mtpylon.salts import ServerSaltManager, Salt
-from mtpylon.contextvars import income_message_var, auth_key_var
+from mtpylon.contextvars import (
+    income_message_var,
+    auth_key_var,
+    server_salt_var
+)
 from mtpylon.service_schema.constructors import BadServerSalt
 
 from tests.simpleschema import set_task
@@ -56,6 +60,7 @@ async def test_server_salt_exist():
     await set_server_salt(handler, request, content='hello_world')
 
     handler.assert_awaited()
+    assert server_salt_var.get() == server_salt.salt
 
 
 @pytest.mark.asyncio

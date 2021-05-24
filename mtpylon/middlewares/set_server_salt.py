@@ -6,7 +6,11 @@ from aiohttp.web import Request
 from mtpylon.messages import Message
 from mtpylon.salts import ServerSaltManagerProtocol, Salt
 from mtpylon.service_schema.constructors import BadServerSalt
-from mtpylon.contextvars import auth_key_var, income_message_var
+from mtpylon.contextvars import (
+    auth_key_var,
+    income_message_var,
+    server_salt_var,
+)
 from .types import Handler
 
 
@@ -38,5 +42,7 @@ async def set_server_salt(
                 error_code=48,
                 new_server_salt=new_salt.salt
             )
+
+        server_salt_var.set(message.salt)
 
     return await handler(request, **params)
