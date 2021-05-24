@@ -13,7 +13,7 @@ from ..constructors import Message
 from .message import dump as dump_message, load as load_message
 
 
-def dump(value: Any, schema: Optional[Schema] = None, **kwargs: Any) -> bytes:
+def dump(value: Any, schema: Optional[Schema] = None) -> bytes:
     """
     Dumps service schema values, rpc calls. Uses custom dumper for
     Message type
@@ -26,12 +26,11 @@ def dump(value: Any, schema: Optional[Schema] = None, **kwargs: Any) -> bytes:
     if schema is None:
         schema = service_schema
     return dump_schema(
-        schema,
         value,
+        schema=schema,
         custom_dumpers={
             Message: dump_message,
-        },
-        **kwargs
+        }
     )
 
 
@@ -48,8 +47,8 @@ def load(input: bytes, schema: Optional[Schema] = None) -> LoadedValue[Any]:
     if schema is None:
         schema = service_schema
     return load_schema(
-        schema,
         input,
+        schema=schema,
         custom_loaders={
             Message: load_message,
         }

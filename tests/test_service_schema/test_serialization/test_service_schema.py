@@ -62,10 +62,8 @@ test_params = [
             ]
         ),
         (
-            b'HI\xc3\x94'  # msg_container number
-            b'\x15\xc4\xb5\x1c'  # vector number
+            b'\xdc\xf8\xf1\x73'  # vector container combinator
             b'\x02\x00\x00\x00'  # vector size
-            b'\x11\xe5\xb8['  # message number
             b'\x00\x00\x00\x00\x0a\x70\x0b\x5e'  # msg_id
             b'\x07\x00\x00\x00'  # seq No
             b'\x14\x00\x00\x00'  # meessage length
@@ -73,7 +71,6 @@ test_params = [
             b'\x15\xc4\xb5\x1c'  # vector combinator
             b'\x01\x00\x00\x00'  # vector size
             b'\x79\xd9\xa4\x60\x00\x00\x00\x00'  # ack msg id
-            b'\x11\xe5\xb8['  # message number
             b'\x1c\x00\x00\x00\x83\xd9\xa4\x60'  # message id
             b'\x09\x00\x00\x00'  # msg seq no
             b'\x10\x00\x00\x00'  # message length

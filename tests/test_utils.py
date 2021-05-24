@@ -2,7 +2,7 @@
 from aiohttp.web import Request
 
 from typing import Union, ForwardRef, List, Optional, Annotated, Any
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pytest
 
@@ -21,6 +21,7 @@ from mtpylon.utils import (
     is_optional_type,
     build_function_description,
     get_function_number,
+    get_fields_map,
 )
 from mtpylon import long, int128
 
@@ -433,29 +434,131 @@ class IncorrectNoMetaCombinator:
     pass
 
 
-async def equals(request: Request, a: int, b: int) -> Bool:
+@dataclass
+class Content:
+    content: str
+
+
+@dataclass
+class ContentWrapper:
+    content: Content = field(metadata={
+        'bare': '%',
+    })
+
+    class Meta:
+        name = 'contentWrapper'
+        order = ('content', )
+
+
+@dataclass
+class ContentWrapperLower:
+    content: Content = field(metadata={
+        'bare': 'lower'
+    })
+
+    class Meta:
+        name = 'contentWrapperLower'
+        order = ('content', )
+
+
+@dataclass
+class ContentList:
+    content_list: List[Content] = field(metadata={
+        'bare': 'lower',
+        'item_meta': {
+            'bare': '%'
+        }
+    })
+
+    class Meta:
+        name = 'contentList'
+        order = ('content_list', )
+
+
+@dataclass
+class ContentLowerList:
+    content_list: List[Content] = field(metadata={
+        'bare': 'lower',
+        'item_meta': {
+            'bare': 'lower'
+        }
+    })
+
+    class Meta:
+        name = 'contentLowerList'
+        order = ('content_list', )
+
+
+@dataclass
+class Message:
+    msg_id: long
+    seqno: int
+    bytes: int
+    body: Any
+
+    class Meta:
+        name = 'message'
+        order = (
+            'msg_id',
+            'seqno',
+            'bytes',
+            'body',
+        )
+
+
+@dataclass
+class MessageContainer:
+    messages: List[Message] = field(
+        metadata={
+            'bare': 'lower',
+            'item_meta': {
+                'bare': '%'
+            }
+        }
+    )
+
+    class Meta:
+        name = 'msg_container'
+        order = ('messages',)
+
+
+async def equals(request: Request, a: int, b: int) -> Bool:  # pragma: nocover
     if a == b:
         return BoolTrue()
     return BoolFalse()
 
 
-async def get_task_content(request: Request, task: Task) -> str:
+async def get_task_content(
+    request: Request,
+    task: Task
+) -> str:  # pragma: nocover
     return task.content
 
 
-async def has_tasks(request: Request, tasks: List[Task]) -> Bool:
+async def has_tasks(
+    request: Request,
+    tasks: List[Task]
+) -> Bool:  # pragma: nocover
     if len(tasks) > 0:
         return BoolTrue()
     return BoolFalse()
 
 
-def not_async_func(request: Request, a: int, b: int) -> Bool:
+def not_async_func(
+    request: Request,
+    a: int,
+    b: int
+) -> Bool:  # pragma: nocover
     if a == b:
         return BoolTrue()
     return BoolFalse()
 
 
-async def invalid_param(request: Request, a: AnotherClass, b: int) -> Bool:
+async def invalid_param(
+    request: Request,
+    a: AnotherClass,
+    b: int
+) -> Bool:  # pragma: nocover
     if str(a) == str(b):
         return BoolTrue()
     return BoolFalse()
@@ -465,29 +568,39 @@ async def invalid_return_type(
     request: Request,
     a: int,
     b: int
-) -> AnotherClass:
+) -> AnotherClass:  # pragma: nocover
     return AnotherClass(a, b)
 
 
-async def invalid_not_annotated_params(request: Request, a, b) -> Bool:
+async def invalid_not_annotated_params(
+    request: Request,
+    a,
+    b
+) -> Bool:  # pragma: nocover
     if a == b:
         return BoolTrue()
     return BoolFalse()
 
 
-async def invalid_args(request: Request, *args: List[Task]) -> Bool:
+async def invalid_args(
+    request: Request,
+    *args: List[Task]
+) -> Bool:  # pragma: nocover
     if len(args) > 0:
         return BoolTrue()
     return BoolFalse()
 
 
-async def invalid_kwargs(request: Request, **kwargs) -> Bool:
+async def invalid_kwargs(
+    request: Request,
+    **kwargs
+) -> Bool:  # pragma: nocover
     if 'value' in kwargs:
         return BoolTrue()
     return BoolFalse()
 
 
-async def func_no_request(task: Task) -> Bool:
+async def func_no_request(task: Task) -> Bool:  # pragma: nocover
     return BoolTrue()
 
 
@@ -536,6 +649,15 @@ class TestIsGoodForCombinator:
 
     def test_any_combinator(self):
         assert is_good_for_combinator(Any)
+
+    def test_combinator_with_bare_type(self):
+        assert is_good_for_combinator(
+            ContentWrapper,
+            [
+                ContentWrapper,
+                Content
+            ]
+        )
 
 
 class TestIsValidCombinator:
@@ -613,6 +735,7 @@ class TestIsValidConstructor:
         is_valid_constructor(Tree, [Bool, Tree])
         is_valid_constructor(ExtendedTree, [ExtendedTree])
         is_valid_constructor(RpcResult, [RpcResult])
+        is_valid_constructor(ContentWrapper, [Content])
 
     def test_wrong_value(self):
         with pytest.raises(InvalidConstructor):
@@ -757,6 +880,36 @@ class TestBuildCombinatorDescription:
             RpcResult, RpcResult
         ) == 'rpc_result req_msg_id:long result:Object = RpcResult'
 
+    def test_bare_constructor_type_content_wrapper(self):
+        assert build_combinator_description(
+            ContentWrapper,
+            ContentWrapper
+        ) == 'contentWrapper content:%Content = ContentWrapper'
+
+    def test_bare_constructor_type_content_lower_wrapper(self):
+        assert build_combinator_description(
+            ContentWrapperLower,
+            ContentWrapperLower
+        ) == 'contentWrapperLower content:content = ContentWrapperLower'
+
+    def test_bare_constructor_type_content_list(self):
+        assert build_combinator_description(
+            ContentList,
+            ContentList
+        ) == 'contentList content_list:vector<%Content> = ContentList'
+
+    def test_bare_constructor_type_content_list_lower(self):
+        assert build_combinator_description(
+            ContentLowerList,
+            ContentLowerList
+        ) == 'contentLowerList content_list:vector<content> = ContentLowerList'
+
+    def test_message_container(self):
+        assert build_combinator_description(
+            MessageContainer,
+            MessageContainer
+        ) == 'msg_container messages:vector<%Message> = MessageContainer'
+
 
 class TestCombinatorNumber:
 
@@ -805,6 +958,12 @@ class TestCombinatorNumber:
     def test_rpc_result(self):
         assert get_combinator_number(RpcResult, RpcResult) == 0xf35c6d01
 
+    def test_msg_container(self):
+        assert get_combinator_number(
+            MessageContainer,
+            MessageContainer
+        ) == 1945237724
+
 
 class TestBuildFunctionDescription:
 
@@ -838,3 +997,16 @@ class TestGetFunctionNumber:
 
     def test_has_tasks(self):
         assert get_function_number(has_tasks) == 0x20e13fab
+
+
+class TestGetFieldsMap:
+
+    def test_fields_map(self):
+        fields_map = get_fields_map(User)
+
+        assert 'id' in fields_map
+        assert 'name' in fields_map
+
+    def test_fields_map_typeerror(self):
+        with pytest.raises(TypeError):
+            get_fields_map(44)
