@@ -4,7 +4,7 @@ from typing import no_type_check
 import pytest
 
 from mtpylon.serialization import dump, load
-from mtpylon.serialization.schema import CallableFunc
+from mtpylon.serialization.schema import CallableFunc, _load
 from mtpylon.exceptions import DumpError
 from mtpylon.serialization.loaded import LoadedValue
 
@@ -61,7 +61,7 @@ class WrongObject:
     pass
 
 
-def wrong_function():
+def wrong_function():  # pragma: nocover
     pass
 
 
@@ -465,3 +465,55 @@ def test_no_value():
 
     with pytest.raises(ValueError):
         load(input, schema=schema)
+
+
+def test_load_bare_without_type():
+    packed = b'packeddata'
+
+    with pytest.raises(ValueError):
+        _load(
+            packed,
+            schema=schema,
+            bare=True,
+            tp=None,
+            custom_loaders=None
+        )
+
+
+def test_load_wrong_bare_type():
+    packed = b'packeddata'
+
+    with pytest.raises(ValueError):
+        _load(
+            packed,
+            schema=schema,
+            bare=True,
+            tp=WrongObject,
+            custom_loaders=None
+        )
+
+
+def test_load_bare_task():
+    packed = (
+        b'\x00\x00\x00\x00'  # flags
+        b'\x0c\x00\x00\x00'  # id number - int
+        b'\x0edump by schema\x00'  # content - str
+        b'\xb5\x75\x72\x99'  # completed - Bool
+    )
+
+    task = Task(
+        id=12,
+        content='dump by schema',
+        completed=BoolTrue(),
+        tags=None
+    )
+
+    loaded = _load(
+        packed,
+        bare=True,
+        tp=Task,
+        schema=schema,
+        custom_loaders=None
+    )
+
+    assert loaded.value == task

@@ -151,22 +151,6 @@ def build_custom_dumper_func(
     return func
 
 
-def build_custom_dump_map(
-    dump_object: DumpFunction,
-    custom_dumpers: CustomDumpersMap
-) -> DumpersMap:
-    """
-    Builds dump map with custom dumpers
-    """
-    dump_map = {}
-    dump_map.update({
-        tp: build_custom_dumper_func(func, dump_object)
-        for tp, func in custom_dumpers.items()
-    })
-
-    return dump_map
-
-
 def build_custom_loader_func(
     func: CustomLoadFunction,
     load_object: LoadFunction
@@ -181,19 +165,6 @@ def build_custom_loader_func(
         return partial(func, load_object=load_object)
     func = cast(LoadFunction, func)
     return func
-
-
-def build_custom_load_map(
-    load_object: LoadFunction,
-    custom_loaders: CustomLoadersMap
-) -> LoadersMap:
-    load_map = {}
-    load_map.update({
-        tp: build_custom_loader_func(func, load_object)
-        for tp, func in custom_loaders.items()
-    })
-
-    return load_map
 
 
 basic_type_dumpers: BasicTypeDumpers = {
