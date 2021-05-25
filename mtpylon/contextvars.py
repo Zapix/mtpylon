@@ -41,6 +41,10 @@ auth_key_var: ContextVar[AuthKey] = ContextVar('auth_key')
 server_salt_var: ContextVar[long] = ContextVar('server_salt_var')
 
 
+"""Stores session id for current context"""
+session_id_var: ContextVar[long] = ContextVar('session_id_var')
+
+
 """
 Stores message that has been received
 """

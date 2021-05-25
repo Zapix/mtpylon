@@ -4,7 +4,10 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from mtpylon.types import long
-from mtpylon.contextvars import income_message_var
+from mtpylon.contextvars import (
+    income_message_var,
+    session_id_var,
+)
 from mtpylon.serialization import CallableFunc
 from mtpylon.messages import Message
 from mtpylon.sessions import (
@@ -61,6 +64,8 @@ async def test_create_session_id():
     )
     assert awaited_arg == expected_event
 
+    assert session_id_var.get() == session_id
+
 
 @pytest.mark.asyncio
 async def test_session_id_created_before():
@@ -100,3 +105,5 @@ async def test_session_id_created_before():
 
     handler.assert_awaited()
     session_observer.update.assert_not_awaited()
+
+    assert session_id_var.get() == session_id
