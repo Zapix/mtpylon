@@ -11,7 +11,7 @@ from mtpylon.message_handler.strategies.handle_rpc_query_message import (
     run_rpc_query
 )
 from mtpylon.service_schema.constructors import RpcResult, RpcError
-from mtpylon.contextvars import server_salt_var
+from mtpylon.contextvars import server_salt_var, session_id_var
 
 from tests.simpleschema import get_task, set_task, Task
 
@@ -64,6 +64,7 @@ async def test_run_rpc_query_success():
     )
 
     server_salt_var.set(server_salt)
+    session_id_var.set(session_id)
 
     await run_rpc_query([], sender, request, message)
 
@@ -102,6 +103,7 @@ async def test_run_rpc_query_error():
     )
 
     server_salt_var.set(server_salt)
+    session_id_var.set(session_id)
 
     await run_rpc_query([], sender, request, message)
 
@@ -136,6 +138,7 @@ async def test_run_rpc_unexpected_error():
     )
 
     server_salt_var.set(server_salt)
+    session_id_var.set(session_id)
 
     await run_rpc_query([], sender, request, message)
 
