@@ -10,6 +10,7 @@ from mtpylon.messages import MtprotoMessage, Message
 from mtpylon.contextvars import (
     income_message_var,
     server_salt_var,
+    session_id_var,
 )
 from mtpylon.serialization import CallableFunc
 from mtpylon.middlewares import apply_middleware, MiddleWareFunc, Handler
@@ -80,11 +81,12 @@ async def run_rpc_query(
     result = await handler(request, **value.params)
 
     server_salt = server_salt_var.get()
+    session_id = session_id_var.get()
 
     await sender.send_encrypted_message(
         request,
         server_salt,
-        message.session_id,
+        session_id,
         result,
         True
     )

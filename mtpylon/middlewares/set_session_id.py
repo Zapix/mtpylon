@@ -3,7 +3,7 @@ from typing import Any
 
 from aiohttp.web import Request
 
-from mtpylon.contextvars import income_message_var
+from mtpylon.contextvars import income_message_var, session_id_var
 from mtpylon.messages import Message
 
 from .types import Handler
@@ -20,5 +20,7 @@ async def set_session_id(
     if isinstance(income_message, Message):
         if not await session_subject.has_session(income_message.session_id):
             await session_subject.create_session(income_message.session_id)
+
+        session_id_var.set(income_message.session_id)
 
     return await handler(request, **params)
