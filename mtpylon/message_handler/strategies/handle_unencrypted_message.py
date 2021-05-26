@@ -4,13 +4,14 @@ from typing import cast, List
 
 from aiohttp.web import Request
 
-from mtpylon.messages import MtprotoMessage, UnencryptedMessage
+from mtpylon.messages import UnencryptedMessage
 from mtpylon.serialization import CallableFunc
 from mtpylon.middlewares import MiddleWareFunc
 from mtpylon.message_sender import MessageSender
 from mtpylon.contextvars import income_message_var
 from mtpylon.utils import get_function_name
 from mtpylon.middlewares import apply_middleware
+from mtpylon.income_message import IncomeMessage
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ async def handle_unencrypted_message(
     middlewares: List[MiddleWareFunc],
     sender: MessageSender,
     request: Request,
-    message: MtprotoMessage,
+    message: IncomeMessage,
 ):
     """
     Handles unencrypted message. Applies all middlewares to sender function
