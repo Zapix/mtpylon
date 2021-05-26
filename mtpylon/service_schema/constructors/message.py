@@ -20,3 +20,11 @@ class Message:
             'bytes',
             'body',
         )
+
+    @property
+    def message_id(self) -> long:
+        return self.msg_id
+
+    @property
+    def message_data(self) -> Any:
+        return self.body
