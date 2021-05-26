@@ -40,7 +40,7 @@ from mtpylon.service_schema import (
     load as load_by_service_schema,
     dump as dump_by_service_schema
 )
-from .types import Message
+from .types import EncryptedMessage
 
 
 logger = logging.getLogger(__name__)
@@ -87,7 +87,10 @@ def dump_data(schema: Schema, data: Any) -> bytes:
     return dumped_data
 
 
-async def load_message(schema: Schema, message_bytes: bytes) -> Message:
+async def load_message(
+    schema: Schema,
+    message_bytes: bytes
+) -> EncryptedMessage:
     """
     Loads message with extra header data
     """
@@ -101,7 +104,7 @@ async def load_message(schema: Schema, message_bytes: bytes) -> Message:
         message_bytes[32:]
     )
 
-    return Message(
+    return EncryptedMessage(
         salt=salt,
         session_id=session_id,
         message_id=message_id,
@@ -110,7 +113,7 @@ async def load_message(schema: Schema, message_bytes: bytes) -> Message:
     )
 
 
-async def dump_message(schema: Schema, message: Message) -> bytes:
+async def dump_message(schema: Schema, message: EncryptedMessage) -> bytes:
     data_bytes = await asyncio.to_thread(
         dump_data,
         schema,
@@ -172,7 +175,7 @@ async def unpack_message(
     auth_manager: AuthKeyManager,
     schema: Schema,
     encrypted_message: bytes
-) -> Message:
+) -> EncryptedMessage:
     """
     Unpacks income message. Validates auth_key_id
     """
@@ -197,7 +200,7 @@ async def unpack_message(
 
 async def pack_message(
     schema: Schema,
-    message: Message,
+    message: EncryptedMessage,
 ) -> bytes:
     dumped_message = await dump_message(schema, message)
     padded_message = dumped_message + pad_bytes(dumped_message)

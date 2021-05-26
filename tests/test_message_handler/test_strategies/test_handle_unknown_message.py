@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, AsyncMock, patch
 import pytest
 
 from mtpylon import long
-from mtpylon.messages import Message
+from mtpylon.messages import EncryptedMessage
 from mtpylon.message_handler.strategies.handle_unknown_message import (
     handle_unknown_message
 )
@@ -14,7 +14,7 @@ from mtpylon.message_handler.strategies.handle_unknown_message import (
 async def test_handle_unknown_message():
     msg_id = long(0x51e57ac42770964a)
 
-    message = Message(
+    message = EncryptedMessage(
         message_id=msg_id,
         session_id=long(1),
         salt=long(2),

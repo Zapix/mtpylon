@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-from mtpylon.messages import MtprotoMessage, UnencryptedMessage, Message
+from mtpylon.messages import (
+    MtprotoMessage,
+    UnencryptedMessage,
+    EncryptedMessage
+)
 from mtpylon.serialization import CallableFunc
 from mtpylon.service_schema import service_schema
 from mtpylon.service_schema.functions import (
@@ -35,7 +39,7 @@ def is_unencrypted_message(message: MtprotoMessage) -> bool:
 
 
 def is_rpc_call_message(message: MtprotoMessage) -> bool:
-    if not isinstance(message, Message):
+    if not isinstance(message, EncryptedMessage):
         return False
 
     if not isinstance(message.message_data, CallableFunc):

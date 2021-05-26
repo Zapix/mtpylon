@@ -2,7 +2,7 @@
 import pytest
 
 from mtpylon import long, int128
-from mtpylon.messages import UnencryptedMessage, Message
+from mtpylon.messages import UnencryptedMessage, EncryptedMessage
 from mtpylon.serialization import CallableFunc
 from mtpylon.message_handler.strategies.utils import (
     is_unencrypted_message,
@@ -53,7 +53,7 @@ def test_is_unencrypted_message_true(message):
             id='unencrypted message wrong rpc call'
         ),
         pytest.param(
-            Message(
+            EncryptedMessage(
                 message_id=long(0x51e57ac42770964a),
                 session_id=long(1),
                 salt=long(2),
@@ -72,7 +72,7 @@ def test_is_unencrypted_message_false(message):
     'message',
     [
         pytest.param(
-            Message(
+            EncryptedMessage(
                 message_id=long(0x51e57ac42770964a),
                 session_id=long(1),
                 salt=long(2),
@@ -104,7 +104,7 @@ def test_is_rpc_call_true(message):
             id='unencrypted message'
         ),
         pytest.param(
-            Message(
+            EncryptedMessage(
                 message_id=long(0x51e57ac42770964a),
                 session_id=long(1),
                 salt=long(2),
@@ -114,7 +114,7 @@ def test_is_rpc_call_true(message):
             id='encrypted message wrong data'
         ),
         pytest.param(
-            Message(
+            EncryptedMessage(
                 message_id=long(0x51e57ac42770964a),
                 session_id=long(1),
                 salt=long(2),
@@ -124,7 +124,7 @@ def test_is_rpc_call_true(message):
             id='encrypted message ping call'
         ),
         pytest.param(
-            Message(
+            EncryptedMessage(
                 message_id=long(0x51e57ac42770964a),
                 session_id=long(1),
                 salt=long(2),

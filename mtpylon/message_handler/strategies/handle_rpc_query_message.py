@@ -6,7 +6,7 @@ from asyncio import create_task
 from aiohttp.web import Request
 
 from mtpylon.exceptions import RpcCallError
-from mtpylon.messages import MtprotoMessage, Message
+from mtpylon.messages import MtprotoMessage, EncryptedMessage
 from mtpylon.contextvars import (
     income_message_var,
     server_salt_var,
@@ -67,7 +67,7 @@ async def run_rpc_query(
     middlewares: List[MiddleWareFunc],
     sender: MessageSender,
     request: Request,
-    message: Message
+    message: EncryptedMessage
 ):
     income_message_var.set(message)
 
@@ -98,6 +98,6 @@ async def handle_rpc_query_message(
     request: Request,
     message: MtprotoMessage
 ):
-    message = cast(Message, message)
+    message = cast(EncryptedMessage, message)
 
     create_task(run_rpc_query(middlewares, sender, request, message))

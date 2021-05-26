@@ -6,7 +6,7 @@ import pytest
 from mtpylon import long, int128
 from mtpylon.serialization import CallableFunc
 from mtpylon.message_handler import MessageHandler
-from mtpylon.messages import UnencryptedMessage, Message
+from mtpylon.messages import UnencryptedMessage, EncryptedMessage
 from mtpylon.service_schema.functions import req_pq
 from mtpylon.contextvars import (
     income_message_var
@@ -75,7 +75,7 @@ async def test_unpack_encrypted_message_correct():
     session_id = long(123123)
     salt = long(234234)
 
-    message = Message(
+    message = EncryptedMessage(
         salt=salt,
         session_id=session_id,
         message_id=msg_id,

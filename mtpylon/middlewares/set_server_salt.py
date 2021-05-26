@@ -3,7 +3,7 @@ from typing import Any, cast
 
 from aiohttp.web import Request
 
-from mtpylon.messages import Message
+from mtpylon.messages import EncryptedMessage
 from mtpylon.salts import ServerSaltManagerProtocol, Salt
 from mtpylon.service_schema.constructors import BadServerSalt
 from mtpylon.contextvars import (
@@ -21,7 +21,7 @@ async def set_server_salt(
 ) -> Any:
     message = income_message_var.get()
 
-    if isinstance(message, Message):
+    if isinstance(message, EncryptedMessage):
         auth_key = auth_key_var.get()
         server_salt_manager = request.app.get(
             'server_salt_manager'

@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock, AsyncMock
 import pytest
 
 from mtpylon import long
-from mtpylon.messages import Message
+from mtpylon.messages import EncryptedMessage
 from mtpylon.serialization import CallableFunc
 from mtpylon.message_handler.strategies.handle_rpc_query_message import (
     handle_rpc_query_message,
@@ -25,7 +25,7 @@ async def test_handle_rpc_query_create_task():
     request = MagicMock()
     sender = MagicMock(send_encrypted_message=AsyncMock())
 
-    message = Message(
+    message = EncryptedMessage(
         message_id=msg_id,
         session_id=session_id,
         salt=server_salt,
@@ -52,7 +52,7 @@ async def test_run_rpc_query_success():
     request = MagicMock()
     sender = MagicMock(send_encrypted_message=AsyncMock())
 
-    message = Message(
+    message = EncryptedMessage(
         message_id=msg_id,
         session_id=session_id,
         salt=server_salt,
@@ -91,7 +91,7 @@ async def test_run_rpc_query_error():
     request = MagicMock()
     sender = MagicMock(send_encrypted_message=AsyncMock())
 
-    message = Message(
+    message = EncryptedMessage(
         message_id=msg_id,
         session_id=session_id,
         salt=server_salt,
@@ -126,7 +126,7 @@ async def test_run_rpc_unexpected_error():
     request = MagicMock()
     sender = MagicMock(send_encrypted_message=AsyncMock())
 
-    message = Message(
+    message = EncryptedMessage(
         message_id=msg_id,
         session_id=session_id,
         salt=server_salt,
