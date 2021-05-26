@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
+from functools import partial
 from mtpylon.income_message import IncomeMessage
 
 from .types import HandleStrategy
 from .handle_unknown_message import handle_unknown_message
 from .handle_unencrypted_message import handle_unencrypted_message
 from .handle_rpc_query_message import handle_rpc_query_message
-from .utils import is_unencrypted_message, is_rpc_call_message
+from .handle_message_container import handle_message_container
+from .utils import (
+    is_unencrypted_message,
+    is_rpc_call_message,
+    is_container_message
+)
 
 
 def get_handle_strategy(message: IncomeMessage) -> HandleStrategy:
@@ -17,5 +23,11 @@ def get_handle_strategy(message: IncomeMessage) -> HandleStrategy:
 
     if is_rpc_call_message(message):
         return handle_rpc_query_message
+
+    if is_container_message(message):
+        return partial(
+            handle_message_container,
+            get_handle_strategy
+        )
 
     return handle_unknown_message
