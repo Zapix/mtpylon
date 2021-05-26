@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from mtpylon.messages import (
-    MtprotoMessage,
     UnencryptedMessage,
     EncryptedMessage
 )
@@ -13,6 +12,7 @@ from mtpylon.service_schema.functions import (
     set_client_DH_params
 )
 from mtpylon.service_schema.constructors import MessageContainer, Message
+from mtpylon.income_message import IncomeMessage
 
 
 ALLOWED_UNENCRYPTED_RPC_CALLS = [
@@ -23,7 +23,7 @@ ALLOWED_UNENCRYPTED_RPC_CALLS = [
 ]
 
 
-def is_unencrypted_message(message: MtprotoMessage) -> bool:
+def is_unencrypted_message(message: IncomeMessage) -> bool:
     """
     :param message:
     :return:
@@ -39,7 +39,7 @@ def is_unencrypted_message(message: MtprotoMessage) -> bool:
     return func in ALLOWED_UNENCRYPTED_RPC_CALLS
 
 
-def is_rpc_call_message(message: MtprotoMessage) -> bool:
+def is_rpc_call_message(message: IncomeMessage) -> bool:
     if not (
         isinstance(message, EncryptedMessage) or
         isinstance(message, Message)
@@ -54,7 +54,7 @@ def is_rpc_call_message(message: MtprotoMessage) -> bool:
     return func not in service_schema
 
 
-def is_container_message(message: MtprotoMessage) -> bool:
+def is_container_message(message: IncomeMessage) -> bool:
     if not isinstance(message, EncryptedMessage):
         return False
 

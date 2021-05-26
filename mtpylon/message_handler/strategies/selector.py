@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from mtpylon.messages import MtprotoMessage
+from mtpylon.income_message import IncomeMessage
 
 from .types import HandleStrategy
 from .handle_unknown_message import handle_unknown_message
@@ -8,7 +8,7 @@ from .handle_rpc_query_message import handle_rpc_query_message
 from .utils import is_unencrypted_message, is_rpc_call_message
 
 
-def get_handle_strategy(message: MtprotoMessage) -> HandleStrategy:
+def get_handle_strategy(message: IncomeMessage) -> HandleStrategy:
     """
     Selects how message will be handled by message
     """
