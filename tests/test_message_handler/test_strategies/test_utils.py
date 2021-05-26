@@ -13,7 +13,7 @@ from mtpylon.service_schema.functions import req_pq, ping
 from mtpylon.service_schema.constructors import (
     MsgsAck,
     MessageContainer,
-    Message as MessageConstructor
+    Message
 )
 
 from tests.simpleschema import set_task
@@ -89,7 +89,19 @@ def test_is_unencrypted_message_false(message):
                 )
             ),
             id='encrypted message'
-        )
+        ),
+        pytest.param(
+            Message(
+                msg_id=long(0x60a4d9830000001c),
+                seqno=9,
+                bytes=16,
+                body=CallableFunc(
+                    func=set_task,
+                    params={'content': 'hello world'}
+                )
+            ),
+            id='message constructor'
+        ),
     ]
 )
 def test_is_rpc_call_true(message):
@@ -194,7 +206,7 @@ def test_is_not_container_message(message):
                 seq_no=0,
                 message_data=MessageContainer(
                     messages=[
-                        MessageConstructor(
+                        Message(
                             msg_id=long(0x5e0b700a00000000),
                             seqno=7,
                             bytes=20,
@@ -204,7 +216,7 @@ def test_is_not_container_message(message):
                                 ]
                             ),
                         ),
-                        MessageConstructor(
+                        Message(
                             msg_id=long(0x60a4d9830000001c),
                             seqno=9,
                             bytes=16,

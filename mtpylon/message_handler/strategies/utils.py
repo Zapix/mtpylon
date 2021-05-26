@@ -12,7 +12,7 @@ from mtpylon.service_schema.functions import (
     req_DH_params,
     set_client_DH_params
 )
-from mtpylon.service_schema.constructors import MessageContainer
+from mtpylon.service_schema.constructors import MessageContainer, Message
 
 
 ALLOWED_UNENCRYPTED_RPC_CALLS = [
@@ -40,7 +40,10 @@ def is_unencrypted_message(message: MtprotoMessage) -> bool:
 
 
 def is_rpc_call_message(message: MtprotoMessage) -> bool:
-    if not isinstance(message, EncryptedMessage):
+    if not (
+        isinstance(message, EncryptedMessage) or
+        isinstance(message, Message)
+    ):
         return False
 
     if not isinstance(message.message_data, CallableFunc):

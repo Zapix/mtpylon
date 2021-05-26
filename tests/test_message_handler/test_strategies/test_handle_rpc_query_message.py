@@ -10,7 +10,7 @@ from mtpylon.message_handler.strategies.handle_rpc_query_message import (
     handle_rpc_query_message,
     run_rpc_query
 )
-from mtpylon.service_schema.constructors import RpcResult, RpcError
+from mtpylon.service_schema.constructors import RpcResult, RpcError, Message
 from mtpylon.contextvars import server_salt_var, session_id_var
 
 from tests.simpleschema import get_task, set_task, Task
@@ -48,20 +48,39 @@ async def test_handle_rpc_query_create_task():
 
 
 @pytest.mark.asyncio
-async def test_run_rpc_query_success():
+@pytest.mark.parametrize(
+    'message',
+    [
+        pytest.param(
+            EncryptedMessage(
+                message_id=msg_id,
+                session_id=session_id,
+                salt=server_salt,
+                seq_no=0,
+                message_data=CallableFunc(
+                    func=set_task,
+                    params={'content': 'hello world'}
+                )
+            ),
+            id='encrypted message'
+        ),
+        pytest.param(
+            Message(
+                msg_id=msg_id,
+                seqno=9,
+                bytes=16,
+                body=CallableFunc(
+                    func=set_task,
+                    params={'content': 'hello world'}
+                )
+            ),
+            id='message constructor'
+        ),
+    ]
+)
+async def test_run_rpc_query_success(message):
     request = MagicMock()
     sender = MagicMock(send_encrypted_message=AsyncMock())
-
-    message = EncryptedMessage(
-        message_id=msg_id,
-        session_id=session_id,
-        salt=server_salt,
-        seq_no=0,
-        message_data=CallableFunc(
-            func=set_task,
-            params={'content': 'hello world'}
-        )
-    )
 
     server_salt_var.set(server_salt)
     session_id_var.set(session_id)
