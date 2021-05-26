@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 from typing import Any, cast
 
 from aiohttp.web import Request
@@ -13,6 +14,8 @@ from mtpylon.contextvars import (
 )
 from .types import Handler
 
+logger = logging.getLogger(__name__)
+
 
 async def set_server_salt(
     handler: Handler,
@@ -22,10 +25,14 @@ async def set_server_salt(
     message = income_message_var.get()
 
     if isinstance(message, EncryptedMessage):
+        logger.info(f'Check server salt {message.salt}')
         auth_key = auth_key_var.get()
         server_salt_manager = request.app.get(
             'server_salt_manager'
         )
+
+        logger.info(f'Set salt {message.salt}')
+        server_salt_var.set(message.salt)
 
         server_salt_manager = cast(
             ServerSaltManagerProtocol,
@@ -33,6 +40,7 @@ async def set_server_salt(
         )
 
         if not await server_salt_manager.has_salt(auth_key, message.salt):
+            logger.info('Bad serversalt has been used')
             new_salts = await server_salt_manager.get_future_salts(auth_key)
             new_salt: Salt = new_salts[0]
 
@@ -42,7 +50,5 @@ async def set_server_salt(
                 error_code=48,
                 new_server_salt=new_salt.salt
             )
-
-        server_salt_var.set(message.salt)
 
     return await handler(request, **params)
