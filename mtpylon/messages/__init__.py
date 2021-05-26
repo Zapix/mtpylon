@@ -8,7 +8,7 @@ from .mtproto_message import (
     pack_message,
     unpack_message,
 )
-from .types import Message, UnencryptedMessage, MtprotoMessage
+from .types import EncryptedMessage, UnencryptedMessage, MtprotoMessage
 
 __all__ = [
     'is_unencrypted_message',
@@ -17,6 +17,6 @@ __all__ = [
     'unpack_message',
     'pack_message',
     'UnencryptedMessage',
-    'Message',
+    'EncryptedMessage',
     'MtprotoMessage',
 ]

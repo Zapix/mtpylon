@@ -4,7 +4,7 @@ from typing import Any
 from aiohttp.web import Request
 
 from mtpylon.contextvars import income_message_var, session_id_var
-from mtpylon.messages import Message
+from mtpylon.messages import EncryptedMessage
 
 from .types import Handler
 
@@ -17,7 +17,7 @@ async def set_session_id(
     session_subject = request.app['session_subject']
     income_message = income_message_var.get()
 
-    if isinstance(income_message, Message):
+    if isinstance(income_message, EncryptedMessage):
         if not await session_subject.has_session(income_message.session_id):
             await session_subject.create_session(income_message.session_id)
 

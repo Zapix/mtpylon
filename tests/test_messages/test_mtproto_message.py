@@ -4,7 +4,7 @@ from tgcrypto import ige256_decrypt  # type: ignore
 
 from mtpylon import long, int128
 from mtpylon.messages import (
-    Message,
+    EncryptedMessage,
     UnencryptedMessage,
     pack_message,
     unpack_message,
@@ -135,7 +135,7 @@ async def test_unpack_message():
         encrypted_message_bytes
     )
 
-    assert isinstance(message, Message)
+    assert isinstance(message, EncryptedMessage)
     assert message.salt == server_salt
 
     assert message.session_id == session_id
@@ -163,7 +163,7 @@ async def test_pack_message():
         content='hello world'
     )
 
-    message = Message(
+    message = EncryptedMessage(
         salt=server_salt,
         session_id=session_id,
         message_id=long(0),

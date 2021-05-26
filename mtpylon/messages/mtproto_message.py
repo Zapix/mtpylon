@@ -4,7 +4,7 @@ from typing import cast
 from mtpylon.crypto import AuthKeyManager
 from mtpylon.schema import Schema
 
-from .types import MtprotoMessage, UnencryptedMessage, Message
+from .types import MtprotoMessage, UnencryptedMessage, EncryptedMessage
 from .utils import is_unencrypted_message
 from .unencrypted_message import (
     unpack_message as unpack_unencrypted,
@@ -33,5 +33,5 @@ async def pack_message(
 ) -> bytes:
     if isinstance(value, UnencryptedMessage):
         return await pack_unencrypted(value)
-    value = cast(Message, value)
+    value = cast(EncryptedMessage, value)
     return await pack_encrypted(schema, value)

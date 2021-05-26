@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from mtpylon.types import long
-from mtpylon.messages import Message
+from mtpylon.messages import EncryptedMessage
 from mtpylon.serialization import CallableFunc
 from mtpylon.middlewares.set_server_salt import set_server_salt
 from mtpylon.crypto import AuthKey
@@ -34,7 +34,7 @@ async def test_server_salt_exist():
         until=datetime.now() + timedelta(days=12),
     )
 
-    message = Message(
+    message = EncryptedMessage(
         salt=server_salt.salt,
         session_id=session_id,
         message_id=msg_id,
@@ -73,7 +73,7 @@ async def test_bad_server_salt():
     session_id = long(123123)
     salt = long(234234)
 
-    message = Message(
+    message = EncryptedMessage(
         salt=salt,
         session_id=session_id,
         message_id=msg_id,

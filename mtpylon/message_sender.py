@@ -10,7 +10,7 @@ from .messages import (
     message_ids,
     pack_message,
     UnencryptedMessage,
-    Message,
+    EncryptedMessage,
     MtprotoMessage
 )
 from .transports import Obfuscator, TransportWrapper
@@ -81,7 +81,7 @@ class MessageSender:
         response: bool = False
     ):
         logger.debug(f'Send message: {str(data)}')
-        message = Message(
+        message = EncryptedMessage(
             salt=server_salt,
             session_id=session_id,
             message_id=self.get_msg_id(response),

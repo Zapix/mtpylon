@@ -21,7 +21,7 @@ from mtpylon.messages.encrypted_message import (
     pack_message,
     load_message
 )
-from mtpylon.messages import Message
+from mtpylon.messages import EncryptedMessage
 from mtpylon.serialization import CallableFunc
 from mtpylon.serialization.int128 import load as load_int128
 from mtpylon.utils import get_function_name
@@ -82,7 +82,7 @@ async def test_unpack_message():
         encrypted_message_bytes
     )
 
-    assert isinstance(message, Message)
+    assert isinstance(message, EncryptedMessage)
     assert message.salt == server_salt
 
     assert message.session_id == session_id
@@ -135,7 +135,7 @@ async def test_pack_message():
         content='hello world'
     )
 
-    message = Message(
+    message = EncryptedMessage(
         salt=server_salt,
         session_id=session_id,
         message_id=long(0),
@@ -170,7 +170,7 @@ async def test_pack_message_auth_key_not_set():
         content='hello world'
     )
 
-    message = Message(
+    message = EncryptedMessage(
         salt=server_salt,
         session_id=session_id,
         message_id=long(0),

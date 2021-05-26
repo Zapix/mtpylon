@@ -6,7 +6,7 @@ from mtpylon import long
 
 
 @dataclass
-class Message:
+class EncryptedMessage:
     salt: long
     session_id: long
     message_id: long
@@ -20,4 +20,4 @@ class UnencryptedMessage:
     message_data: Any
 
 
-MtprotoMessage = Union[UnencryptedMessage, Message]
+MtprotoMessage = Union[UnencryptedMessage, EncryptedMessage]

@@ -9,7 +9,7 @@ from mtpylon.contextvars import (
     session_id_var,
 )
 from mtpylon.serialization import CallableFunc
-from mtpylon.messages import Message
+from mtpylon.messages import EncryptedMessage
 from mtpylon.sessions import (
     SessionSubject,
     SessionEvent,
@@ -26,7 +26,7 @@ async def test_create_session_id():
     session_id = long(123123)
     salt = long(234234)
 
-    message = Message(
+    message = EncryptedMessage(
         salt=salt,
         session_id=session_id,
         message_id=msg_id,
@@ -73,7 +73,7 @@ async def test_session_id_created_before():
     session_id = long(123123)
     salt = long(234234)
 
-    message = Message(
+    message = EncryptedMessage(
         salt=salt,
         session_id=session_id,
         message_id=msg_id,
