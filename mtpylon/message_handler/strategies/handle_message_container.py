@@ -43,7 +43,7 @@ async def handle_message_container(
     )
 
     for inner_message in message_container.messages:
-        message_handler = strategy_selector(message)
+        message_handler = strategy_selector(inner_message)
         create_task(
             message_handler(
                 middlewares,
