@@ -2,6 +2,7 @@
 from typing import Any
 from dataclasses import dataclass
 
+from mtpylon.crypto import AuthKey
 from mtpylon.types import long
 
 
@@ -9,3 +10,9 @@ from mtpylon.types import long
 class AcknowledgementMessage:
     message_id: long
     data: Any
+
+
+@dataclass(frozen=True)
+class AuthSessionHash:
+    auth_key: AuthKey
+    session_id: long

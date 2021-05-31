@@ -24,7 +24,7 @@ class AcknowledgementStoreProtocol(Protocol):
         """
         ...
 
-    async def get_message(
+    async def get_message_list(
         self,
         auth_key: AuthKey,
         session_id: long,
