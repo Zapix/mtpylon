@@ -11,7 +11,11 @@ from mtpylon.service_schema.functions import (
     req_DH_params,
     set_client_DH_params
 )
-from mtpylon.service_schema.constructors import MessageContainer, Message
+from mtpylon.service_schema.constructors import (
+    MessageContainer,
+    Message,
+    MsgsAck
+)
 from mtpylon.income_message import IncomeMessage
 
 
@@ -59,3 +63,10 @@ def is_container_message(message: IncomeMessage) -> bool:
         return False
 
     return isinstance(message.message_data, MessageContainer)
+
+
+def is_msgs_ack(message: IncomeMessage) -> bool:
+    if not isinstance(message, EncryptedMessage):
+        return False
+
+    return isinstance(message.message_data, MsgsAck)

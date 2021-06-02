@@ -8,6 +8,7 @@ from mtpylon.message_handler.strategies.utils import (
     is_unencrypted_message,
     is_rpc_call_message,
     is_container_message,
+    is_msgs_ack,
 )
 from mtpylon.service_schema.functions import req_pq, ping
 from mtpylon.service_schema.constructors import (
@@ -234,3 +235,62 @@ def test_is_not_container_message(message):
 )
 def test_is_container_message(message):
     assert is_container_message(message)
+
+
+@pytest.mark.parametrize(
+    'message',
+    [
+        pytest.param(
+            pytest.param(
+                UnencryptedMessage(
+                    message_id=long(0x51e57ac42770964a),
+                    message_data=CallableFunc(
+                        func=req_pq,
+                        params={'nonce': int128(234234)}
+                    ),
+                ),
+                id='unencrypted message'
+            ),
+
+        ),
+        pytest.param(
+            EncryptedMessage(
+                message_id=long(0x51e57ac42770964a),
+                session_id=long(1),
+                salt=long(2),
+                seq_no=0,
+                message_data=CallableFunc(
+                    func=ping,
+                    params={'ping_id': long(111)},
+                )
+            ),
+            id='encrypted message ping call'
+        )
+    ]
+)
+def test_is_not_msgs_ack(message):
+    assert not is_msgs_ack(message)
+
+
+@pytest.mark.parametrize(
+    'message',
+    [
+        pytest.param(
+            EncryptedMessage(
+                message_id=long(0x51e57ac42770964a),
+                session_id=long(1),
+                salt=long(2),
+                seq_no=0,
+                message_data=MsgsAck(
+                    msg_ids=[
+                        long(0x51e57ac42770964a),
+                        long(0x60a4d9830000001c),
+                    ]
+                )
+            ),
+            id='encrypted msgs ack'
+        )
+    ]
+)
+def test_is_msgs_ack(message):
+    assert is_msgs_ack(message)
