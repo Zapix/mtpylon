@@ -23,6 +23,9 @@ from mtpylon.message_handler.strategies.handle_rpc_query_message import (
 from mtpylon.message_handler.strategies.handle_message_container import (
     handle_message_container
 )
+from mtpylon.message_handler.strategies.handle_msgs_ack_message import (
+    handle_msgs_ack
+)
 
 from tests.simpleschema import set_task
 
@@ -111,3 +114,22 @@ def test_get_message_container_selector():
     assert isinstance(handler, partial)
     assert handler.func == handle_message_container
     assert handler.args[0] == get_handle_strategy
+
+
+def test_get_msgs_ack_handler():
+    message = EncryptedMessage(
+        message_id=long(0x5e0b700a00000000),
+        session_id=long(1),
+        salt=long(2),
+        seq_no=0,
+        message_data=MsgsAck(
+            msg_ids=[
+                long(0x51e57ac42770964a),
+                long(0x60a4d9830000001c),
+            ],
+        ),
+    )
+
+    handler = get_handle_strategy(message)
+
+    assert handler == handle_msgs_ack
