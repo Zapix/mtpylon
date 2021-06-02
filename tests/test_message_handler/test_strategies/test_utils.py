@@ -241,17 +241,14 @@ def test_is_container_message(message):
     'message',
     [
         pytest.param(
-            pytest.param(
-                UnencryptedMessage(
-                    message_id=long(0x51e57ac42770964a),
-                    message_data=CallableFunc(
-                        func=req_pq,
-                        params={'nonce': int128(234234)}
-                    ),
+            UnencryptedMessage(
+                message_id=long(0x51e57ac42770964a),
+                message_data=CallableFunc(
+                    func=req_pq,
+                    params={'nonce': int128(234234)}
                 ),
-                id='unencrypted message'
             ),
-
+            id='unencrypted message'
         ),
         pytest.param(
             EncryptedMessage(

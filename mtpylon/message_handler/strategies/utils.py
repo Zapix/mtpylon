@@ -66,7 +66,7 @@ def is_container_message(message: IncomeMessage) -> bool:
 
 
 def is_msgs_ack(message: IncomeMessage) -> bool:
-    if not isinstance(message, EncryptedMessage):
+    if isinstance(message, UnencryptedMessage):
         return False
 
     return isinstance(message.message_data, MsgsAck)
