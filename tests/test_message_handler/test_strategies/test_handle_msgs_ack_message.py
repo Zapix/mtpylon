@@ -9,7 +9,7 @@ from mtpylon.service_schema.constructors import MsgsAck
 from mtpylon.message_handler.strategies.handle_msgs_ack_message import (
     handle_msgs_ack
 )
-from mtpylon.contextvars import auth_key_var
+from mtpylon.contextvars import auth_key_var, session_id_var
 from mtpylon.crypto import AuthKey
 
 
@@ -44,6 +44,7 @@ auth_key = AuthKey(auth_key_data)
 @pytest.mark.asyncio
 async def tests_handle_msgs_ack(message):
     auth_key_var.set(auth_key)
+    session_id_var.set(session_id)
 
     middlewares = []
     sender = MagicMock()
