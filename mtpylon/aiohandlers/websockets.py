@@ -46,7 +46,11 @@ SHARED_RESOURCE_CHECK_LIST = [
     SharedResourceCheck(
         resource_name='session_subject',
         error='Session subject should be set',
-    )
+    ),
+    SharedResourceCheck(
+        resource_name='acknowledgement_store',
+        error='Acknowledgement store should be set'
+    ),
 ]
 
 

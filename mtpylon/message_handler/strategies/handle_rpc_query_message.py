@@ -23,6 +23,10 @@ from .logging_adapter import MessageLoggerAdapter
 logger = logging.getLogger()
 
 
+def is_rpc_result(result: Any) -> bool:
+    return isinstance(result, RpcResult)
+
+
 async def run_rpc_query_middleware(
     handler: Handler,
     request: Request,
@@ -88,7 +92,8 @@ async def run_rpc_query(
         server_salt,
         session_id,
         result,
-        True
+        response=True,
+        acknowledgement_required=is_rpc_result(result)
     )
 
 

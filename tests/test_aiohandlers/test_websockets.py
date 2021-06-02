@@ -10,6 +10,7 @@ from mtpylon.crypto import AuthKeyManager
 from mtpylon.dh_prime_generators.single_prime import generate
 from mtpylon.salts import ServerSaltManager
 from mtpylon.sessions import SessionSubject, InMemorySessionStorage
+from mtpylon.acknowledgement_store import InmemoryAcknowledgementStore
 
 from tests.helpers import hexstr_to_bytes
 from tests.simple_manager import manager
@@ -146,6 +147,34 @@ class WsHandlerNoSessionSubject(AioHTTPTestCase):
             assert conn.closed
 
 
+class WsHandlerNoAcknowledgementStore(AioHTTPTestCase):
+
+    async def get_application(self) -> web.Application:
+        ws_handler = create_websocket_handler(schema)
+
+        app = web.Application()
+        app['auth_key_manager'] = AuthKeyManager()
+        app['rsa_manager'] = manager
+        app['dh_prime_generator'] = generate()
+        app['server_salt_manager'] = ServerSaltManager()
+        app['session_subject'] = SessionSubject(
+            lambda: InMemorySessionStorage()
+        )
+        app.router.add_get('/ws', ws_handler)
+
+        return app
+
+    @unittest_run_loop
+    async def test_no_acknowledgement_store(self):
+        logger = MagicMock()
+
+        with patch('mtpylon.aiohandlers.websockets.logger', logger):
+            async with self.client.ws_connect('/ws') as conn:
+                assert logger.error.called
+
+            assert conn.closed
+
+
 class WsHandlerTestCase(AioHTTPTestCase):
 
     async def get_application(self) -> web.Application:
@@ -159,6 +188,7 @@ class WsHandlerTestCase(AioHTTPTestCase):
         app['session_subject'] = SessionSubject(
             lambda: InMemorySessionStorage()
         )
+        app['acknowledgement_store'] = InmemoryAcknowledgementStore()
         app.router.add_get('/ws', ws_handler)
 
         return app

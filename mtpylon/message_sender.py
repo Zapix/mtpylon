@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
-from typing import Any, Generator
+from typing import List, Any, Generator, cast
 from dataclasses import dataclass, field
 import logging
 
 from aiohttp.web import WebSocketResponse, Request
 
 from .types import long
+from .acknowledgement_store import (
+    AcknowledgementStoreProtocol,
+    AcknowledgementMessage,
+)
 from .messages import (
     message_ids,
     pack_message,
@@ -16,6 +20,8 @@ from .messages import (
 from .transports import Obfuscator, TransportWrapper
 from .schema import Schema
 from .service_schema import service_schema
+from .service_schema.constructors import MessageContainer, Message
+from .contextvars import auth_key_var
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +62,30 @@ class MessageSender:
             logger.info(f'Send message with id {message.message_id}')
             await self.ws.send_bytes(encrypted_data)
 
-    def get_msg_id(self, response: bool):
+    def _build_message_container(
+        self,
+        msg_lists: List[AcknowledgementMessage],
+        message_id: long,
+        message_data: Any
+    ) -> MessageContainer:
+        return MessageContainer(
+            messages=[
+                Message(
+                    msg_id=msg.message_id,
+                    seqno=0,
+                    body=msg.data,
+                )
+                for msg in msg_lists
+            ] + [
+                Message(
+                    msg_id=message_id,
+                    seqno=0,
+                    body=message_data,
+                )
+            ]
+        )
+
+    def get_msg_id(self, response: bool = False):
         return self._msg_ids.send(response)
 
     async def send_unencrypted_message(
@@ -78,15 +107,53 @@ class MessageSender:
         server_salt: long,
         session_id: long,
         data: Any,
-        response: bool = False
+        response: bool = False,
+        acknowledgement_required: bool = False
     ):
         logger.debug(f'Send message: {str(data)}')
-        message = EncryptedMessage(
-            salt=server_salt,
-            session_id=session_id,
-            message_id=self.get_msg_id(response),
-            seq_no=0,
-            message_data=data
+
+        auth_key = auth_key_var.get()
+        acknowledgement_store = cast(
+            AcknowledgementStoreProtocol,
+            request.app['acknowledgement_store']
         )
 
+        message_id = self.get_msg_id(response)
+
+        msg_list = await acknowledgement_store.get_message_list(
+            auth_key,
+            session_id
+        )
+
+        if len(msg_list) > 0:
+            message_container = self._build_message_container(
+                msg_list,
+                message_id=message_id,
+                message_data=data
+            )
+            message = EncryptedMessage(
+                salt=server_salt,
+                session_id=session_id,
+                message_id=self.get_msg_id(),
+                seq_no=0,
+                message_data=message_container
+            )
+        else:
+            message = EncryptedMessage(
+                salt=server_salt,
+                session_id=session_id,
+                message_id=message_id,
+                seq_no=0,
+                message_data=data
+            )
+
         await self._send_message(request, message)
+
+        if acknowledgement_required:
+            logger.debug(f'Set that acknowledgement required for {message_id}')
+            await acknowledgement_store.set_message(
+                auth_key,
+                session_id,
+                message_id,
+                data
+            )

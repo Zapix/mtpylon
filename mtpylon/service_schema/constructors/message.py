@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from mtpylon import long
@@ -9,8 +9,8 @@ from mtpylon import long
 class Message:
     msg_id: long
     seqno: int
-    bytes: int
     body: Any
+    bytes: int = field(default=0)
 
     class Meta:
         name = 'message'
