@@ -18,7 +18,22 @@ class RsaManagerDict(TypedDict, total=False):
     params: Dict[str, Any]
 
 
-class ConfigDict(TypedDict):
+class AuthKeyManagerDict(TypedDict, total=False):
+    """
+    Stores information about how to configure auth_key_manager for mtpylon
+    application. By default we use instance of
+    `mtpylon.crypto.auth_key_manager.AuthKeyManager` class, that stores info
+    about registered auth_keys. Customer could create it's own auth_key_manager
+    that should implement
+    `mtpylon.crypto.auth_key_manager.AuthKeyManagerProtocol`. To pass
+    params for creating instance of auth key manager  use `params` value
+    that should be a dict with key as string and value as any available type
+    """
+    manager: ClassPath
+    params: Dict[str, Any]
+
+
+class ConfigDict(TypedDict, total=False):
     """
     Config for whole mtpylon application that should be passed to configure
     asyncio.web.Application instance.
@@ -27,3 +42,4 @@ class ConfigDict(TypedDict):
      `RsaManagerDict` info.
     """
     rsa_manager: RsaManagerDict
+    auth_key_manager: AuthKeyManagerDict
