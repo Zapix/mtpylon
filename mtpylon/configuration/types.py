@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import TypedDict, NewType, Dict, Any
 
-ClassPath = NewType('ClassPath', str)
+ImportPath = NewType('ImportPath', str)
 
 
 class RsaManagerDict(TypedDict, total=False):
@@ -14,7 +14,7 @@ class RsaManagerDict(TypedDict, total=False):
     Customer could create it's own rsa_manager that should implement
     `mtpylon.crypto.rsa_manager.RsaManagerProtocol`
     """
-    manager: ClassPath
+    manager: ImportPath
     params: Dict[str, Any]
 
 
@@ -29,7 +29,7 @@ class AuthKeyManagerDict(TypedDict, total=False):
     params for creating instance of auth key manager  use `params` value
     that should be a dict with key as string and value as any available type
     """
-    manager: ClassPath
+    manager: ImportPath
     params: Dict[str, Any]
 
 
