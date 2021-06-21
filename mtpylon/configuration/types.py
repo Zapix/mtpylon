@@ -33,6 +33,19 @@ class AuthKeyManagerDict(TypedDict, total=False):
     params: Dict[str, Any]
 
 
+class DhPrimeGeneratorDict(TypedDict, total=False):
+    """
+    Stores information about default dh prime number generator that will
+    generate 2048-bit prime numbers. By default we will get prime numbers
+    from 2ton.com.au using `mtpylon.dh_prime_generators.two_tone.generator`
+    Customer could creates it's one generator. Generator should be async
+    and return `int` values. Additional params could be passed with `param`
+    attribute
+    """
+    generator: ImportPath
+    params: Dict[str, Any]
+
+
 class ConfigDict(TypedDict, total=False):
     """
     Config for whole mtpylon application that should be passed to configure
@@ -43,3 +56,4 @@ class ConfigDict(TypedDict, total=False):
     """
     rsa_manager: RsaManagerDict
     auth_key_manager: AuthKeyManagerDict
+    dh_prime_generator: DhPrimeGeneratorDict
