@@ -94,6 +94,21 @@ class ConfigDict(TypedDict, total=False):
     Config Dict has got several parts:
      * `rsa_manager` - configure available rsa_keys. check it with
      `RsaManagerDict` info.
+     * `auth_key_manager` - configure auth key manager. Check
+     `AuthKeyManagerDict`
+     * `dh_prime_generator` - configure dh prime generator. Check
+     `DhPrimeGeneratorDict`
+     * `server_salt_manager` - configure server salt manager shared resource.
+     Check `ServerSaltManagerDict`
+     * `session_storage` - configure resource for storing session info.
+     Check `SessionStorageDict`
+     * `acknowledgement_storage` - configure resource for storing
+     messages that required acknowledgement. Check `AcknowledgementStoreDict`
+     * `pub_keys_view` - boolean to check add pub keys view to app or not
+     default: False
+     * `schema_view`` - boolean to check add view to display customer schema or
+     not
+     default: False
     """
     rsa_manager: RsaManagerDict
     auth_key_manager: AuthKeyManagerDict
@@ -101,3 +116,5 @@ class ConfigDict(TypedDict, total=False):
     server_salt_manager: ServerSaltManagerDict
     session_storage: SessionStorageDict
     acknowledgement_storage: AcknowledgmentStoreDict
+    pub_keys_view: bool
+    schema_view: bool
