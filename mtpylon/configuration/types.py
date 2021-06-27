@@ -72,6 +72,21 @@ class SessionStorageDict(TypedDict, total=False):
     params: Dict[str, Any]
 
 
+class AcknowledgmentStoreDict(TypedDict, total=False):
+    """
+    Stores inofrmation about how to configure acknowledgement storage.
+    By default `mtpylon.acknowledgement_store.inmemmory_acknowledgement.`
+    `InmemmoryAcknolwedgementStore`. Customer could create it's own
+    acknowledgement store by implementing
+    `mtpylon.acknowledgement_store.acknowledgement_store_protocol`
+    `AcknowlegementStoreProtocol` and pass path to implementation calss
+    in `storage` key. Params for this class should be declared in `params`
+    dict
+    """
+    storage: ImportPath
+    params: Dict[str, Any]
+
+
 class ConfigDict(TypedDict, total=False):
     """
     Config for whole mtpylon application that should be passed to configure
@@ -85,3 +100,4 @@ class ConfigDict(TypedDict, total=False):
     dh_prime_generator: DhPrimeGeneratorDict
     server_salt_manager: ServerSaltManagerDict
     session_storage: SessionStorageDict
+    acknowledgement_storage: AcknowledgmentStoreDict
