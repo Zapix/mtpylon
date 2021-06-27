@@ -48,7 +48,7 @@ class DhPrimeGeneratorDict(TypedDict, total=False):
 
 class ServerSaltManagerDict(TypedDict, total=False):
     """
-    Stores infromation about server salt manager. By default
+    Stores information about server salt manager. By default
     `mtpylon.salts.server_salt_manager.ServerSaltManager` will be used.
     Customer could create it's own server salt manager with implementing
     `mtpylon.salts.server_salt_manager_protocol.ServerSaltManagerProtocol`
@@ -56,6 +56,19 @@ class ServerSaltManagerDict(TypedDict, total=False):
     initialize instance as dict in 'params' attribute
     """
     manager: ImportPath
+    params: Dict[str, Any]
+
+
+class SessionStorageDict(TypedDict, total=False):
+    """
+    Stores information about how to configure session storage instance.
+    By default
+    `mtpylon.sessions.in_memory_session_storage.InMemorySessionStorage` would
+    be used. User could create it's own session storage by implementing
+    `mtpylon.sessions.SessionStorageProtocol` and pass to it as path in
+    `storage` param.
+    """
+    storage: ImportPath
     params: Dict[str, Any]
 
 
@@ -71,3 +84,4 @@ class ConfigDict(TypedDict, total=False):
     auth_key_manager: AuthKeyManagerDict
     dh_prime_generator: DhPrimeGeneratorDict
     server_salt_manager: ServerSaltManagerDict
+    session_storage: SessionStorageDict
