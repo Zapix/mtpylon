@@ -46,6 +46,19 @@ class DhPrimeGeneratorDict(TypedDict, total=False):
     params: Dict[str, Any]
 
 
+class ServerSaltManagerDict(TypedDict, total=False):
+    """
+    Stores infromation about server salt manager. By default
+    `mtpylon.salts.server_salt_manager.ServerSaltManager` will be used.
+    Customer could create it's own server salt manager with implementing
+    `mtpylon.salts.server_salt_manager_protocol.ServerSaltManagerProtocol`
+    and passing path to it in 'manager' key. You could pass params to
+    initialize instance as dict in 'params' attribute
+    """
+    manager: ImportPath
+    params: Dict[str, Any]
+
+
 class ConfigDict(TypedDict, total=False):
     """
     Config for whole mtpylon application that should be passed to configure
@@ -57,3 +70,4 @@ class ConfigDict(TypedDict, total=False):
     rsa_manager: RsaManagerDict
     auth_key_manager: AuthKeyManagerDict
     dh_prime_generator: DhPrimeGeneratorDict
+    server_salt_manager: ServerSaltManagerDict
