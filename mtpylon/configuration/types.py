@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from typing import TypedDict, NewType, Dict, Any
+from typing import TypedDict, Dict, Any
 
-ImportPath = NewType('ImportPath', str)
+ImportPath = str
 
 
 class RsaManagerDict(TypedDict, total=False):
