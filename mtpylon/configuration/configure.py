@@ -2,13 +2,20 @@
 from aiohttp.web import Application
 
 from mtpylon.schema import Schema
-from .types import ConfigDict, RsaManagerDict, AuthKeyManagerDict
+from .types import (
+    ConfigDict,
+    RsaManagerDict,
+    AuthKeyManagerDict,
+    DhPrimeGeneratorDict
+)
 from .import_path import import_path
 from .constants import (
     RSA_MANAGER_RESOURCE_NAME,
     DEFAULT_RSA_MANAGER_PATH,
     AUTH_KEY_MANAGER_RESOURCE_NAME,
-    DEFAULT_AUTH_KEY_MANAGER_PATH
+    DEFAULT_AUTH_KEY_MANAGER_PATH,
+    DH_PRIME_GENERATOR_RESOURCE_NAME,
+    DEFAULT_DH_PRIME_GENERATOR_PATH,
 )
 
 
@@ -37,6 +44,21 @@ def configure_auth_manager(app: Application, config: AuthKeyManagerDict):
     params = config.get('params', {})
 
     app[AUTH_KEY_MANAGER_RESOURCE_NAME] = auth_key_manager_class(**params)
+
+
+def configure_dh_prime_generator(
+    app: Application,
+    config: DhPrimeGeneratorDict
+):
+    dh_prime_generator_path = config.get(
+        'generator',
+        DEFAULT_DH_PRIME_GENERATOR_PATH
+    )
+    dh_prime_generator = import_path(dh_prime_generator_path)
+
+    params = config.get('params', {})
+
+    app[DH_PRIME_GENERATOR_RESOURCE_NAME] = dh_prime_generator(**params)
 
 
 def configure(
@@ -76,3 +98,4 @@ def configure(
     """
     configure_rsa_manager(app, config.get('rsa_manager', {}))
     configure_auth_manager(app, config.get('auth_key_manager', {}))
+    configure_dh_prime_generator(app, config.get('dh_prime_generator', {}))
