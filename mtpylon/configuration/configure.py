@@ -2,11 +2,13 @@
 from aiohttp.web import Application
 
 from mtpylon.schema import Schema
-from .types import ConfigDict, RsaManagerDict
+from .types import ConfigDict, RsaManagerDict, AuthKeyManagerDict
 from .import_path import import_path
 from .constants import (
     RSA_MANAGER_RESOURCE_NAME,
     DEFAULT_RSA_MANAGER_PATH,
+    AUTH_KEY_MANAGER_RESOURCE_NAME,
+    DEFAULT_AUTH_KEY_MANAGER_PATH
 )
 
 
@@ -15,11 +17,26 @@ def configure_rsa_manager(app: Application, config: RsaManagerDict):
     Configure rsa manager with dict config
     """
     rsa_manager_path = config.get('manager', DEFAULT_RSA_MANAGER_PATH)
-    rsa_manager_klass = import_path(rsa_manager_path)
+    rsa_manager_class = import_path(rsa_manager_path)
 
     params = config.get('params', {})
 
-    app[RSA_MANAGER_RESOURCE_NAME] = rsa_manager_klass(**params)
+    app[RSA_MANAGER_RESOURCE_NAME] = rsa_manager_class(**params)
+
+
+def configure_auth_manager(app: Application, config: AuthKeyManagerDict):
+    """
+    Configure rsa manager with dict config
+    """
+    auth_key_manager_path = config.get(
+        'manager',
+        DEFAULT_AUTH_KEY_MANAGER_PATH
+    )
+    auth_key_manager_class = import_path(auth_key_manager_path)
+
+    params = config.get('params', {})
+
+    app[AUTH_KEY_MANAGER_RESOURCE_NAME] = auth_key_manager_class(**params)
 
 
 def configure(
@@ -58,3 +75,4 @@ def configure(
      as default
     """
     configure_rsa_manager(app, config.get('rsa_manager', {}))
+    configure_auth_manager(app, config.get('auth_key_manager', {}))
