@@ -10,3 +10,7 @@ DEFAULT_AUTH_KEY_MANAGER_PATH = \
 DH_PRIME_GENERATOR_RESOURCE_NAME = 'dh_prime_generator'
 DEFAULT_DH_PRIME_GENERATOR_PATH = \
     'mtpylon.dh_prime_generators.two_ton.generate'
+
+
+SERVER_SALT_MANAGER_RESOURCE_NAME = 'server_salt_manager'
+DEFAULT_SERVER_SALT_MANAGER_PATH = 'mtpylon.salts.ServerSaltManager'

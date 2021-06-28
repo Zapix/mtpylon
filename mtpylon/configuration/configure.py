@@ -6,7 +6,8 @@ from .types import (
     ConfigDict,
     RsaManagerDict,
     AuthKeyManagerDict,
-    DhPrimeGeneratorDict
+    DhPrimeGeneratorDict,
+    ServerSaltManagerDict
 )
 from .import_path import import_path
 from .constants import (
@@ -16,6 +17,8 @@ from .constants import (
     DEFAULT_AUTH_KEY_MANAGER_PATH,
     DH_PRIME_GENERATOR_RESOURCE_NAME,
     DEFAULT_DH_PRIME_GENERATOR_PATH,
+    SERVER_SALT_MANAGER_RESOURCE_NAME,
+    DEFAULT_SERVER_SALT_MANAGER_PATH
 )
 
 
@@ -61,6 +64,23 @@ def configure_dh_prime_generator(
     app[DH_PRIME_GENERATOR_RESOURCE_NAME] = dh_prime_generator(**params)
 
 
+def configure_serversalt_manager(
+    app: Application,
+    config: ServerSaltManagerDict
+):
+    server_salt_manager_path = config.get(
+        'manager',
+        DEFAULT_SERVER_SALT_MANAGER_PATH
+    )
+    server_salt_manager_class = import_path(server_salt_manager_path)
+
+    params = config.get('params', {})
+
+    app[SERVER_SALT_MANAGER_RESOURCE_NAME] = server_salt_manager_class(
+        **params
+    )
+
+
 def configure(
     app: Application,
     schema: Schema,
@@ -99,3 +119,4 @@ def configure(
     configure_rsa_manager(app, config.get('rsa_manager', {}))
     configure_auth_manager(app, config.get('auth_key_manager', {}))
     configure_dh_prime_generator(app, config.get('dh_prime_generator', {}))
+    configure_serversalt_manager(app, config.get('server_salt_manager', {}))

@@ -8,6 +8,7 @@ from mtpylon.configuration.constants import (
     RSA_MANAGER_RESOURCE_NAME,
     AUTH_KEY_MANAGER_RESOURCE_NAME,
     DH_PRIME_GENERATOR_RESOURCE_NAME,
+    SERVER_SALT_MANAGER_RESOURCE_NAME,
 )
 from mtpylon.crypto import KeyPair
 from tests.simpleschema import schema
@@ -39,3 +40,4 @@ async def test_configure_app():
     assert RSA_MANAGER_RESOURCE_NAME in app
     assert AUTH_KEY_MANAGER_RESOURCE_NAME in app
     assert DH_PRIME_GENERATOR_RESOURCE_NAME in app
+    assert SERVER_SALT_MANAGER_RESOURCE_NAME in app
