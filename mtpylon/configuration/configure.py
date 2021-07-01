@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
+from typing import Optional
+
 from aiohttp.web import Application
 
 from mtpylon.schema import Schema
 from mtpylon.sessions import SessionSubject
+from mtpylon.aiohandlers import (
+    create_websocket_handler,
+    pub_keys_view,
+    schema_view_factory,
+)
 from .types import (
     ConfigDict,
     RsaManagerDict,
@@ -26,6 +33,10 @@ from .constants import (
     DEFAULT_SESSION_STORAGE_PATH,
     ACKNOWLEDGEMENT_STORE_RESOURCE_NAME,
     DEFAULT_ACKNOWLEDGEMENT_STORAGE_PATH,
+    API_VIEW,
+    DEFAULT_API_PATH,
+    SCHEMA_VIEW,
+    PUB_KEYS_VIEW,
 )
 
 
@@ -122,6 +133,30 @@ def configure_acknowledgement_store(
     )
 
 
+def configure_views(
+    app: Application,
+    schema: Schema,
+    api_path: str,
+    pub_keys_path: Optional[str],
+    schema_path: Optional[str],
+):
+    app.router.add_get(
+        api_path,
+        create_websocket_handler(schema),
+        name=API_VIEW,
+    )
+
+    if pub_keys_path is not None:
+        app.router.add_get(pub_keys_path, pub_keys_view, name=PUB_KEYS_VIEW)
+
+    if schema_path is not None:
+        app.router.add_get(
+            schema_path,
+            schema_view_factory(schema),
+            name=SCHEMA_VIEW
+        )
+
+
 def configure(
     app: Application,
     schema: Schema,
@@ -165,4 +200,11 @@ def configure(
     configure_acknowledgement_store(
         app,
         config.get('acknowledgement_storage', {})
+    )
+    configure_views(
+        app,
+        schema,
+        api_path=config.get('api_path', DEFAULT_API_PATH),
+        pub_keys_path=config.get('pub_keys_path'),
+        schema_path=config.get('schema_path')
     )

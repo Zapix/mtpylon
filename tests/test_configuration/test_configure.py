@@ -11,6 +11,9 @@ from mtpylon.configuration.constants import (
     SERVER_SALT_MANAGER_RESOURCE_NAME,
     SESSION_SUBJECT_RESOURCE_NAME,
     ACKNOWLEDGEMENT_STORE_RESOURCE_NAME,
+    API_VIEW,
+    SCHEMA_VIEW,
+    PUB_KEYS_VIEW
 )
 from mtpylon.crypto import KeyPair
 from tests.simpleschema import schema
@@ -35,7 +38,9 @@ async def test_configure_app():
                         rsa_key_pair
                     ]
                 }
-            }
+            },
+            'pub_keys_path': '/pub-keys',
+            'schema_path': '/schema'
         }
     )
 
@@ -45,3 +50,7 @@ async def test_configure_app():
     assert SERVER_SALT_MANAGER_RESOURCE_NAME in app
     assert SESSION_SUBJECT_RESOURCE_NAME in app
     assert ACKNOWLEDGEMENT_STORE_RESOURCE_NAME in app
+
+    assert API_VIEW in app.router
+    assert SCHEMA_VIEW in app.router
+    assert PUB_KEYS_VIEW in app.router

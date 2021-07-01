@@ -104,9 +104,9 @@ class ConfigDict(TypedDict, total=False):
      Check `SessionStorageDict`
      * `acknowledgement_storage` - configure resource for storing
      messages that required acknowledgement. Check `AcknowledgementStoreDict`
-     * `pub_keys_view` - uri for displaying pub keys view
-     * `schema_view`` - uri for displaying schema
-     * `api_view` - uri for displaying api by default `/ws`
+     * `pub_keys_path` - uri for displaying pub keys view
+     * `schema_path`` - uri for displaying schema
+     * `api_path` - uri for displaying api by default `/ws`
     """
     rsa_manager: RsaManagerDict
     auth_key_manager: AuthKeyManagerDict
@@ -114,6 +114,6 @@ class ConfigDict(TypedDict, total=False):
     server_salt_manager: ServerSaltManagerDict
     session_storage: SessionStorageDict
     acknowledgement_storage: AcknowledgmentStoreDict
-    pub_keys_view: str
-    schema_view: str
-    api_view: str
+    pub_keys_path: str
+    schema_path: str
+    api_path: str
