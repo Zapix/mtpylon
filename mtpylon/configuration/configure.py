@@ -10,6 +10,7 @@ from .types import (
     DhPrimeGeneratorDict,
     ServerSaltManagerDict,
     SessionStorageDict,
+    AcknowledgmentStoreDict,
 )
 from .import_path import import_path
 from .constants import (
@@ -22,7 +23,9 @@ from .constants import (
     SERVER_SALT_MANAGER_RESOURCE_NAME,
     DEFAULT_SERVER_SALT_MANAGER_PATH,
     SESSION_SUBJECT_RESOURCE_NAME,
-    DEFAULT_SESSION_STORAGE_PATH
+    DEFAULT_SESSION_STORAGE_PATH,
+    ACKNOWLEDGEMENT_STORE_RESOURCE_NAME,
+    DEFAULT_ACKNOWLEDGEMENT_STORAGE_PATH,
 )
 
 
@@ -102,6 +105,23 @@ def configure_session_subject(
     )
 
 
+def configure_acknowledgement_store(
+    app: Application,
+    config: AcknowledgmentStoreDict
+):
+    acknowledgement_store_path = config.get(
+        'storage',
+        DEFAULT_ACKNOWLEDGEMENT_STORAGE_PATH
+    )
+    acknowledgement_store_class = import_path(acknowledgement_store_path)
+
+    params = config.get('params', {})
+
+    app[ACKNOWLEDGEMENT_STORE_RESOURCE_NAME] = acknowledgement_store_class(
+        **params
+    )
+
+
 def configure(
     app: Application,
     schema: Schema,
@@ -142,3 +162,7 @@ def configure(
     configure_dh_prime_generator(app, config.get('dh_prime_generator', {}))
     configure_serversalt_manager(app, config.get('server_salt_manager', {}))
     configure_session_subject(app, config.get('session_storage', {}))
+    configure_acknowledgement_store(
+        app,
+        config.get('acknowledgement_storage', {})
+    )
