@@ -2,12 +2,14 @@
 from aiohttp.web import Application
 
 from mtpylon.schema import Schema
+from mtpylon.sessions import SessionSubject
 from .types import (
     ConfigDict,
     RsaManagerDict,
     AuthKeyManagerDict,
     DhPrimeGeneratorDict,
-    ServerSaltManagerDict
+    ServerSaltManagerDict,
+    SessionStorageDict,
 )
 from .import_path import import_path
 from .constants import (
@@ -18,7 +20,9 @@ from .constants import (
     DH_PRIME_GENERATOR_RESOURCE_NAME,
     DEFAULT_DH_PRIME_GENERATOR_PATH,
     SERVER_SALT_MANAGER_RESOURCE_NAME,
-    DEFAULT_SERVER_SALT_MANAGER_PATH
+    DEFAULT_SERVER_SALT_MANAGER_PATH,
+    SESSION_SUBJECT_RESOURCE_NAME,
+    DEFAULT_SESSION_STORAGE_PATH
 )
 
 
@@ -81,6 +85,23 @@ def configure_serversalt_manager(
     )
 
 
+def configure_session_subject(
+    app: Application,
+    config: SessionStorageDict
+):
+    session_storage_path = config.get(
+        'storage',
+        DEFAULT_SESSION_STORAGE_PATH
+    )
+    session_storage_class = import_path(session_storage_path)
+
+    params = config.get('params', {})
+
+    app[SESSION_SUBJECT_RESOURCE_NAME] = SessionSubject(
+        session_storage_factory=lambda: session_storage_class(**params)
+    )
+
+
 def configure(
     app: Application,
     schema: Schema,
@@ -120,3 +141,4 @@ def configure(
     configure_auth_manager(app, config.get('auth_key_manager', {}))
     configure_dh_prime_generator(app, config.get('dh_prime_generator', {}))
     configure_serversalt_manager(app, config.get('server_salt_manager', {}))
+    configure_session_subject(app, config.get('session_storage', {}))

@@ -14,3 +14,6 @@ DEFAULT_DH_PRIME_GENERATOR_PATH = \
 
 SERVER_SALT_MANAGER_RESOURCE_NAME = 'server_salt_manager'
 DEFAULT_SERVER_SALT_MANAGER_PATH = 'mtpylon.salts.ServerSaltManager'
+
+SESSION_SUBJECT_RESOURCE_NAME = 'session_subject'
+DEFAULT_SESSION_STORAGE_PATH = 'mtpylon.sessions.InMemorySessionStorage'
