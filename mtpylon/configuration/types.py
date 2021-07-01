@@ -116,3 +116,4 @@ class ConfigDict(TypedDict, total=False):
     acknowledgement_storage: AcknowledgmentStoreDict
     pub_keys_view: str
     schema_view: str
+    api_view: str
