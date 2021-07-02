@@ -77,8 +77,8 @@ def params_to_tl(params: List[AttrDescription]) -> str:
         return ''
 
     return ' '.join([
-                        attr_description_to_tl(attr) for attr in params
-                    ] + [''])
+        attr_description_to_tl(attr) for attr in params
+    ] + [''])
 
 
 def combinator_to_tl(combinator: CombinatorData) -> str:
@@ -121,12 +121,12 @@ def to_tl_program(schema: Schema) -> str:
     """
     schema_structure = schema.get_schema_structure()
     program_str = [
-                      combinator_to_tl(combinator)
-                      for combinator in schema_structure.constructors
-                  ] + [
-                      FUNCTIONS_SEPARATOR
-                  ] + [
-                      function_to_tl(method)
-                      for method in schema_structure.methods
-                  ]
+        combinator_to_tl(combinator)
+        for combinator in schema_structure.constructors
+    ] + [
+        FUNCTIONS_SEPARATOR
+    ] + [
+        function_to_tl(method)
+        for method in schema_structure.methods
+    ]
     return '\n'.join(program_str)
