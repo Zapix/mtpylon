@@ -5,6 +5,11 @@ import pytest
 from tgcrypto import ige256_encrypt  # type: ignore
 
 from mtpylon import long, int128, int256
+from mtpylon.constants import (
+    RSA_MANAGER_RESOURCE_NAME,
+    AUTH_KEY_MANAGER_RESOURCE_NAME,
+    SERVER_SALT_MANAGER_RESOURCE_NAME,
+)
 from mtpylon.service_schema.functions import set_client_DH_params
 from mtpylon.service_schema.functions.set_client_DH_params_func import (
     failed_auth_key,
@@ -78,8 +83,8 @@ def aiohttp_request():
     server_salt_manager.set_salt = AsyncMock()
 
     request.app = {
-        'rsa_manager': manager,
-        'server_salt_manager': server_salt_manager
+        RSA_MANAGER_RESOURCE_NAME: manager,
+        SERVER_SALT_MANAGER_RESOURCE_NAME: server_salt_manager
     }
 
     return request
@@ -178,7 +183,7 @@ def test_wrong_hash():
 @pytest.mark.asyncio
 async def test_set_client_dh_gen_ok(aiohttp_request):
     auth_key_manager = AuthKeyManager()
-    aiohttp_request.app['auth_key_manager'] = auth_key_manager
+    aiohttp_request.app[AUTH_KEY_MANAGER_RESOURCE_NAME] = auth_key_manager
 
     inner_data = Client_DH_Inner_Data(
         nonce=nonce_value,
@@ -211,14 +216,16 @@ async def test_set_client_dh_gen_ok(aiohttp_request):
     assert result.new_nonce_hash1 == new_nonce_hash1
     assert await auth_key_manager.has_key(auth_key)
 
-    aiohttp_request.app['server_salt_manager'].set_salt.assert_awaited()
+    aiohttp_request.app[
+        SERVER_SALT_MANAGER_RESOURCE_NAME
+    ].set_salt.assert_awaited()
 
 
 @pytest.mark.asyncio
 async def test_set_client_dh_gen_retry(aiohttp_request):
     auth_key_manager = AuthKeyManager()
     await auth_key_manager.set_key(auth_key)
-    aiohttp_request.app['auth_key_manager'] = auth_key_manager
+    aiohttp_request.app[AUTH_KEY_MANAGER_RESOURCE_NAME] = auth_key_manager
 
     inner_data = Client_DH_Inner_Data(
         nonce=nonce_value,
@@ -255,7 +262,7 @@ async def test_set_client_dh_gen_retry(aiohttp_request):
 async def test_set_client_dh_gen_fail(aiohttp_request):
     auth_key_manager = AuthKeyManager()
     await auth_key_manager.set_key(auth_key)
-    aiohttp_request.app['auth_key_manager'] = auth_key_manager
+    aiohttp_request.app[AUTH_KEY_MANAGER_RESOURCE_NAME] = auth_key_manager
 
     failed_auth_key.set(auth_key)
 
@@ -298,7 +305,7 @@ async def test_set_client_dh_gen_fail(aiohttp_request):
 async def test_set_cliend_dh_gen_ok_second_attempt(aiohttp_request):
     auth_key_manager = AuthKeyManager()
     await auth_key_manager.set_key(auth_key)
-    aiohttp_request.app['auth_key_manager'] = auth_key_manager
+    aiohttp_request.app[AUTH_KEY_MANAGER_RESOURCE_NAME] = auth_key_manager
 
     failed_auth_key.set(auth_key)
 
@@ -336,14 +343,16 @@ async def test_set_cliend_dh_gen_ok_second_attempt(aiohttp_request):
         1
     )
 
-    aiohttp_request.app['server_salt_manager'].set_salt.assert_awaited()
+    aiohttp_request.app[
+        SERVER_SALT_MANAGER_RESOURCE_NAME
+    ].set_salt.assert_awaited()
 
 
 @pytest.mark.asyncio
 async def test_set_client_dh_wrong_server_nonce(aiohttp_request):
     auth_key_manager = AuthKeyManager()
     await auth_key_manager.set_key(auth_key)
-    aiohttp_request.app['auth_key_manager'] = auth_key_manager
+    aiohttp_request.app[AUTH_KEY_MANAGER_RESOURCE_NAME] = auth_key_manager
 
     inner_data = Client_DH_Inner_Data(
         nonce=nonce_value,

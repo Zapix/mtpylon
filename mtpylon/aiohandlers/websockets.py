@@ -16,6 +16,14 @@ from mtpylon.transports import (
 from mtpylon.middlewares import BASIC_MIDDLEWARES
 from mtpylon.message_sender import MessageSender
 from mtpylon.message_handler import MessageHandler
+from mtpylon.constants import (
+    RSA_MANAGER_RESOURCE_NAME,
+    AUTH_KEY_MANAGER_RESOURCE_NAME,
+    DH_PRIME_GENERATOR_RESOURCE_NAME,
+    SERVER_SALT_MANAGER_RESOURCE_NAME,
+    SESSION_SUBJECT_RESOURCE_NAME,
+    ACKNOWLEDGEMENT_STORE_RESOURCE_NAME,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -28,27 +36,27 @@ class SharedResourceCheck:
 
 SHARED_RESOURCE_CHECK_LIST = [
     SharedResourceCheck(
-        resource_name='rsa_manager',
+        resource_name=RSA_MANAGER_RESOURCE_NAME,
         error='Rsa manager should be set',
     ),
     SharedResourceCheck(
-        resource_name='auth_key_manager',
+        resource_name=AUTH_KEY_MANAGER_RESOURCE_NAME,
         error='Auth key manager should be set',
     ),
     SharedResourceCheck(
-        resource_name='dh_prime_generator',
+        resource_name=DH_PRIME_GENERATOR_RESOURCE_NAME,
         error='DH prime generator should be set',
     ),
     SharedResourceCheck(
-        resource_name='server_salt_manager',
+        resource_name=SERVER_SALT_MANAGER_RESOURCE_NAME,
         error='Server salt manager should be set'
     ),
     SharedResourceCheck(
-        resource_name='session_subject',
+        resource_name=SESSION_SUBJECT_RESOURCE_NAME,
         error='Session subject should be set',
     ),
     SharedResourceCheck(
-        resource_name='acknowledgement_store',
+        resource_name=ACKNOWLEDGEMENT_STORE_RESOURCE_NAME,
         error='Acknowledgement store should be set'
     ),
 ]

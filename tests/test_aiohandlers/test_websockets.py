@@ -11,6 +11,14 @@ from mtpylon.dh_prime_generators.single_prime import generate
 from mtpylon.salts import ServerSaltManager
 from mtpylon.sessions import SessionSubject, InMemorySessionStorage
 from mtpylon.acknowledgement_store import InmemoryAcknowledgementStore
+from mtpylon.constants import (
+    RSA_MANAGER_RESOURCE_NAME,
+    AUTH_KEY_MANAGER_RESOURCE_NAME,
+    DH_PRIME_GENERATOR_RESOURCE_NAME,
+    SERVER_SALT_MANAGER_RESOURCE_NAME,
+    SESSION_SUBJECT_RESOURCE_NAME,
+    ACKNOWLEDGEMENT_STORE_RESOURCE_NAME,
+)
 
 from tests.helpers import hexstr_to_bytes
 from tests.simple_manager import manager
@@ -57,7 +65,7 @@ class WsHandlerNoAuthkKeyManagerTestCase(AioHTTPTestCase):
         ws_handler = create_websocket_handler(schema)
 
         app = web.Application()
-        app['rsa_manager'] = manager
+        app[RSA_MANAGER_RESOURCE_NAME] = manager
         app.router.add_get('/ws', ws_handler)
 
         return app
@@ -79,8 +87,8 @@ class WsHandlerNoDhPrimeGeneratorTestCase(AioHTTPTestCase):
         ws_handler = create_websocket_handler(schema)
 
         app = web.Application()
-        app['rsa_manager'] = manager
-        app['auth_key_manager'] = AuthKeyManager()
+        app[RSA_MANAGER_RESOURCE_NAME] = manager
+        app[AUTH_KEY_MANAGER_RESOURCE_NAME] = AuthKeyManager()
         app.router.add_get('/ws', ws_handler)
 
         return app
@@ -102,9 +110,9 @@ class WsHandlerNoServerSaltManager(AioHTTPTestCase):
         ws_handler = create_websocket_handler(schema)
 
         app = web.Application()
-        app['rsa_manager'] = manager
-        app['auth_key_manager'] = AuthKeyManager()
-        app['dh_prime_generator'] = generate()
+        app[RSA_MANAGER_RESOURCE_NAME] = manager
+        app[AUTH_KEY_MANAGER_RESOURCE_NAME] = AuthKeyManager()
+        app[DH_PRIME_GENERATOR_RESOURCE_NAME] = generate()
 
         app.router.add_get('/ws', ws_handler)
 
@@ -127,10 +135,10 @@ class WsHandlerNoSessionSubject(AioHTTPTestCase):
         ws_handler = create_websocket_handler(schema)
 
         app = web.Application()
-        app['rsa_manager'] = manager
-        app['auth_key_manager'] = AuthKeyManager()
-        app['dh_prime_generator'] = generate()
-        app['server_salt_manager'] = ServerSaltManager()
+        app[RSA_MANAGER_RESOURCE_NAME] = manager
+        app[AUTH_KEY_MANAGER_RESOURCE_NAME] = AuthKeyManager()
+        app[DH_PRIME_GENERATOR_RESOURCE_NAME] = generate()
+        app[SERVER_SALT_MANAGER_RESOURCE_NAME] = ServerSaltManager()
 
         app.router.add_get('/ws', ws_handler)
 
@@ -153,11 +161,11 @@ class WsHandlerNoAcknowledgementStore(AioHTTPTestCase):
         ws_handler = create_websocket_handler(schema)
 
         app = web.Application()
-        app['auth_key_manager'] = AuthKeyManager()
-        app['rsa_manager'] = manager
-        app['dh_prime_generator'] = generate()
-        app['server_salt_manager'] = ServerSaltManager()
-        app['session_subject'] = SessionSubject(
+        app[RSA_MANAGER_RESOURCE_NAME] = manager
+        app[AUTH_KEY_MANAGER_RESOURCE_NAME] = AuthKeyManager()
+        app[DH_PRIME_GENERATOR_RESOURCE_NAME] = generate()
+        app[SERVER_SALT_MANAGER_RESOURCE_NAME] = ServerSaltManager()
+        app[SESSION_SUBJECT_RESOURCE_NAME] = SessionSubject(
             lambda: InMemorySessionStorage()
         )
         app.router.add_get('/ws', ws_handler)
@@ -181,14 +189,16 @@ class WsHandlerTestCase(AioHTTPTestCase):
         ws_handler = create_websocket_handler(schema)
 
         app = web.Application()
-        app['auth_key_manager'] = AuthKeyManager()
-        app['rsa_manager'] = manager
-        app['dh_prime_generator'] = generate()
-        app['server_salt_manager'] = ServerSaltManager()
-        app['session_subject'] = SessionSubject(
+        app[RSA_MANAGER_RESOURCE_NAME] = manager
+        app[AUTH_KEY_MANAGER_RESOURCE_NAME] = AuthKeyManager()
+        app[DH_PRIME_GENERATOR_RESOURCE_NAME] = generate()
+        app[SERVER_SALT_MANAGER_RESOURCE_NAME] = ServerSaltManager()
+        app[SESSION_SUBJECT_RESOURCE_NAME] = SessionSubject(
             lambda: InMemorySessionStorage()
         )
-        app['acknowledgement_store'] = InmemoryAcknowledgementStore()
+        app[
+            ACKNOWLEDGEMENT_STORE_RESOURCE_NAME
+        ] = InmemoryAcknowledgementStore()
         app.router.add_get('/ws', ws_handler)
 
         return app

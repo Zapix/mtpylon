@@ -13,6 +13,7 @@ from mtpylon.contextvars import (
     pq_var,
 )
 from mtpylon.service_schema.functions import req_pq_multi
+from mtpylon.constants import RSA_MANAGER_RESOURCE_NAME
 
 from tests.simple_manager import manager
 
@@ -21,7 +22,7 @@ from tests.simple_manager import manager
 async def test_req_pq_multi():
     request = MagicMock()
     request.app = {
-        'rsa_manager': manager
+        RSA_MANAGER_RESOURCE_NAME: manager
     }
 
     nonce_value = int128(88224628713810667588887952107997447839)

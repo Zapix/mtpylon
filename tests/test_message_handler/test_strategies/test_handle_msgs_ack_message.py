@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, AsyncMock
 import pytest
 
 from mtpylon.types import long
+from mtpylon.constants import ACKNOWLEDGEMENT_STORE_RESOURCE_NAME
 from mtpylon.messages import EncryptedMessage
 from mtpylon.service_schema.constructors import MsgsAck
 from mtpylon.message_handler.strategies.handle_msgs_ack_message import (
@@ -55,7 +56,7 @@ async def tests_handle_msgs_ack(message):
 
     request = MagicMock()
     request.app = {
-        'acknowledgement_store': acknowledgement_store
+        ACKNOWLEDGEMENT_STORE_RESOURCE_NAME: acknowledgement_store
     }
 
     await handle_msgs_ack(
