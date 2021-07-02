@@ -21,6 +21,7 @@ from mtpylon.constants import (
     AUTH_KEY_MANAGER_RESOURCE_NAME,
     DH_PRIME_GENERATOR_RESOURCE_NAME,
     SERVER_SALT_MANAGER_RESOURCE_NAME,
+    SESSION_SUBJECT_RESOURCE_NAME,
 )
 
 logger = logging.getLogger(__name__)
@@ -50,7 +51,7 @@ SHARED_RESOURCE_CHECK_LIST = [
         error='Server salt manager should be set'
     ),
     SharedResourceCheck(
-        resource_name='session_subject',
+        resource_name=SESSION_SUBJECT_RESOURCE_NAME,
         error='Session subject should be set',
     ),
     SharedResourceCheck(

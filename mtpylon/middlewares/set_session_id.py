@@ -4,6 +4,7 @@ from typing import Any
 
 from aiohttp.web import Request
 
+from mtpylon.constants import SESSION_SUBJECT_RESOURCE_NAME
 from mtpylon.contextvars import income_message_var, session_id_var
 from mtpylon.messages import EncryptedMessage
 
@@ -17,7 +18,7 @@ async def set_session_id(
     request: Request,
     **params: Any,
 ) -> Any:
-    session_subject = request.app['session_subject']
+    session_subject = request.app[SESSION_SUBJECT_RESOURCE_NAME]
     income_message = income_message_var.get()
 
     if isinstance(income_message, EncryptedMessage):

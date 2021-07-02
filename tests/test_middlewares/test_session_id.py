@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from mtpylon.types import long
+from mtpylon.constants import SESSION_SUBJECT_RESOURCE_NAME
 from mtpylon.contextvars import (
     income_message_var,
     session_id_var,
@@ -45,7 +46,7 @@ async def test_create_session_id():
 
     request = MagicMock()
     request.app = {
-        'session_subject': session_subject
+        SESSION_SUBJECT_RESOURCE_NAME: session_subject
     }
 
     session_observer = MagicMock()
@@ -94,7 +95,7 @@ async def test_session_id_created_before():
 
     request = MagicMock()
     request.app = {
-        'session_subject': session_subject
+        SESSION_SUBJECT_RESOURCE_NAME: session_subject
     }
 
     session_observer = MagicMock()

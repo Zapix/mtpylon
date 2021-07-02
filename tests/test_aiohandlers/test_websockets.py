@@ -16,6 +16,7 @@ from mtpylon.constants import (
     AUTH_KEY_MANAGER_RESOURCE_NAME,
     DH_PRIME_GENERATOR_RESOURCE_NAME,
     SERVER_SALT_MANAGER_RESOURCE_NAME,
+    SESSION_SUBJECT_RESOURCE_NAME,
 )
 
 from tests.helpers import hexstr_to_bytes
@@ -163,7 +164,7 @@ class WsHandlerNoAcknowledgementStore(AioHTTPTestCase):
         app[AUTH_KEY_MANAGER_RESOURCE_NAME] = AuthKeyManager()
         app[DH_PRIME_GENERATOR_RESOURCE_NAME] = generate()
         app[SERVER_SALT_MANAGER_RESOURCE_NAME] = ServerSaltManager()
-        app['session_subject'] = SessionSubject(
+        app[SESSION_SUBJECT_RESOURCE_NAME] = SessionSubject(
             lambda: InMemorySessionStorage()
         )
         app.router.add_get('/ws', ws_handler)
@@ -191,7 +192,7 @@ class WsHandlerTestCase(AioHTTPTestCase):
         app[AUTH_KEY_MANAGER_RESOURCE_NAME] = AuthKeyManager()
         app[DH_PRIME_GENERATOR_RESOURCE_NAME] = generate()
         app[SERVER_SALT_MANAGER_RESOURCE_NAME] = ServerSaltManager()
-        app['session_subject'] = SessionSubject(
+        app[SESSION_SUBJECT_RESOURCE_NAME] = SessionSubject(
             lambda: InMemorySessionStorage()
         )
         app['acknowledgement_store'] = InmemoryAcknowledgementStore()

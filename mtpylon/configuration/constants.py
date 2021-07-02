@@ -9,7 +9,6 @@ DEFAULT_DH_PRIME_GENERATOR_PATH = \
 
 DEFAULT_SERVER_SALT_MANAGER_PATH = 'mtpylon.salts.ServerSaltManager'
 
-SESSION_SUBJECT_RESOURCE_NAME = 'session_subject'
 DEFAULT_SESSION_STORAGE_PATH = 'mtpylon.sessions.InMemorySessionStorage'
 
 ACKNOWLEDGEMENT_STORE_RESOURCE_NAME = 'acknowledgement_store'
