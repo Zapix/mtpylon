@@ -3,6 +3,7 @@ import pytest
 from aiohttp.web import Application
 
 from mtpylon.aiohandlers.pub_keys import pub_keys_view
+from mtpylon.constants import RSA_MANAGER_RESOURCE_NAME
 
 from tests.simple_manager import manager
 
@@ -20,7 +21,7 @@ def cli(loop, aiohttp_client):
 def cli_with_manager(loop, aiohttp_client):
 
     app = Application()
-    app['rsa_manager'] = manager
+    app[RSA_MANAGER_RESOURCE_NAME] = manager
     app.router.add_get('/pub-keys', pub_keys_view)
 
     return loop.run_until_complete(aiohttp_client(app))

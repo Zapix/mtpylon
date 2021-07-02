@@ -11,6 +11,7 @@ from mtpylon.dh_prime_generators.single_prime import generate
 from mtpylon.salts import ServerSaltManager
 from mtpylon.sessions import SessionSubject, InMemorySessionStorage
 from mtpylon.acknowledgement_store import InmemoryAcknowledgementStore
+from mtpylon.constants import RSA_MANAGER_RESOURCE_NAME
 
 from tests.helpers import hexstr_to_bytes
 from tests.simple_manager import manager
@@ -57,7 +58,7 @@ class WsHandlerNoAuthkKeyManagerTestCase(AioHTTPTestCase):
         ws_handler = create_websocket_handler(schema)
 
         app = web.Application()
-        app['rsa_manager'] = manager
+        app[RSA_MANAGER_RESOURCE_NAME] = manager
         app.router.add_get('/ws', ws_handler)
 
         return app
@@ -79,7 +80,7 @@ class WsHandlerNoDhPrimeGeneratorTestCase(AioHTTPTestCase):
         ws_handler = create_websocket_handler(schema)
 
         app = web.Application()
-        app['rsa_manager'] = manager
+        app[RSA_MANAGER_RESOURCE_NAME] = manager
         app['auth_key_manager'] = AuthKeyManager()
         app.router.add_get('/ws', ws_handler)
 
@@ -102,7 +103,7 @@ class WsHandlerNoServerSaltManager(AioHTTPTestCase):
         ws_handler = create_websocket_handler(schema)
 
         app = web.Application()
-        app['rsa_manager'] = manager
+        app[RSA_MANAGER_RESOURCE_NAME] = manager
         app['auth_key_manager'] = AuthKeyManager()
         app['dh_prime_generator'] = generate()
 
@@ -127,7 +128,7 @@ class WsHandlerNoSessionSubject(AioHTTPTestCase):
         ws_handler = create_websocket_handler(schema)
 
         app = web.Application()
-        app['rsa_manager'] = manager
+        app[RSA_MANAGER_RESOURCE_NAME] = manager
         app['auth_key_manager'] = AuthKeyManager()
         app['dh_prime_generator'] = generate()
         app['server_salt_manager'] = ServerSaltManager()
@@ -153,8 +154,8 @@ class WsHandlerNoAcknowledgementStore(AioHTTPTestCase):
         ws_handler = create_websocket_handler(schema)
 
         app = web.Application()
+        app[RSA_MANAGER_RESOURCE_NAME] = manager
         app['auth_key_manager'] = AuthKeyManager()
-        app['rsa_manager'] = manager
         app['dh_prime_generator'] = generate()
         app['server_salt_manager'] = ServerSaltManager()
         app['session_subject'] = SessionSubject(
@@ -181,8 +182,8 @@ class WsHandlerTestCase(AioHTTPTestCase):
         ws_handler = create_websocket_handler(schema)
 
         app = web.Application()
+        app[RSA_MANAGER_RESOURCE_NAME] = manager
         app['auth_key_manager'] = AuthKeyManager()
-        app['rsa_manager'] = manager
         app['dh_prime_generator'] = generate()
         app['server_salt_manager'] = ServerSaltManager()
         app['session_subject'] = SessionSubject(

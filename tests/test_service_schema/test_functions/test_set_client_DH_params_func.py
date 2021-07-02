@@ -5,6 +5,7 @@ import pytest
 from tgcrypto import ige256_encrypt  # type: ignore
 
 from mtpylon import long, int128, int256
+from mtpylon.constants import RSA_MANAGER_RESOURCE_NAME
 from mtpylon.service_schema.functions import set_client_DH_params
 from mtpylon.service_schema.functions.set_client_DH_params_func import (
     failed_auth_key,
@@ -78,7 +79,7 @@ def aiohttp_request():
     server_salt_manager.set_salt = AsyncMock()
 
     request.app = {
-        'rsa_manager': manager,
+        RSA_MANAGER_RESOURCE_NAME: manager,
         'server_salt_manager': server_salt_manager
     }
 

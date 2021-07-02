@@ -21,7 +21,6 @@ from .types import (
 )
 from .import_path import import_path
 from .constants import (
-    RSA_MANAGER_RESOURCE_NAME,
     DEFAULT_RSA_MANAGER_PATH,
     AUTH_KEY_MANAGER_RESOURCE_NAME,
     DEFAULT_AUTH_KEY_MANAGER_PATH,
@@ -38,6 +37,7 @@ from .constants import (
     SCHEMA_VIEW,
     PUB_KEYS_VIEW,
 )
+from ..constants import RSA_MANAGER_RESOURCE_NAME
 
 
 def configure_rsa_manager(app: Application, config: RsaManagerDict):

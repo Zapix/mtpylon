@@ -23,6 +23,7 @@ from mtpylon.contextvars import (
 from mtpylon.serialization import LoadedValue
 from mtpylon.serialization.schema import load, dump
 from mtpylon.crypto.rsa import decrypt as rsa_decrypt
+from mtpylon.constants import RSA_MANAGER_RESOURCE_NAME
 
 from ..constructors import (
     Server_DH_Params,
@@ -134,7 +135,7 @@ async def req_DH_params(
     logger.info('Handle req DH params')
 
     inner_data = decrypt_inner_data(
-        request.app['rsa_manager'],
+        request.app[RSA_MANAGER_RESOURCE_NAME],
         encrypted_data,
         public_key_fingerprint
     )

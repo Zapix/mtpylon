@@ -16,6 +16,7 @@ from mtpylon.transports import (
 from mtpylon.middlewares import BASIC_MIDDLEWARES
 from mtpylon.message_sender import MessageSender
 from mtpylon.message_handler import MessageHandler
+from mtpylon.constants import RSA_MANAGER_RESOURCE_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ class SharedResourceCheck:
 
 SHARED_RESOURCE_CHECK_LIST = [
     SharedResourceCheck(
-        resource_name='rsa_manager',
+        resource_name=RSA_MANAGER_RESOURCE_NAME,
         error='Rsa manager should be set',
     ),
     SharedResourceCheck(
