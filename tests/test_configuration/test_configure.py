@@ -3,7 +3,7 @@ import pytest
 import rsa  # type: ignore
 from aiohttp.web import Application
 
-from mtpylon.configuration.configure import configure
+from mtpylon.configuration.configure import configure_app
 from mtpylon.configuration.constants import (
     RSA_MANAGER_RESOURCE_NAME,
     AUTH_KEY_MANAGER_RESOURCE_NAME,
@@ -28,7 +28,7 @@ async def test_configure_app():
     )
     app = Application()
 
-    configure(
+    configure_app(
         app,
         schema,
         {

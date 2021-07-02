@@ -157,7 +157,7 @@ def configure_views(
         )
 
 
-def configure(
+def configure_app(
     app: Application,
     schema: Schema,
     config: ConfigDict
