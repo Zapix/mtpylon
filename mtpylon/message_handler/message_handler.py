@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from aiohttp import web
 
 from mtpylon.schema import Schema
+from mtpylon.constants import AUTH_KEY_MANAGER_RESOURCE_NAME
 from mtpylon.service_schema import service_schema
 from mtpylon.transports import Obfuscator, TransportWrapper
 from mtpylon.message_sender import MessageSender
@@ -46,7 +47,7 @@ class MessageHandler:
         message_bytes = self.transport_wrapper.unwrap(transport_message)
 
         return await unpack_message(
-            request.app['auth_key_manager'],
+            request.app[AUTH_KEY_MANAGER_RESOURCE_NAME],
             self._common_schema,
             message_bytes
         )

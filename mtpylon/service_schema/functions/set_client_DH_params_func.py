@@ -8,6 +8,7 @@ from aiohttp import web
 from tgcrypto import ige256_decrypt  # type: ignore
 
 from mtpylon import Schema, long, int128, int256
+from mtpylon.constants import AUTH_KEY_MANAGER_RESOURCE_NAME
 from mtpylon.crypto import AuthKey, KeyIvPair
 from mtpylon.crypto.auth_key_manager import AuthKeyManagerProtocol
 from mtpylon.salts import ServerSaltManagerProtocol
@@ -188,7 +189,7 @@ async def set_client_DH_params(
             )
         )
 
-    auth_manager = request.app['auth_key_manager']
+    auth_manager = request.app[AUTH_KEY_MANAGER_RESOURCE_NAME]
     auth_manager = cast(AuthKeyManagerProtocol, auth_manager)
 
     if await auth_manager.has_key(auth_key):

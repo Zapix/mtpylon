@@ -6,6 +6,7 @@ import logging
 from aiohttp.web import WebSocketResponse, Request
 
 from .types import long
+from .constants import AUTH_KEY_MANAGER_RESOURCE_NAME
 from .acknowledgement_store import (
     AcknowledgementStoreProtocol,
     AcknowledgementMessage,
@@ -48,7 +49,7 @@ class MessageSender:
 
         try:
             message_bytes = await pack_message(
-                request.app['auth_key_manager'],
+                request.app[AUTH_KEY_MANAGER_RESOURCE_NAME],
                 self._common_schema,
                 message
             )

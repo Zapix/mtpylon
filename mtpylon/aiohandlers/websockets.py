@@ -16,7 +16,10 @@ from mtpylon.transports import (
 from mtpylon.middlewares import BASIC_MIDDLEWARES
 from mtpylon.message_sender import MessageSender
 from mtpylon.message_handler import MessageHandler
-from mtpylon.constants import RSA_MANAGER_RESOURCE_NAME
+from mtpylon.constants import (
+    RSA_MANAGER_RESOURCE_NAME,
+    AUTH_KEY_MANAGER_RESOURCE_NAME
+)
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +36,7 @@ SHARED_RESOURCE_CHECK_LIST = [
         error='Rsa manager should be set',
     ),
     SharedResourceCheck(
-        resource_name='auth_key_manager',
+        resource_name=AUTH_KEY_MANAGER_RESOURCE_NAME,
         error='Auth key manager should be set',
     ),
     SharedResourceCheck(

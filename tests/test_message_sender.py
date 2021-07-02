@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from mtpylon import long
+from mtpylon.constants import AUTH_KEY_MANAGER_RESOURCE_NAME
 from mtpylon.message_sender import MessageSender
 from mtpylon.crypto import AuthKeyManager, AuthKey
 from mtpylon.contextvars import auth_key_var
@@ -21,7 +22,7 @@ auth_key = AuthKey(auth_key_data)
 def aiohttp_request():
     request = MagicMock()
     request.app = {
-        'auth_key_manager': AuthKeyManager(),
+        AUTH_KEY_MANAGER_RESOURCE_NAME: AuthKeyManager(),
         'acknowledgement_store': MagicMock(
             get_message_list=AsyncMock(return_value=[]),
             set_message=AsyncMock(),
@@ -157,7 +158,7 @@ async def test_send_encrypted_message_acknowledgement_required(
 async def test_send_encrypted_message_in_container():
     aiohttp_request = MagicMock()
     aiohttp_request.app = {
-        'auth_key_manager': AuthKeyManager(),
+        AUTH_KEY_MANAGER_RESOURCE_NAME: AuthKeyManager(),
         'acknowledgement_store': MagicMock(
             get_message_list=AsyncMock(return_value=[
                 AcknowledgementMessage(

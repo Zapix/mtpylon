@@ -5,7 +5,10 @@ import pytest
 from tgcrypto import ige256_encrypt  # type: ignore
 
 from mtpylon import long, int128, int256
-from mtpylon.constants import RSA_MANAGER_RESOURCE_NAME
+from mtpylon.constants import (
+    RSA_MANAGER_RESOURCE_NAME,
+    AUTH_KEY_MANAGER_RESOURCE_NAME
+)
 from mtpylon.service_schema.functions import set_client_DH_params
 from mtpylon.service_schema.functions.set_client_DH_params_func import (
     failed_auth_key,
@@ -179,7 +182,7 @@ def test_wrong_hash():
 @pytest.mark.asyncio
 async def test_set_client_dh_gen_ok(aiohttp_request):
     auth_key_manager = AuthKeyManager()
-    aiohttp_request.app['auth_key_manager'] = auth_key_manager
+    aiohttp_request.app[AUTH_KEY_MANAGER_RESOURCE_NAME] = auth_key_manager
 
     inner_data = Client_DH_Inner_Data(
         nonce=nonce_value,
@@ -219,7 +222,7 @@ async def test_set_client_dh_gen_ok(aiohttp_request):
 async def test_set_client_dh_gen_retry(aiohttp_request):
     auth_key_manager = AuthKeyManager()
     await auth_key_manager.set_key(auth_key)
-    aiohttp_request.app['auth_key_manager'] = auth_key_manager
+    aiohttp_request.app[AUTH_KEY_MANAGER_RESOURCE_NAME] = auth_key_manager
 
     inner_data = Client_DH_Inner_Data(
         nonce=nonce_value,
@@ -256,7 +259,7 @@ async def test_set_client_dh_gen_retry(aiohttp_request):
 async def test_set_client_dh_gen_fail(aiohttp_request):
     auth_key_manager = AuthKeyManager()
     await auth_key_manager.set_key(auth_key)
-    aiohttp_request.app['auth_key_manager'] = auth_key_manager
+    aiohttp_request.app[AUTH_KEY_MANAGER_RESOURCE_NAME] = auth_key_manager
 
     failed_auth_key.set(auth_key)
 
@@ -299,7 +302,7 @@ async def test_set_client_dh_gen_fail(aiohttp_request):
 async def test_set_cliend_dh_gen_ok_second_attempt(aiohttp_request):
     auth_key_manager = AuthKeyManager()
     await auth_key_manager.set_key(auth_key)
-    aiohttp_request.app['auth_key_manager'] = auth_key_manager
+    aiohttp_request.app[AUTH_KEY_MANAGER_RESOURCE_NAME] = auth_key_manager
 
     failed_auth_key.set(auth_key)
 
@@ -344,7 +347,7 @@ async def test_set_cliend_dh_gen_ok_second_attempt(aiohttp_request):
 async def test_set_client_dh_wrong_server_nonce(aiohttp_request):
     auth_key_manager = AuthKeyManager()
     await auth_key_manager.set_key(auth_key)
-    aiohttp_request.app['auth_key_manager'] = auth_key_manager
+    aiohttp_request.app[AUTH_KEY_MANAGER_RESOURCE_NAME] = auth_key_manager
 
     inner_data = Client_DH_Inner_Data(
         nonce=nonce_value,
