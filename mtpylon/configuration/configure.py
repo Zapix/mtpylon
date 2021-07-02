@@ -23,7 +23,6 @@ from .import_path import import_path
 from .constants import (
     DEFAULT_RSA_MANAGER_PATH,
     DEFAULT_AUTH_KEY_MANAGER_PATH,
-    DH_PRIME_GENERATOR_RESOURCE_NAME,
     DEFAULT_DH_PRIME_GENERATOR_PATH,
     SERVER_SALT_MANAGER_RESOURCE_NAME,
     DEFAULT_SERVER_SALT_MANAGER_PATH,
@@ -37,7 +36,7 @@ from .constants import (
     PUB_KEYS_VIEW,
 )
 from ..constants import RSA_MANAGER_RESOURCE_NAME, \
-    AUTH_KEY_MANAGER_RESOURCE_NAME
+    AUTH_KEY_MANAGER_RESOURCE_NAME, DH_PRIME_GENERATOR_RESOURCE_NAME
 
 
 def configure_rsa_manager(app: Application, config: RsaManagerDict):

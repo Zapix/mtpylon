@@ -5,7 +5,6 @@ from aiohttp.web import Application
 
 from mtpylon.configuration.configure import configure_app
 from mtpylon.configuration.constants import (
-    DH_PRIME_GENERATOR_RESOURCE_NAME,
     SERVER_SALT_MANAGER_RESOURCE_NAME,
     SESSION_SUBJECT_RESOURCE_NAME,
     ACKNOWLEDGEMENT_STORE_RESOURCE_NAME,
@@ -14,7 +13,7 @@ from mtpylon.configuration.constants import (
     PUB_KEYS_VIEW
 )
 from mtpylon.constants import RSA_MANAGER_RESOURCE_NAME, \
-    AUTH_KEY_MANAGER_RESOURCE_NAME
+    AUTH_KEY_MANAGER_RESOURCE_NAME, DH_PRIME_GENERATOR_RESOURCE_NAME
 from mtpylon.crypto import KeyPair
 from tests.simpleschema import schema
 

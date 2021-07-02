@@ -34,7 +34,10 @@ from mtpylon.service_schema.functions.req_DH_params_func import \
 from mtpylon.service_schema.utils import generate_tmp_key_iv
 from mtpylon.utils import dump_integer_big_endian
 from mtpylon.crypto.rsa import encrypt as rsa_encrypt
-from mtpylon.constants import RSA_MANAGER_RESOURCE_NAME
+from mtpylon.constants import (
+    RSA_MANAGER_RESOURCE_NAME,
+    DH_PRIME_GENERATOR_RESOURCE_NAME
+)
 
 from tests.simple_manager import manager
 
@@ -60,7 +63,7 @@ def aiohttp_request():
     request = MagicMock()
     request.app = {
         RSA_MANAGER_RESOURCE_NAME: manager,
-        'dh_prime_generator': generate_dh(),
+        DH_PRIME_GENERATOR_RESOURCE_NAME: generate_dh(),
     }
 
     return request

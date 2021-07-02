@@ -18,7 +18,8 @@ from mtpylon.message_sender import MessageSender
 from mtpylon.message_handler import MessageHandler
 from mtpylon.constants import (
     RSA_MANAGER_RESOURCE_NAME,
-    AUTH_KEY_MANAGER_RESOURCE_NAME
+    AUTH_KEY_MANAGER_RESOURCE_NAME,
+    DH_PRIME_GENERATOR_RESOURCE_NAME,
 )
 
 logger = logging.getLogger(__name__)
@@ -40,7 +41,7 @@ SHARED_RESOURCE_CHECK_LIST = [
         error='Auth key manager should be set',
     ),
     SharedResourceCheck(
-        resource_name='dh_prime_generator',
+        resource_name=DH_PRIME_GENERATOR_RESOURCE_NAME,
         error='DH prime generator should be set',
     ),
     SharedResourceCheck(

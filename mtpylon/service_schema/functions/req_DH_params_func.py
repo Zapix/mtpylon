@@ -23,7 +23,10 @@ from mtpylon.contextvars import (
 from mtpylon.serialization import LoadedValue
 from mtpylon.serialization.schema import load, dump
 from mtpylon.crypto.rsa import decrypt as rsa_decrypt
-from mtpylon.constants import RSA_MANAGER_RESOURCE_NAME
+from mtpylon.constants import (
+    RSA_MANAGER_RESOURCE_NAME,
+    DH_PRIME_GENERATOR_RESOURCE_NAME
+)
 
 from ..constructors import (
     Server_DH_Params,
@@ -161,7 +164,9 @@ async def req_DH_params(
             new_nonce_hash=new_nonce_hash
         )
 
-    dh_prime = await generate_dh_prime(request.app['dh_prime_generator'])
+    dh_prime = await generate_dh_prime(
+        request.app[DH_PRIME_GENERATOR_RESOURCE_NAME]
+    )
     dh_prime_var.set(dh_prime)
 
     g = await generate_g()
