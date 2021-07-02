@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from mtpylon.types import long
+from mtpylon.constants import SERVER_SALT_MANAGER_RESOURCE_NAME
 from mtpylon.messages import EncryptedMessage
 from mtpylon.serialization import CallableFunc
 from mtpylon.middlewares.set_server_salt import set_server_salt
@@ -54,7 +55,7 @@ async def test_server_salt_exist():
 
     request = MagicMock()
     request.app = {
-        'server_salt_manager': server_salt_manager
+        SERVER_SALT_MANAGER_RESOURCE_NAME: server_salt_manager
     }
 
     await set_server_salt(handler, request, content='hello_world')
@@ -92,7 +93,7 @@ async def test_bad_server_salt():
 
     request = MagicMock()
     request.app = {
-        'server_salt_manager': server_salt_manager
+        SERVER_SALT_MANAGER_RESOURCE_NAME: server_salt_manager
     }
 
     result = await set_server_salt(handler, request, content='hello_world')

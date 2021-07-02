@@ -20,6 +20,7 @@ from mtpylon.constants import (
     RSA_MANAGER_RESOURCE_NAME,
     AUTH_KEY_MANAGER_RESOURCE_NAME,
     DH_PRIME_GENERATOR_RESOURCE_NAME,
+    SERVER_SALT_MANAGER_RESOURCE_NAME,
 )
 
 logger = logging.getLogger(__name__)
@@ -45,7 +46,7 @@ SHARED_RESOURCE_CHECK_LIST = [
         error='DH prime generator should be set',
     ),
     SharedResourceCheck(
-        resource_name='server_salt_manager',
+        resource_name=SERVER_SALT_MANAGER_RESOURCE_NAME,
         error='Server salt manager should be set'
     ),
     SharedResourceCheck(

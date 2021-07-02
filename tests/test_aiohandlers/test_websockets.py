@@ -15,6 +15,7 @@ from mtpylon.constants import (
     RSA_MANAGER_RESOURCE_NAME,
     AUTH_KEY_MANAGER_RESOURCE_NAME,
     DH_PRIME_GENERATOR_RESOURCE_NAME,
+    SERVER_SALT_MANAGER_RESOURCE_NAME,
 )
 
 from tests.helpers import hexstr_to_bytes
@@ -135,7 +136,7 @@ class WsHandlerNoSessionSubject(AioHTTPTestCase):
         app[RSA_MANAGER_RESOURCE_NAME] = manager
         app[AUTH_KEY_MANAGER_RESOURCE_NAME] = AuthKeyManager()
         app[DH_PRIME_GENERATOR_RESOURCE_NAME] = generate()
-        app['server_salt_manager'] = ServerSaltManager()
+        app[SERVER_SALT_MANAGER_RESOURCE_NAME] = ServerSaltManager()
 
         app.router.add_get('/ws', ws_handler)
 
@@ -161,7 +162,7 @@ class WsHandlerNoAcknowledgementStore(AioHTTPTestCase):
         app[RSA_MANAGER_RESOURCE_NAME] = manager
         app[AUTH_KEY_MANAGER_RESOURCE_NAME] = AuthKeyManager()
         app[DH_PRIME_GENERATOR_RESOURCE_NAME] = generate()
-        app['server_salt_manager'] = ServerSaltManager()
+        app[SERVER_SALT_MANAGER_RESOURCE_NAME] = ServerSaltManager()
         app['session_subject'] = SessionSubject(
             lambda: InMemorySessionStorage()
         )
@@ -189,7 +190,7 @@ class WsHandlerTestCase(AioHTTPTestCase):
         app[RSA_MANAGER_RESOURCE_NAME] = manager
         app[AUTH_KEY_MANAGER_RESOURCE_NAME] = AuthKeyManager()
         app[DH_PRIME_GENERATOR_RESOURCE_NAME] = generate()
-        app['server_salt_manager'] = ServerSaltManager()
+        app[SERVER_SALT_MANAGER_RESOURCE_NAME] = ServerSaltManager()
         app['session_subject'] = SessionSubject(
             lambda: InMemorySessionStorage()
         )

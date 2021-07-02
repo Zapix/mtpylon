@@ -4,6 +4,7 @@ from typing import Any, cast
 
 from aiohttp.web import Request
 
+from mtpylon.constants import SERVER_SALT_MANAGER_RESOURCE_NAME
 from mtpylon.messages import EncryptedMessage
 from mtpylon.salts import ServerSaltManagerProtocol, Salt
 from mtpylon.service_schema.constructors import BadServerSalt
@@ -28,7 +29,7 @@ async def set_server_salt(
         logger.info(f'Check server salt {message.salt}')
         auth_key = auth_key_var.get()
         server_salt_manager = request.app.get(
-            'server_salt_manager'
+            SERVER_SALT_MANAGER_RESOURCE_NAME
         )
 
         logger.info(f'Set salt {message.salt}')

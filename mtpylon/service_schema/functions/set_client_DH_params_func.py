@@ -8,7 +8,10 @@ from aiohttp import web
 from tgcrypto import ige256_decrypt  # type: ignore
 
 from mtpylon import Schema, long, int128, int256
-from mtpylon.constants import AUTH_KEY_MANAGER_RESOURCE_NAME
+from mtpylon.constants import (
+    AUTH_KEY_MANAGER_RESOURCE_NAME,
+    SERVER_SALT_MANAGER_RESOURCE_NAME
+)
 from mtpylon.crypto import AuthKey, KeyIvPair
 from mtpylon.crypto.auth_key_manager import AuthKeyManagerProtocol
 from mtpylon.salts import ServerSaltManagerProtocol
@@ -207,7 +210,7 @@ async def set_client_DH_params(
 
     salt = build_salt(server_nonce, new_nonce_value)
 
-    server_salt_manager = request.app['server_salt_manager']
+    server_salt_manager = request.app[SERVER_SALT_MANAGER_RESOURCE_NAME]
     server_salt_manager = cast(ServerSaltManagerProtocol, server_salt_manager)
 
     await server_salt_manager.set_salt(auth_key, salt)

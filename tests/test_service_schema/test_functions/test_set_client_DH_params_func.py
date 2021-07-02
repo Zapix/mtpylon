@@ -7,7 +7,8 @@ from tgcrypto import ige256_encrypt  # type: ignore
 from mtpylon import long, int128, int256
 from mtpylon.constants import (
     RSA_MANAGER_RESOURCE_NAME,
-    AUTH_KEY_MANAGER_RESOURCE_NAME
+    AUTH_KEY_MANAGER_RESOURCE_NAME,
+    SERVER_SALT_MANAGER_RESOURCE_NAME,
 )
 from mtpylon.service_schema.functions import set_client_DH_params
 from mtpylon.service_schema.functions.set_client_DH_params_func import (
@@ -83,7 +84,7 @@ def aiohttp_request():
 
     request.app = {
         RSA_MANAGER_RESOURCE_NAME: manager,
-        'server_salt_manager': server_salt_manager
+        SERVER_SALT_MANAGER_RESOURCE_NAME: server_salt_manager
     }
 
     return request
@@ -215,7 +216,9 @@ async def test_set_client_dh_gen_ok(aiohttp_request):
     assert result.new_nonce_hash1 == new_nonce_hash1
     assert await auth_key_manager.has_key(auth_key)
 
-    aiohttp_request.app['server_salt_manager'].set_salt.assert_awaited()
+    aiohttp_request.app[
+        SERVER_SALT_MANAGER_RESOURCE_NAME
+    ].set_salt.assert_awaited()
 
 
 @pytest.mark.asyncio
@@ -340,7 +343,9 @@ async def test_set_cliend_dh_gen_ok_second_attempt(aiohttp_request):
         1
     )
 
-    aiohttp_request.app['server_salt_manager'].set_salt.assert_awaited()
+    aiohttp_request.app[
+        SERVER_SALT_MANAGER_RESOURCE_NAME
+    ].set_salt.assert_awaited()
 
 
 @pytest.mark.asyncio
