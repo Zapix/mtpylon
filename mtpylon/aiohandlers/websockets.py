@@ -22,6 +22,7 @@ from mtpylon.constants import (
     DH_PRIME_GENERATOR_RESOURCE_NAME,
     SERVER_SALT_MANAGER_RESOURCE_NAME,
     SESSION_SUBJECT_RESOURCE_NAME,
+    ACKNOWLEDGEMENT_STORE_RESOURCE_NAME,
 )
 
 logger = logging.getLogger(__name__)
@@ -55,7 +56,7 @@ SHARED_RESOURCE_CHECK_LIST = [
         error='Session subject should be set',
     ),
     SharedResourceCheck(
-        resource_name='acknowledgement_store',
+        resource_name=ACKNOWLEDGEMENT_STORE_RESOURCE_NAME,
         error='Acknowledgement store should be set'
     ),
 ]

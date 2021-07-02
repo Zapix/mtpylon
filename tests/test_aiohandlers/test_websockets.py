@@ -17,6 +17,7 @@ from mtpylon.constants import (
     DH_PRIME_GENERATOR_RESOURCE_NAME,
     SERVER_SALT_MANAGER_RESOURCE_NAME,
     SESSION_SUBJECT_RESOURCE_NAME,
+    ACKNOWLEDGEMENT_STORE_RESOURCE_NAME,
 )
 
 from tests.helpers import hexstr_to_bytes
@@ -195,7 +196,9 @@ class WsHandlerTestCase(AioHTTPTestCase):
         app[SESSION_SUBJECT_RESOURCE_NAME] = SessionSubject(
             lambda: InMemorySessionStorage()
         )
-        app['acknowledgement_store'] = InmemoryAcknowledgementStore()
+        app[
+            ACKNOWLEDGEMENT_STORE_RESOURCE_NAME
+        ] = InmemoryAcknowledgementStore()
         app.router.add_get('/ws', ws_handler)
 
         return app

@@ -11,7 +11,6 @@ DEFAULT_SERVER_SALT_MANAGER_PATH = 'mtpylon.salts.ServerSaltManager'
 
 DEFAULT_SESSION_STORAGE_PATH = 'mtpylon.sessions.InMemorySessionStorage'
 
-ACKNOWLEDGEMENT_STORE_RESOURCE_NAME = 'acknowledgement_store'
 DEFAULT_ACKNOWLEDGEMENT_STORAGE_PATH = \
     'mtpylon.acknowledgement_store.InmemoryAcknowledgementStore'
 

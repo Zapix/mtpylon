@@ -5,6 +5,7 @@ from asyncio import create_task
 from aiohttp.web import Request
 
 from mtpylon.types import long
+from mtpylon.constants import ACKNOWLEDGEMENT_STORE_RESOURCE_NAME
 from mtpylon.income_message import IncomeMessage
 from mtpylon.message_sender import MessageSender
 from mtpylon.middlewares import Handler, MiddleWareFunc, apply_middleware
@@ -18,7 +19,7 @@ from mtpylon.contextvars import (
 
 
 async def delete_msgs(request: Request, msg_ids: List[long]):
-    acknowledgement_store = request.app['acknowledgement_store']
+    acknowledgement_store = request.app[ACKNOWLEDGEMENT_STORE_RESOURCE_NAME]
 
     auth_key = auth_key_var.get()
     session_id = session_id_var.get()

@@ -3,7 +3,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from mtpylon import long
-from mtpylon.constants import AUTH_KEY_MANAGER_RESOURCE_NAME
+from mtpylon.constants import (
+    AUTH_KEY_MANAGER_RESOURCE_NAME,
+    ACKNOWLEDGEMENT_STORE_RESOURCE_NAME
+)
 from mtpylon.message_sender import MessageSender
 from mtpylon.crypto import AuthKeyManager, AuthKey
 from mtpylon.contextvars import auth_key_var
@@ -23,7 +26,7 @@ def aiohttp_request():
     request = MagicMock()
     request.app = {
         AUTH_KEY_MANAGER_RESOURCE_NAME: AuthKeyManager(),
-        'acknowledgement_store': MagicMock(
+        ACKNOWLEDGEMENT_STORE_RESOURCE_NAME: MagicMock(
             get_message_list=AsyncMock(return_value=[]),
             set_message=AsyncMock(),
         ),
@@ -145,7 +148,9 @@ async def test_send_encrypted_message_acknowledgement_required(
             acknowledgement_required=True
         )
 
-        acknowledgement_store = aiohttp_request.app['acknowledgement_store']
+        acknowledgement_store = aiohttp_request.app[
+            ACKNOWLEDGEMENT_STORE_RESOURCE_NAME
+        ]
 
         acknowledgement_store.set_message.assert_awaited()
 
@@ -159,7 +164,7 @@ async def test_send_encrypted_message_in_container():
     aiohttp_request = MagicMock()
     aiohttp_request.app = {
         AUTH_KEY_MANAGER_RESOURCE_NAME: AuthKeyManager(),
-        'acknowledgement_store': MagicMock(
+        ACKNOWLEDGEMENT_STORE_RESOURCE_NAME: MagicMock(
             get_message_list=AsyncMock(return_value=[
                 AcknowledgementMessage(
                     message_id=long(1),
@@ -208,7 +213,9 @@ async def test_send_encrypted_message_in_container():
             acknowledgement_required=True
         )
 
-        acknowledgement_store = aiohttp_request.app['acknowledgement_store']
+        acknowledgement_store = aiohttp_request.app[
+            ACKNOWLEDGEMENT_STORE_RESOURCE_NAME
+        ]
         acknowledgement_store.get_message_list.assert_awaited()
 
         pack_message.assert_awaited()
