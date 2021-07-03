@@ -74,6 +74,13 @@ def is_optional_type(tp: Any) -> bool:
     )
 
 
+def has_optional_field(combinatoir) -> bool:
+    for field in fields(combinatoir):
+        if is_optional_type(field.type):
+            return True
+    return False
+
+
 def is_annotated_union(tp) -> bool:
     return is_annotated(tp) and is_union(tp.__args__[0])
 
@@ -164,7 +171,7 @@ def is_valid_combinator(
 
     if not is_dataclass(combinator):
         raise InvalidCombinator(
-            f'Combinator {c_name} should be subclass of NamedTuple'
+            f'Combinator {c_name} should be dataclass'
         )
 
     if not hasattr(combinator, 'Meta'):
@@ -182,7 +189,6 @@ def is_valid_combinator(
         )
 
     order = getattr(combinator.Meta, 'order', [])
-    flags = getattr(combinator.Meta, 'flags', [])
 
     dataclass_fields = get_fields_map(combinator)
     for attr_name in order:
@@ -194,6 +200,7 @@ def is_valid_combinator(
     for field in fields(combinator):
         attr_name = field.name
         attr_type = field.type
+        metadata = getattr(field, 'metadata', {})
 
         if attr_name not in order:
             raise InvalidCombinator(
@@ -207,9 +214,9 @@ def is_valid_combinator(
             )
             raise InvalidCombinator(error_str)
 
-        if is_optional_type(attr_type) and attr_name not in flags:
+        if is_optional_type(attr_type) and 'flag' not in metadata:
             raise InvalidCombinator(
-                f'Attribute {attr_name} should be set in Meta.flags'
+                f'Attribute {attr_name} should have flag value in metadata'
             )
 
 
@@ -296,7 +303,7 @@ def get_type_name(
     elif is_optional_type(attr_type) and combinator is not None:
         optional_type_name = get_type_name(attr_type.__args__[0],
                                            for_type_number=for_type_number)
-        order = combinator.Meta.flags[attr_name]
+        order = attr_meta['flag']
 
         type_name = f'flags.{order}?{optional_type_name}'
     elif is_list_type(attr_type):
@@ -373,7 +380,7 @@ def build_attr_description_list(
     order = getattr(combinator.Meta, 'order', [])
     flags_attr_list = []
 
-    if hasattr(combinator.Meta, 'flags'):
+    if has_optional_field(combinator):
         flags_attr_list.append(AttrDescription('flags', '#', int, None))
 
     dataclass_map = get_fields_map(combinator)

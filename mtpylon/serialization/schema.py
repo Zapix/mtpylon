@@ -27,6 +27,7 @@ from .loaded import LoadedValue
 from ..utils import (
     is_list_type,
     is_optional_type,
+    get_fields_map,
     AttrDescription,
 )
 from .. import long, int128, int256
@@ -100,8 +101,9 @@ def get_flag_ids(origin: Type, param_name: str) -> int:
         origin - type of origin comibnator
         param_name - name of param
     """
-    flags = origin.Meta.flags
-    return flags[param_name]
+    fields_map = get_fields_map(origin)
+    field = fields_map[param_name]
+    return field.metadata['flag']
 
 
 def get_flag_value(flag_number: int, param_name: str, origin: Type) -> int:
@@ -255,7 +257,6 @@ def _dump(
     values_2_dump: List[Value2Dump] = []
 
     dumped_values: List[bytes] = []
-    flags: Dict[str, int] = {}
     flags_value: Optional[int] = None
 
     if type(value) in custom_dumpers:
@@ -285,9 +286,6 @@ def _dump(
         except KeyError:
             raise DumpError('Can`t dump combinator that not in schema')
 
-        meta = getattr(data.origin, 'Meta', None)
-        flags = getattr(meta, 'flags', {})
-
         values_2_dump = [
             Value2Dump(getattr(value, param.name, None), param)
             for param in data.params
@@ -301,7 +299,7 @@ def _dump(
             flags_value = 0
             continue
 
-        if param.name in flags:
+        if 'flag' in getattr(param.field, 'metadata', {}):
             if attr_value is None:
                 continue
 
