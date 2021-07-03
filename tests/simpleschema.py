@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Annotated, Union, List, Optional, Any
 
 from aiohttp import web
@@ -31,14 +31,11 @@ class AuthorizedUser:
     id: int
     username: str
     password: str
-    avatar_url: Optional[str]
+    avatar_url: Optional[str] = field(metadata={'flag': 0})
 
     class Meta:
         name = 'authorizedUser'
         order = ('id', 'username', 'password', 'avatar_url')
-        flags = {
-            'avatar_url': 0
-        }
 
 
 @dataclass
@@ -56,14 +53,11 @@ class Task:
     id: int
     content: str
     completed: Bool
-    tags: Optional[List[str]]
+    tags: Optional[List[str]] = field(metadata={'flag': 1})
 
     class Meta:
         name = 'task'
         order = ('id', 'content', 'completed', 'tags')
-        flags = {
-            'tags': 1
-        }
 
 
 @dataclass

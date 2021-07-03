@@ -208,14 +208,11 @@ class Task:
 class TaggedTask:
     content: str
     finished: Bool
-    tags: Optional[List[str]]
+    tags: Optional[List[str]] = field(metadata={'flag': 1})
 
     class Meta:
         name = 'taggedTask'
         order = ('content', 'finished', 'tags')
-        flags = {
-            'tags': 1
-        }
 
 
 @dataclass
@@ -337,14 +334,11 @@ class ChatParticipants:
 @dataclass
 class InputMediaPhotoExternal:
     url: str
-    ttl_seconds: Optional[int]
+    ttl_seconds: Optional[int] = field(metadata={'flag': 0})
 
     class Meta:
         name = 'inputMediaPhotoExternal'
         order = ('url', 'ttl_seconds')
-        flags = {
-            'ttl_seconds': 0,
-        }
 
 
 @dataclass
@@ -371,14 +365,11 @@ class DialogFilter:
 @dataclass
 class UpdateDialogFilter:
     id: int
-    filter: Optional[DialogFilter]
+    filter: Optional[DialogFilter] = field(metadata={'flag': 0})
 
     class Meta:
         name = 'updateDialogFilter'
         order = ('id', 'filter')
-        flags = {
-            'filter': 0
-        }
 
 
 @dataclass
@@ -396,16 +387,12 @@ Update = Annotated[
 @dataclass
 class ExtendedTree:
     val: int
-    left: Optional['ExtendedTree']
-    right: Optional['ExtendedTree']
+    left: Optional['ExtendedTree'] = field(metadata={'flag': 0})
+    right: Optional['ExtendedTree'] = field(metadata={'flag': 1})
 
     class Meta:
         name = 'extendedTree'
         order = ('val', 'left', 'right')
-        flags = {
-            'left': 0,
-            'right': 1,
-        }
 
 
 @dataclass
@@ -419,14 +406,11 @@ class WithoutFlags:
 
 @dataclass
 class WrongConstructorUsed:
-    val: Optional[AnotherClass]
+    val: Optional[AnotherClass] = field(metadata={'flag': 0})
 
     class Meta:
         name = 'withoutFlags'
         order = ('val', )
-        flags = {
-            'val': 0,
-        }
 
 
 @dataclass
