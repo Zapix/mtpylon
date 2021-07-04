@@ -10,6 +10,7 @@ Welcome to mtpylon's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   0-basic-types
    1-combinators-and-constructors
    2-schema-and-its-serializers
    3-rsa-key-manager
