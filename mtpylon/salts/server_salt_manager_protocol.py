@@ -14,7 +14,7 @@ class ServerSaltManagerProtocol(Protocol):
         salt_value: long
     ) -> bool:  # pragma: nocover
         """
-        Checks can be current salt been used now or not.
+        Checks can current salt be used now or not.
         """
         ...
 

@@ -15,6 +15,7 @@ Welcome to mtpylon's documentation!
    2-schema-and-its-serializers
    3-rsa-key-manager
    4-auth-key-and-auth-key-manager
+   5-server-salt-manager
 
 Indices and tables
 ==================
