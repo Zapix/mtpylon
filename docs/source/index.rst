@@ -17,6 +17,7 @@ Welcome to mtpylon's documentation!
    4-auth-key-and-auth-key-manager
    5-server-salt-manager
    6-session-subject-and-storage
+   7-acknowledgement-store
 
 Indices and tables
 ==================
