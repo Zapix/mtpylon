@@ -46,7 +46,55 @@ So we could describe it as dataclass with `class Meta` argument that has name of
 
 * `name` - string. Describes name of combinator
 * `order` - tuple of strings. Describes attributes order
-* `flags` - dict strings to int Describes info about flags for options fields and order of it
+
+
+Attribute of `combinator` class should be one of :ref:`basic types <mtpylon_basic_types>`, :ref:`constructors <mtpylon_constructors>`,
+they could be optional and/or bare type
+
+.. _optional:
+
+Optional fields
+^^^^^^^^^^^^^^^
+
+Optional fields is field that could be none for in combinator.
+To set field as optional you need:
+
+ * Use `typing.Optional` type for annotating
+ * Set flag with index for `dataclass.field()` in `metadata` param index is
+   a bit number in `# Type <https://core.telegram.org/type/%23>`_
+
+.. code-block:: python
+
+  @dataclass
+  class AuthorizedUser:
+      id: int
+      username: str
+      password: str
+      avatar_url: Optional[str] = field(metadata={'flag': 0})
+
+      class Meta:
+          name = 'authorizedUser'
+          order = ('id', 'username', 'password', 'avatar_url')
+
+.. _bare_type:
+
+Bare types
+^^^^^^^^^^
+
+.. note::
+
+  Be aware of using bare types. It used only in a few places
+  for service messages. bare types aren't looks safe and stable.
+
+Bare type is a type whose values do not contain a constructor number,
+which is implied instead. A bare type identifier always coincides with the
+name of the implied constructor (and therefore, begins with a lowercase letter)
+For more information check `Mtproto Boxed and Bare Types <https://core.telegram.org/mtproto/serialize#boxed-and-bare-types>`_
+
+To set field as bare you need:
+
+  * Set `bare` param for `dataclass.field()` in `metadata` param. Bare could be
+    `"lower"` or `"%"`. This is required for different building tl-string options
 
 
 .. _mtpylon_constructors:
@@ -68,7 +116,7 @@ Constructor could be annotated union of combinators with name  or single combina
 .. _mtpylon_functions:
 
 Functions
---------
+---------
 
 In mtpylon all functions are async and described with annotations. Each paramaters
 and return value should be annotated with basic type or :ref:`mtpylon_constructors`
