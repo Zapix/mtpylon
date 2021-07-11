@@ -23,5 +23,13 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
+    install_requires=[
+        'aiohttp>=3.7.4',
+        'aiohttp-cors>=0.7.0',
+        'rsa>=4.7.2',
+        'TgCrypto>=1.2.2',
+        'pyaes>=1.6.1',
+        'mypy-extensions>=0.4.3',
+    ],
     python_requires='>=3.9',
 )
