@@ -9,7 +9,7 @@ from .types import int128, int256, long
 from .crypto import AuthKey
 
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: nocover
     from .income_message import IncomeMessage
 
 
