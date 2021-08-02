@@ -2,11 +2,16 @@
 """
 Declared contextvars that will be used in mtpylon
 """
+from typing import TYPE_CHECKING
 from contextvars import ContextVar
 
 from .types import int128, int256, long
 from .crypto import AuthKey
-from .income_message import IncomeMessage
+
+
+if TYPE_CHECKING:  # pragma: nocover
+    from .income_message import IncomeMessage
+
 
 """
 Stores server_nonces for authorization key creation process
@@ -47,4 +52,6 @@ session_id_var: ContextVar[long] = ContextVar('session_id_var')
 """
 Stores message that has been received
 """
-income_message_var: ContextVar[IncomeMessage] = ContextVar('income_message')
+income_message_var: ContextVar[
+    'IncomeMessage'
+] = ContextVar('income_message')
