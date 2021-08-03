@@ -50,7 +50,7 @@ res_pq_message = UnencryptedMessage(
         server_nonce=int128(0x863d23c1bfc0c47e3e59cc4059ea5b35),
         pq=b'\x13\x54\x65\x62\x4e\x61\x25\xfd',
         server_public_key_fingerprints=[
-            long(0xc3b42b026ce86b21),
+            long(-4344800451088585951),
         ],
     ),
 )

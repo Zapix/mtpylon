@@ -32,8 +32,8 @@ auth_key_data = 1917313845044290159121284673148915838663794700370670579369746600
 auth_key_hash = 1394472671087208165269226426108057929670511175639
 auth_key_id = 1435926575080417239
 
-server_salt = long(16009147158398906513)
-session_id = long(11520911270507767959)
+server_salt = long(-2437596915310645103)
+session_id = long(-6925832803201783657)
 
 encrypted_message_bytes = b"\x13\xedo\x9c\xb76'\xd7\xeaU\x0b\xba\xc0\xc4P\xad\x11\xdb\xcaB\x87\xff\xd4\xce\x83\x16\xbfbA\xbf1\xa7\x931\xe8.\x80\xe5\x1d\xb7$=\xc0\x98\x99O\x11\x8a\xb3\xb9P~\x1fb\x007\xab\xa7\x90\xa6\x0f\xa3\xa4\x9c<\xe2\x11u\xb4\xfc\xb6\x8b\x1cR\x96\xb7\xcf&\x01y:\xbf\xc3@\xc2\x9b\xe3E" # noqa
 

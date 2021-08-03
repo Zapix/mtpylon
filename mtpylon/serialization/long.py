@@ -11,7 +11,7 @@ def dump(value: long) -> bytes:
     Args:
         value - int value that should be dumped
     """
-    return value.to_bytes(8, 'little')
+    return value.to_bytes(8, 'little', signed=True)
 
 
 def load(input: bytes) -> LoadedValue[long]:
@@ -28,4 +28,7 @@ def load(input: bytes) -> LoadedValue[long]:
     """
     if len(input) < 8:
         raise ValueError(f'To load long required 8 bytes. Got {len(input)}')
-    return LoadedValue(long(int.from_bytes(input[:8], 'little')), 8)
+    return LoadedValue(
+        long(int.from_bytes(input[:8], 'little', signed=True)),
+        8
+    )

@@ -43,13 +43,13 @@ method_names = [
 json_schema = {
     "constructors": [
         {
-            "id": 2574415285,
+            "id": -1720552011,
             "predicate": "boolTrue",
             "type": "Bool",
             "params": []
         },
         {
-            "id": 3162085175,
+            "id": -1132882121,
             "predicate": "boolFalse",
             "type": "Bool",
             "params": []
@@ -88,7 +88,7 @@ json_schema = {
             "params": []
         },
         {
-            "id": 0xb801a563,
+            "id": -1207851677,
             "predicate": "task",
             "type": "Task",
             "params": [
@@ -126,7 +126,7 @@ json_schema = {
             ]
         },
         {
-            "id": 3098825498,
+            "id": -1196141798,
             "predicate": "entity_comment",
             "type": "EntityComment",
             "params": [
@@ -184,13 +184,13 @@ json_schema = {
             ]
         },
         {
-            "id": 3391236435,
+            "id": -903730861,
             "method": "get_task_list",
             "type": "TaskList",
             "params": []
         },
         {
-            "id": 3370625417,
+            "id": -924341879,
             "method": "get_task",
             "type": "Task",
             "params": [

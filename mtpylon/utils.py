@@ -30,6 +30,17 @@ from .types import BASIC_TYPES
 PossibleConstructors = Optional[List[Any]]
 
 
+def get_crc32(data: bytes) -> int:
+    """
+    Python binascii.crc32 returns as unsigned int but we need signed int value
+    """
+    return int.from_bytes(
+        binascii.crc32(data).to_bytes(4, 'little'),
+        'little',
+        signed=True
+    )
+
+
 def get_fields_map(class_or_instance: Any) -> Mapping[str, Field]:
     """
     Takes dataclass fields, returns fields map
@@ -447,7 +458,7 @@ def get_combinator_number(combinator: Any, constructor: Any) -> int:
     )
     description_bytes = description.encode()
 
-    return binascii.crc32(description_bytes)
+    return get_crc32(description_bytes)
 
 
 def is_valid_function(
@@ -588,7 +599,7 @@ def get_function_number(func: Callable) -> int:
         function number
     """
     description = build_function_description(func, for_type_number=True)
-    return binascii.crc32(description.encode())
+    return get_crc32(description.encode())
 
 
 def bytes_needed(n: int) -> int:
