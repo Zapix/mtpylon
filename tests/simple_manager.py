@@ -70,7 +70,7 @@ key_data_list = [
         3GL3H2K6/lWGt6y7F1ZUNu8xZBD2J1VftPbdaZQ6fi8jqRlIAok=
         -----END RSA PRIVATE KEY-----
         ''',
-        fingerprint=long(9495775286241702748)
+        fingerprint=long(-8950968787467848868)
     ),
     KeyData(
         public_str='''
@@ -169,7 +169,7 @@ key_data_list = [
         gVetBNHrHzrubLs8GfT2erGwLJ1b31v/XjB1KeiMtThliNe6MCiD
         -----END RSA PRIVATE KEY-----
         ''',
-        fingerprint=long(17442734222710702222)
+        fingerprint=long(-1004009850998849394)
     ),
     KeyData(
         public_str='''
@@ -216,7 +216,7 @@ key_data_list = [
         hIa7d4vHIPPflSd0GRsdJ8bmY0rJjB4qWXiav0xgHA==
         -----END RSA PRIVATE KEY-----
         ''',
-        fingerprint=long(13923728974697425819)
+        fingerprint=long(-4523015099012125797)
     ),
     KeyData(
         public_str='''

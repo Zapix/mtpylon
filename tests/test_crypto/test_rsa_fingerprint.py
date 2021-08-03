@@ -20,7 +20,7 @@ public_keys_with_fingerprint = [
             -----END RSA PUBLIC KEY-----
             """,
         ),
-        long(0xc3b42b026ce86b21),
+        long(-4344800451088585951),
         id='c3b42b026ce86b21'
     ),
     pytest.param(
@@ -71,7 +71,7 @@ public_keys_with_fingerprint = [
             -----END PUBLIC KEY-----
             """
         ),
-        long(0xaeae98e13cd7f94f),
+        long(-5859577972006586033),
         id="aeae98e13cd7f94f"
     ),
     pytest.param(
