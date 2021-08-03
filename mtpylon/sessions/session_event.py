@@ -3,6 +3,7 @@ from typing import Literal
 from dataclasses import dataclass
 
 from mtpylon.types import long
+from mtpylon.crypto import AuthKey
 
 
 EventType = Literal['created', 'destroyed']
@@ -12,3 +13,4 @@ EventType = Literal['created', 'destroyed']
 class SessionEvent:
     type: EventType
     session_id: long
+    auth_key: AuthKey

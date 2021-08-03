@@ -3,6 +3,7 @@ from asyncio import gather
 from typing import Callable
 
 from mtpylon.types import long
+from mtpylon.crypto import AuthKey
 from .session_subject_protocol import SessionSubjectProtocol
 from .session_storage_protocol import SessionStorageProtocol
 from .session_oberver_protocol import SessionObserverProtocol
@@ -30,22 +31,24 @@ class SessionSubject(SessionSubjectProtocol):
             for observer in self.observers
         ])
 
-    async def create_session(self, session_id: long):
-        await self.session_storage.create_session(session_id)
+    async def create_session(self, auth_key: AuthKey, session_id: long):
+        await self.session_storage.create_session(auth_key, session_id)
         event = SessionEvent(
             type='created',
-            session_id=session_id
+            session_id=session_id,
+            auth_key=auth_key
         )
         await self._notify(event)
 
-    async def has_session(self, session_id: long) -> bool:
-        return await self.session_storage.has_session(session_id)
+    async def has_session(self, auth_key: AuthKey, session_id: long) -> bool:
+        return await self.session_storage.has_session(auth_key, session_id)
 
-    async def destroy_session(self, session_id: long):
-        if await self.session_storage.has_session(session_id):
-            await self.session_storage.destroy_session(session_id)
+    async def destroy_session(self, auth_key: AuthKey, session_id: long):
+        if await self.session_storage.has_session(auth_key, session_id):
+            await self.session_storage.destroy_session(auth_key, session_id)
             event = SessionEvent(
                 type='destroyed',
-                session_id=session_id
+                session_id=session_id,
+                auth_key=auth_key
             )
             await self._notify(event)
