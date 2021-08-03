@@ -88,9 +88,10 @@ def combinator_to_tl(combinator: CombinatorData) -> str:
     Args:
         combinator - combinator data that should be dumped
     """
+    combinator_id = combinator.id & 0xffffffff
     return '{predicate}#{id} {params}= {type};'.format(**{
         'predicate': combinator.predicate,
-        'id': f'{combinator.id:08x}',
+        'id': f'{combinator_id:08x}',
         'params': params_to_tl(combinator.params),
         'type': combinator.type
     })
@@ -103,9 +104,10 @@ def function_to_tl(func: FunctionData) -> str:
     Args:
         func - function data that should be dumped
     """
+    func_id = func.id & 0xffffffff
     return '{method}#{id} {params}= {type};'.format(**{
         'method': func.method,
-        'id': f'{func.id:08x}',
+        'id': f'{func_id:08x}',
         'params': params_to_tl(func.params),
         'type': func.type
     })

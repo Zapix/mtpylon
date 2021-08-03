@@ -898,18 +898,18 @@ class TestBuildCombinatorDescription:
 class TestCombinatorNumber:
 
     def test_bool(self):
-        assert get_combinator_number(BoolTrue, Bool) == 0x997275b5
-        assert get_combinator_number(BoolFalse, Bool) == 0xbc799737
+        assert get_combinator_number(BoolTrue, Bool) == -1720552011
+        assert get_combinator_number(BoolFalse, Bool) == -1132882121
 
     def test_input_peer(self):
         assertion_list = [
-            (InputPeerEmpty, 0x7f3b18ea),
-            (InputPeerSelf, 0x7da07ec9),
-            (InputPeerChat, 0x179be863),
-            (InputPeerUser, 0x7b8e7de6),
-            (InputPeerChannel, 0x20adaef8),
-            (InputPeerUserFromMessage, 0x17bae2e6),
-            (InputPeerChannelFromMessage, 0x9c95f7bb),
+            (InputPeerEmpty, 2134579434),
+            (InputPeerSelf, 2107670217),
+            (InputPeerChat, 396093539),
+            (InputPeerUser, 2072935910),
+            (InputPeerChannel, 548253432),
+            (InputPeerUserFromMessage, 398123750),
+            (InputPeerChannelFromMessage, -1667893317),
         ]
 
         for combinator, value in assertion_list:
@@ -931,7 +931,7 @@ class TestCombinatorNumber:
         assert get_combinator_number(
             InputMediaPhotoExternal,
             InputMedia
-        ) == 0xe5bbfe1a
+        ) == -440664550
 
     def test_update(self):
         assert get_combinator_number(
@@ -940,7 +940,7 @@ class TestCombinatorNumber:
         ) == 0x26ffde7d
 
     def test_rpc_result(self):
-        assert get_combinator_number(RpcResult, RpcResult) == 0xf35c6d01
+        assert get_combinator_number(RpcResult, RpcResult) == -212046591
 
     def test_msg_container(self):
         assert get_combinator_number(
@@ -974,7 +974,7 @@ class TestBuildFunctionDescription:
 class TestGetFunctionNumber:
 
     def test_equals(self):
-        assert get_function_number(equals) == 0xb5fffb56
+        assert get_function_number(equals) == -1241515178
 
     def test_get_task_content(self):
         assert get_function_number(get_task_content) == 0x2e08ac72

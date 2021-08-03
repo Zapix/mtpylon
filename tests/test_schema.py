@@ -143,7 +143,7 @@ def test_combinator_number_in_schema():
 
 
 def test_function_number_in_schema():
-    assert 3391236435 in schema
+    assert -903730861 in schema
 
 
 def test_wrong_number():
@@ -153,7 +153,7 @@ def test_wrong_number():
 def test_get_boolTrue_combinator_by_type():  # flake8: noqa
     combinator = schema[BoolTrue]
     assert isinstance(combinator, CombinatorData)
-    assert combinator.id == 2574415285
+    assert combinator.id == -1720552011
     assert len(combinator.params) == 0
     assert combinator.predicate == 'boolTrue'
     assert combinator.type == 'Bool'
@@ -162,25 +162,25 @@ def test_get_boolTrue_combinator_by_type():  # flake8: noqa
 def test_get_task_combinator_by_type():
     combinator = schema[Task]
     assert isinstance(combinator, CombinatorData)
-    assert combinator.id == 0xb801a563
+    assert combinator.id == -1207851677
     assert len(combinator.params) == 5
     assert combinator.predicate == 'task'
     assert combinator.type == 'Task'
 
 
 def test_get_boolTrue_combinator_by_number():  # flake8: noqa
-    combinator = schema[2574415285]
+    combinator = schema[-1720552011]
     assert isinstance(combinator, CombinatorData)
-    assert combinator.id == 2574415285
+    assert combinator.id == -1720552011
     assert len(combinator.params) == 0
     assert combinator.predicate == 'boolTrue'
     assert combinator.type == 'Bool'
 
 
 def test_get_task_combinator_by_number():
-    combinator = schema[0xb801a563]
+    combinator = schema[-1207851677]
     assert isinstance(combinator, CombinatorData)
-    assert combinator.id == 0xb801a563
+    assert combinator.id == -1207851677
     assert len(combinator.params) == 5
     assert combinator.predicate == 'task'
     assert combinator.type == 'Task'

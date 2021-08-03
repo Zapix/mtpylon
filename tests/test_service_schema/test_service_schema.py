@@ -1,14 +1,8 @@
 # -*- coding: utf-8 -*-
-import struct
-
 import pytest
 
 from mtpylon.service_schema.service_schema import service_schema
 from mtpylon.schema import CombinatorData, FunctionData
-
-
-def to_unsigned_int(value: int) -> int:
-    return struct.unpack('<I', struct.pack('<i', value))[0]
 
 
 service_schema_dict = {
@@ -888,7 +882,7 @@ service_schema_dict = {
     ids=lambda x: f"[{x['type']}] {x['predicate']}"
 )
 def test_constructors(service_constructor):
-    constructor_id = to_unsigned_int(service_constructor['id'])
+    constructor_id = service_constructor['id']
     assert constructor_id in service_schema
 
     data = service_schema[constructor_id]
@@ -908,7 +902,7 @@ def test_constructors(service_constructor):
     ids=lambda x: x['method']
 )
 def test_methods(method):
-    method_id = to_unsigned_int(method['id'])
+    method_id = method['id']
 
     assert method_id in service_schema
 
