@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="mtpylon",
-    version="0.0.1",
+    version="0.0.2",
     author="Aleksandr Aibulatov",
     author_email="zap.aibulatov@gmail.com",
     description="Library to build backend with MTProto protocol",
