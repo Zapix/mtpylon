@@ -3,11 +3,12 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from random import getrandbits
 
-from mtpylon import long
+from mtpylon.types import long
 
 
 def random_long() -> long:
-    return long(getrandbits(64))
+    val_bytes = getrandbits(64).to_bytes(8, 'little')
+    return long(int.from_bytes(val_bytes, 'little', signed=True))
 
 
 def now() -> datetime:
